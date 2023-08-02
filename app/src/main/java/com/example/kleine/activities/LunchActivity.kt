@@ -48,10 +48,7 @@ class LunchActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_lunch)
 
-
-
         supportActionBar?.hide()
-
 
 //        val random = Random.nextInt(from = 10000, until = 99999)
 
@@ -64,11 +61,6 @@ class LunchActivity : AppCompatActivity() {
         val description = "Your bedroom is a sanctuary where you unwind and create your own personal space." +
                 " You deserve to have this space ornamented to help you stay organized, relaxed, and comfortable." +
                 " Bedroom furniture creates utility and helps you be your functional best"
-
-
-
-
-
 
         val category = FURNITURE_CATEGORY
         val price = "300"
