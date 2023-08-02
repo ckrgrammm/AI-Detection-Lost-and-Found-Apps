@@ -68,6 +68,8 @@ class LunchActivity : AppCompatActivity() {
 
 
 
+
+
         val category = FURNITURE_CATEGORY
         val price = "300"
         val newPrice = "229"
