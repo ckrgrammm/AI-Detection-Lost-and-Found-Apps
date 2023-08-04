@@ -131,4 +131,16 @@
     <string name="help">Help</string>
     <string name="help_text">Got a question? We\'re here to answer!</string>
 
+
+    <!-- Difficulty Levels  -->
+    <string-array name="difficulty_levels">
+        <item>Novice</item>
+        <item>Beginners</item>
+        <item>Intermediate</item>
+        <item>Proficient</item>
+        <item>Advanced</item>
+        <item>Expert</item>
+        <item>Master</item>
+    </string-array>
+
 </resources>
