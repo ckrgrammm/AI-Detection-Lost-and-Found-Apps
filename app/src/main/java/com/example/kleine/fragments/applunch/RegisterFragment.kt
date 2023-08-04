@@ -143,9 +143,10 @@ class RegisterFragment : Fragment() {
             return null
         }
 
-
+        // Status is set to USERS by default in User constructor
         return User(firstName, lastName, email)
     }
+
 
     private fun getPassword(): String? {
         val password = binding.edPassword.text.toString().trim()

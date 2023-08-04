@@ -72,10 +72,14 @@ class FirebaseDb {
         email: String, password: String
     ) = firebaseAuth.createUserWithEmailAndPassword(email, password)
 
-    fun saveUserInformation(
-        userUid: String,
-        user: User
-    ) = usersCollectionRef.document(userUid).set(user)
+    fun saveUserInformation(userUid: String, user: User, completion: (Exception?) -> Unit) {
+        usersCollectionRef.document(userUid).set(user)
+            .addOnSuccessListener { completion(null) }
+            .addOnFailureListener { e -> completion(e) }
+    }
+
+
+
 
     fun loginUser(
         email: String,
@@ -396,4 +400,8 @@ class FirebaseDb {
 
 
     fun logout() = Firebase.auth.signOut()
+
+
+
+
 }

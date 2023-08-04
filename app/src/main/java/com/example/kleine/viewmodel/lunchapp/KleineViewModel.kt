@@ -10,14 +10,28 @@ import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.ViewModelProvider
+import com.google.android.gms.tasks.Task
+import com.google.firebase.firestore.DocumentSnapshot
+
 
 class KleineViewModel(
     private val firebaseDatabase: FirebaseDb
+
+
 ) : ViewModel() {
 
 
+
+    private val _currentUser = MutableLiveData<User>()
+    val currentUser: LiveData<User> = _currentUser
+
+    private val usersCollectionRef = FirebaseFirestore.getInstance().collection("users")
+
     val saveUserInformationGoogleSignIn = MutableLiveData<Resource<String>>()
     val register = MutableLiveData<Resource<User>>()
+
 
 
     val login = MutableLiveData<Boolean>()
@@ -25,46 +39,44 @@ class KleineViewModel(
 
     val resetPassword = MutableLiveData<Resource<String>>()
 
-    fun registerNewUser(
-        user: User,
-        password: String
-    ) {
+    fun registerNewUser(user: User, password: String) {
         register.postValue(Resource.Loading())
-        firebaseDatabase.createNewUser(user.email, password).addOnCompleteListener {
-            if (it.isSuccessful)
-                firebaseDatabase.saveUserInformation(Firebase.auth.currentUser!!.uid, user)
-                    .addOnCompleteListener { it2 ->
-                        if (it2.isSuccessful) {
-                            register.postValue(Resource.Success(user))
-                        } else
-                            register.postValue(Resource.Error(it2.exception.toString()))
-
+        firebaseDatabase.createNewUser(user.email, password).addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                firebaseDatabase.saveUserInformation(Firebase.auth.currentUser!!.uid, user) { exception ->
+                    if (exception == null) {
+                        register.postValue(Resource.Success(user))
+                    } else {
+                        register.postValue(Resource.Error(exception.toString()))
                     }
-            else
-                register.postValue(Resource.Error(it.exception.toString()))
+                }
+            } else {
+                task.exception?.let { register.postValue(Resource.Error(it.toString())) }
+            }
         }
     }
 
-    private fun saveUserInformationGoogleSignIn(
-        userUid: String,
-        user: User
-    ) {
+
+    private fun saveUserInformationGoogleSignIn(userUid: String, user: User) {
         firebaseDatabase.checkUserByEmail(user.email) { error, isAccountExisted ->
-            if (error != null)
+            if (error != null) {
                 saveUserInformationGoogleSignIn.postValue(Resource.Error(error))
-            else
-                if (isAccountExisted!!)
+            } else {
+                if (isAccountExisted!!) {
                     saveUserInformationGoogleSignIn.postValue(Resource.Success(userUid))
-                else
-                    firebaseDatabase.saveUserInformation(userUid, user).addOnCompleteListener {
-                        if (it.isSuccessful)
+                } else {
+                    firebaseDatabase.saveUserInformation(userUid, user) { exception ->
+                        if (exception == null) {
                             saveUserInformationGoogleSignIn.postValue(Resource.Success(userUid))
-                        else
-                            saveUserInformationGoogleSignIn.postValue(Resource.Error(it.exception.toString()))
+                        } else {
+                            saveUserInformationGoogleSignIn.postValue(Resource.Error(exception.toString()))
+                        }
                     }
+                }
+            }
         }
-
     }
+
 
 
     fun loginUser(
@@ -123,4 +135,34 @@ class KleineViewModel(
         return false
 
     }
+
+    fun getUser(userId: String): Task<DocumentSnapshot> {
+        return usersCollectionRef.document(userId).get()
+    }
+
+    fun fetchCurrentUser(userId: String) {
+        getUser(userId).addOnSuccessListener { document ->
+            if (document != null) {
+                val user = document.toObject(User::class.java)
+                if (user != null) {
+                    _currentUser.postValue(user)
+                } else {
+                    // Handle the case where the document couldn't be converted to a User
+                    // You could post a null value, an error message, or any other appropriate action
+                    _currentUser.postValue(null)
+                }
+            } else {
+                // Handle the case where the document is null
+                // You could post a null value, an error message, or any other appropriate action
+                _currentUser.postValue(null)
+            }
+        }
+    }
+
+
+
+
+
+
+
 }
