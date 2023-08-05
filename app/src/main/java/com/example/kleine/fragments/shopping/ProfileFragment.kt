@@ -56,6 +56,7 @@ class ProfileFragment : Fragment() {
         onAllOrderClick()
         onTrackOrderClick()
         onLanguageClick()
+        onViewPartnershipClick()
         onHelpClick()
 
         observeProfile()
@@ -74,6 +75,11 @@ class ProfileFragment : Fragment() {
     private fun onLanguageClick() {
         binding.linearLanguage.setOnClickListener {
             findNavController().navigate(R.id.action_profileFragment_to_languageFragment)
+        }
+    }
+    private fun onViewPartnershipClick() {
+        binding.linearViewPartnership.setOnClickListener {
+            findNavController().navigate(R.id.action_profileFragment_to_viewPartnershipFragment)
         }
     }
 

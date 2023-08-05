@@ -76,6 +76,13 @@
             app:popEnterAnim="@anim/from_left"
             app:popExitAnim="@anim/to_right"/>
         <action
+            android:id="@+id/action_profileFragment_to_viewPartnershipFragment"
+            app:destination="@id/viewPartnershipFragment"
+            app:enterAnim="@anim/from_right"
+            app:exitAnim="@anim/to_left"
+            app:popEnterAnim="@anim/from_left"
+            app:popExitAnim="@anim/to_right"/>
+        <action
             android:id="@+id/action_profileFragment_to_helpFragment"
             app:destination="@id/helpFragment"
             app:enterAnim="@anim/from_right"
@@ -213,8 +220,48 @@
         android:label="fragment_language"
         tools:layout="@layout/fragment_language" />
     <fragment
+        android:id="@+id/viewPartnershipFragment"
+        android:name="com.example.kleine.fragments.partnership.ViewPartnershipFragment"
+        android:label="fragment_view_partnership"
+        tools:layout="@layout/fragment_view_partnership">
+        <action
+            android:id="@+id/action_viewPartnershipFragment_to_partnershipViewMaterialFragment"
+            app:destination="@id/partnershipViewMaterialFragment"
+            app:enterAnim="@anim/from_right"
+            app:exitAnim="@anim/to_left"
+            app:popEnterAnim="@anim/from_left"
+            app:popExitAnim="@anim/to_right"/>
+    </fragment>
+    <fragment
         android:id="@+id/helpFragment"
         android:name="com.example.kleine.fragments.settings.HelpFragment"
         android:label="HelpFragment"
         tools:layout="@layout/fragment_help"/>
+    <fragment
+        android:id="@+id/partnershipViewMaterialFragment"
+        android:name="com.example.kleine.fragments.partnership.PartnershipViewMaterialFragment"
+        android:label="fragment_partnership_view_material"
+        tools:layout="@layout/fragment_partnership_view_material" >
+        <action
+            android:id="@+id/action_partnershipViewMaterialFragment_to_partnershipViewMaterialDetailFragment"
+            app:destination="@id/partnershipViewMaterialDetailFragment"
+            app:enterAnim="@anim/from_right"
+            app:exitAnim="@anim/to_left"
+            app:popEnterAnim="@anim/from_left"
+            app:popExitAnim="@anim/to_right" />
+    </fragment>
+    <fragment
+        android:id="@+id/partnershipViewMaterialDetailFragment"
+        android:name="com.example.kleine.fragments.partnership.PartnershipViewMaterialDetailFragment"
+        android:label="fragment_partnership_view_material_detail"
+        tools:layout="@layout/fragment_partnership_view_material_detail" >
+        <action
+            android:id="@+id/action_partnershipViewMaterialDetailFragment_to_replyCommentFragment"
+            app:destination="@id/replyCommentFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/replyCommentFragment"
+        android:name="com.example.kleine.fragments.partnership.ReplyCommentFragment"
+        android:label="fragment_reply_comment"
+        tools:layout="@layout/fragment_reply_comment" />
 </navigation>

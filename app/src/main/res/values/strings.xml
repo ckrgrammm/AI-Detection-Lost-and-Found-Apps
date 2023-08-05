@@ -92,8 +92,10 @@
     <string name="g_all_orders">All Courses</string>
     <string name="g__track_order">Enrolled Courses</string>
     <string name="g_notifications">Notifications</string>
-    <string name="g_regional">Regional</string>
-    <string name="g_language">Language</string>
+    <string name="g_information">Information</string>
+
+    <string name="g_regional">Preferences</string>
+    <string name="g_language">Join Partnership</string>
     <string name="g_logout">Logout</string>
     <string name="g_billing">Billing And Addresses</string>
     <string name="g_version">Version</string>
@@ -128,5 +130,17 @@
     <string name="pending_orders">Pending Orders</string>
     <string name="help">Help</string>
     <string name="help_text">Got a question? We\'re here to answer!</string>
+
+
+    <!-- Difficulty Levels  -->
+    <string-array name="difficulty_levels">
+        <item>Novice</item>
+        <item>Beginners</item>
+        <item>Intermediate</item>
+        <item>Proficient</item>
+        <item>Advanced</item>
+        <item>Expert</item>
+        <item>Master</item>
+    </string-array>
 
 </resources>

@@ -23,11 +23,22 @@
     <color name="g_text_hint">#969899</color>
     <color name="g_orange">#F8BA00</color>
 
-<!--    quiz-->
+    <color name="primary">#6A7CFF</color>
+    <color name="background">#F7F7FA</color>
+    <color name="card_background">#FFFFFF</color>
+    <color name="primary_text">#6A7CFF</color>
+    <color name="secondary_text">#6A7CFF</color>
+    <color name="dashboard_item">#6A7CFF</color>
+    <color name="fail_quiz">#FF0000</color>
+    <color name="pass_quiz">#00BD00</color>
+    <color name="green">#00FF00</color>
+    <color name="view_data">#CD6A7CFF</color>
+
+    <!--    quiz-->
     <color name="primary_color">#565cce</color>
     <color name="second_color">#8d92fa</color>
 
-<!--admin dashboard-->
+    <!--admin dashboard-->
     <color name="red">#FF055A</color>
     <color name="on">#01ff5a</color>
     <color name="splash_text">#7ffb00</color>
