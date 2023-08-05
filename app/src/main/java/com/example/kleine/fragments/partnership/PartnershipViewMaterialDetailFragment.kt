@@ -17,6 +17,7 @@ import com.example.kleine.activities.LunchActivity
 import com.example.kleine.activities.ShoppingActivity
 import com.example.kleine.databinding.FragmentProfileBinding
 import com.example.kleine.databinding.FragmentViewPartnershipBinding
+import com.example.kleine.databinding.FragmentPartnershipViewMaterialDetailBinding
 import com.example.kleine.model.User
 import com.example.kleine.resource.Resource
 import com.example.kleine.util.Constants.Companion.UPDATE_ADDRESS_FLAG
@@ -26,23 +27,20 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 
 
-class ViewPartnershipFragment : Fragment() {
-    val TAG = "ViewPartnershipFragment"
-    private lateinit var binding: FragmentViewPartnershipBinding
-    private lateinit var viewModel: ShoppingViewModel
+class PartnershipViewMaterialDetailFragment : Fragment() {
+    val TAG = "PartnershipViewMaterialDetailFragment"
+    private lateinit var binding: FragmentPartnershipViewMaterialDetailBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        viewModel = (activity as ShoppingActivity).viewModel
-        viewModel.getUser()
     }
 
     override fun onCreateView (
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentViewPartnershipBinding.inflate(inflater, container, false)
+        binding = FragmentPartnershipViewMaterialDetailBinding.inflate(inflater, container, false)
 
         return binding.root
     }
@@ -50,15 +48,15 @@ class ViewPartnershipFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        onViewMaterialClick()
+//        onViewMaterialClick()
 
     }
 
-    private fun onViewMaterialClick() {
-        binding.viewMaterial.setOnClickListener {
-            findNavController().navigate(R.id.action_viewPartnershipFragment_to_partnershipViewMaterialFragment)
-        }
-    }
+//    private fun onViewMaterialClick() {
+//        binding.viewMaterial.setOnClickListener {
+//            findNavController().navigate(R.id.action_viewPartnershipFragment_to_partnershipViewMaterialFragment)
+//        }
+//    }
 
 
 
