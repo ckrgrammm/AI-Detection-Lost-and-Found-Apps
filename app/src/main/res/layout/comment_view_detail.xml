@@ -153,7 +153,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/commentTextAmount"
+                android:id="@+id/commentReply"
                 android:text="reply"
                 android:paddingLeft="4dp"
                 android:paddingRight="4dp"
@@ -174,7 +174,7 @@
                 android:textColor="@color/primary_text"
                 android:textSize="12sp"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/commentTextAmount"
+                app:layout_constraintEnd_toStartOf="@+id/commentReply"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
@@ -242,7 +242,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/commentTextAmount2"
+                android:id="@+id/commentReply2"
                 android:text="reply"
                 android:paddingLeft="4dp"
                 android:paddingRight="4dp"
@@ -263,7 +263,7 @@
                 android:textColor="@color/primary_text"
                 android:textSize="12sp"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/commentTextAmount2"
+                app:layout_constraintEnd_toStartOf="@+id/commentReply2"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
@@ -331,7 +331,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/commentTextAmount3"
+                android:id="@+id/commentReply3"
                 android:text="reply"
                 android:paddingLeft="4dp"
                 android:paddingRight="4dp"
@@ -352,7 +352,7 @@
                 android:textColor="@color/primary_text"
                 android:textSize="12sp"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/commentTextAmount3"
+                app:layout_constraintEnd_toStartOf="@+id/commentReply3"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView

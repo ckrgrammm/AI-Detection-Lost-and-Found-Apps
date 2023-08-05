@@ -254,5 +254,14 @@
         android:id="@+id/partnershipViewMaterialDetailFragment"
         android:name="com.example.kleine.fragments.partnership.PartnershipViewMaterialDetailFragment"
         android:label="fragment_partnership_view_material_detail"
-        tools:layout="@layout/fragment_partnership_view_material_detail" />
+        tools:layout="@layout/fragment_partnership_view_material_detail" >
+        <action
+            android:id="@+id/action_partnershipViewMaterialDetailFragment_to_replyCommentFragment"
+            app:destination="@id/replyCommentFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/replyCommentFragment"
+        android:name="com.example.kleine.fragments.partnership.ReplyCommentFragment"
+        android:label="fragment_reply_comment"
+        tools:layout="@layout/fragment_reply_comment" />
 </navigation>
