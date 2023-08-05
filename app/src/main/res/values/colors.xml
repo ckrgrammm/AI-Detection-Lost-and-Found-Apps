@@ -23,5 +23,21 @@
     <color name="g_text_hint">#969899</color>
     <color name="g_orange">#F8BA00</color>
 
+<!--    quiz-->
+    <color name="primary_color">#565cce</color>
+    <color name="second_color">#8d92fa</color>
+
+<!--admin dashboard-->
+    <color name="red">#FF055A</color>
+    <color name="on">#01ff5a</color>
+    <color name="splash_text">#7ffb00</color>
+    <color name="yellow">#ffb300</color>
+    <color name="green1">#00bfa5</color>
+    <color name="pink">#D242EC</color>
+    <color name="news">#C3D607</color>
+    <color name="blue">#72b6e7</color>
+    <color name="lightGray">#c1c1c1</color>
+    <color name="textColor">#121212</color>
+
 
 </resources>

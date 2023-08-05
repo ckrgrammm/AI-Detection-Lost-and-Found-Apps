@@ -39,4 +39,9 @@
     <item name="android:windowSoftInputMode">adjustResize</item>
     </style>
 
+<!--quiz-->
+    <style name="Widget.Kleine.Button" parent="Widget.MaterialComponents.Button">
+        <item name="backgroundTint">@null</item>
+    </style>
+
 </resources>
