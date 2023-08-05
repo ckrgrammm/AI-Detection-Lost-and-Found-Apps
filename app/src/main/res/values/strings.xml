@@ -131,6 +131,17 @@
     <string name="help">Help</string>
     <string name="help_text">Got a question? We\'re here to answer!</string>
 
+    <!-- voucher -->
+    <string name="titleVoucher">Select Voucher</string>
+    <string name="okButton">OK</string>
+    <string name="voucherName">Voucher Name</string>
+    <string name="voucherExpired">Voucher Expired Date</string>
+    <string name="labelVoucherExpiredDate">Expired Date: </string>
+    <string name="voucherTermsCondition">Terms and Conditions</string>
+    <string name="labelShippingVoucher">Voucher(s) can be selected: </string>
+    <string name="voucherCodeHint">Enter Voucher Code</string>
+    <string name="noVoucherMsg">No voucher available!</string>
+
 
     <!-- Difficulty Levels  -->
     <string-array name="difficulty_levels">
