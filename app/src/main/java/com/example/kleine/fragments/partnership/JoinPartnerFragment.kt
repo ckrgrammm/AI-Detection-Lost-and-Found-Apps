@@ -11,10 +11,13 @@ import android.widget.Toast
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
+import com.example.kleine.BuildConfig
 import com.example.kleine.R
 import com.example.kleine.activities.LunchActivity
 import com.example.kleine.activities.ShoppingActivity
+import com.example.kleine.databinding.FragmentJoinPartnerBinding
 import com.example.kleine.databinding.FragmentProfileBinding
+import com.example.kleine.databinding.FragmentReplyCommentBinding
 import com.example.kleine.databinding.FragmentViewPartnershipBinding
 import com.example.kleine.model.User
 import com.example.kleine.resource.Resource
@@ -25,9 +28,9 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 
 
-class ViewPartnershipFragment : Fragment() {
-    val TAG = "ViewPartnershipFragment"
-    private lateinit var binding: FragmentViewPartnershipBinding
+class JoinPartnerFragment : Fragment() {
+    val TAG = "JoinPartnerFragment"
+    private lateinit var binding: FragmentJoinPartnerBinding
     private lateinit var viewModel: ShoppingViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,7 +44,7 @@ class ViewPartnershipFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentViewPartnershipBinding.inflate(inflater, container, false)
+        binding = FragmentJoinPartnerBinding.inflate(inflater, container, false)
 
         return binding.root
     }
@@ -49,14 +52,14 @@ class ViewPartnershipFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        onViewMaterialClick()
+//        onViewMaterialClick()
 
     }
 
     private fun onViewMaterialClick() {
-        binding.viewMaterial.setOnClickListener {
-            findNavController().navigate(R.id.action_viewPartnershipFragment_to_partnershipViewMaterialFragment)
-        }
+//        binding.viewMaterial.setOnClickListener {
+//            findNavController().navigate(R.id.action_viewPartnershipFragment_to_partnershipViewMaterialFragment)
+//        }
     }
 
 

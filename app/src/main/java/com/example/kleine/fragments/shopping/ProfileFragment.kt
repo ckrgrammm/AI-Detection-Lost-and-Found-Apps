@@ -55,8 +55,9 @@ class ProfileFragment : Fragment() {
         onProfileClick()
         onAllOrderClick()
         onTrackOrderClick()
-        onLanguageClick()
+        onJoinPartnershipCLick()
         onViewPartnershipClick()
+        onAdminClick()
         onHelpClick()
 
         observeProfile()
@@ -71,10 +72,16 @@ class ProfileFragment : Fragment() {
         }
     }
 
+    private fun onAdminClick() {
+        binding.linearAdmin.setOnClickListener {
+            findNavController().navigate(R.id.action_profileFragment_to_adminDashboardFragment)
+        }
+    }
 
-    private fun onLanguageClick() {
-        binding.linearLanguage.setOnClickListener {
-            findNavController().navigate(R.id.action_profileFragment_to_languageFragment)
+
+    private fun onJoinPartnershipCLick() {
+        binding.linearJoinPartnership.setOnClickListener {
+            findNavController().navigate(R.id.action_profileFragment_to_joinPartnerFragment)
         }
     }
     private fun onViewPartnershipClick() {
