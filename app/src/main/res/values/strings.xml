@@ -62,9 +62,9 @@
     <string name="g_yes">Yes</string>
     <string name="g_categories">Categories</string>
     <string name="g_cancel">Cancel</string>
-    <string name="g_payment_methods">Payment methods</string>
-    <string name="payment_explanation">Currently Keline only supports payments when receiving the product, more options are coming soon.</string>
-    <string name="g_shipping">Shipping</string>
+    <string name="g_payment_methods">Redeem Reward</string>
+    <string name="payment_explanation">Congratulations on completing one of our courses ! Kindly entered your address to redeem the reward ! </string>
+    <string name="g_shipping">Address</string>
     <string name="g_full_name">Full Name</string>
     <string name="g_city">City</string>
     <string name="g_phone">Phone</string>
@@ -73,7 +73,7 @@
     <string name="g_address">Address</string>
     <string name="g_address_location_ie_home">Address Location ie. Home</string>
     <string name="g_update">Update</string>
-    <string name="g_place_order">Place Order</string>
+    <string name="g_place_order">Save</string>
     <string name="g_delete">Delete</string>
     <string name="g_select_address_error">Select or add new address !</string>
     <string name="g_place_order_confirmation">Are you sure you want to place this order ?</string>
