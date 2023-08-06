@@ -50,6 +50,7 @@ class ViewPartnershipFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         onViewMaterialClick()
+        onUpdatePartnershipClick()
 
     }
 
@@ -59,6 +60,11 @@ class ViewPartnershipFragment : Fragment() {
         }
     }
 
+    private fun onUpdatePartnershipClick() {
+        binding.updatePartnership.setOnClickListener {
+            findNavController().navigate(R.id.action_viewPartnershipFragment_to_updatePartnershipFragment)
+        }
+    }
 
 
 }

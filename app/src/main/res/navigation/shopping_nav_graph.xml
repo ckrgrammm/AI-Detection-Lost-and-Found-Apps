@@ -245,6 +245,13 @@
             app:exitAnim="@anim/to_left"
             app:popEnterAnim="@anim/from_left"
             app:popExitAnim="@anim/to_right"/>
+        <action
+            android:id="@+id/action_viewPartnershipFragment_to_updatePartnershipFragment"
+            app:destination="@id/updatePartnershipFragment"
+            app:enterAnim="@anim/from_right"
+            app:exitAnim="@anim/to_left"
+            app:popEnterAnim="@anim/from_left"
+            app:popExitAnim="@anim/to_right"/>
     </fragment>
     <fragment
         android:id="@+id/helpFragment"
@@ -314,4 +321,9 @@
         android:name="com.example.kleine.fragments.admin.AdminViewPartnershipRequestFragment"
         android:label="fragment_admin_view_partnership_request"
         tools:layout="@layout/fragment_admin_view_partnership_request" />
+    <fragment
+        android:id="@+id/updatePartnershipFragment"
+        android:name="com.example.kleine.fragments.partnership.UpdatePartnershipFragment"
+        android:label="UpdatePartnershipFragment"
+        tools:layout="@layout/fragment_update_partnership"/>
 </navigation>

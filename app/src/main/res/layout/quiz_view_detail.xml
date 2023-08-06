@@ -227,7 +227,7 @@
         android:id="@+id/firstImg"
         android:layout_width="50dp"
         android:layout_height="50dp"
-        app:cardBackgroundColor="@color/dashboard_item"
+        app:cardBackgroundColor="@color/secondary_text"
         app:cardCornerRadius="14dp"
         android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp"
@@ -238,7 +238,7 @@
 
         <androidx.appcompat.widget.AppCompatImageView
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="30dp"
             android:layout_margin="8dp"
             android:src="@drawable/ic_launcher_foreground"
             app:tint="@color/white" />
@@ -314,7 +314,7 @@
         android:id="@+id/secondImg"
         android:layout_width="50dp"
         android:layout_height="50dp"
-        app:cardBackgroundColor="@color/dashboard_item"
+        app:cardBackgroundColor="@color/secondary_text"
         app:cardCornerRadius="14dp"
         android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp"
@@ -400,7 +400,7 @@
         android:id="@+id/thirdImg"
         android:layout_width="50dp"
         android:layout_height="50dp"
-        app:cardBackgroundColor="@color/dashboard_item"
+        app:cardBackgroundColor="@color/secondary_text"
         app:cardCornerRadius="14dp"
         android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp"

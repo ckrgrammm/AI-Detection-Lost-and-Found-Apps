@@ -96,7 +96,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/view"
         android:src="@drawable/ic_launcher_foreground"
-        android:background="@drawable/ic_launcher_background"/>
+        android:background="@color/black"/>
 
     <EditText
 
@@ -121,8 +121,8 @@
         android:layout_marginLeft="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
-        android:background="@drawable/edittext_button_style_rounded"
         android:text="Reply"
+        android:backgroundTint="@color/black"
         app:layout_constraintBottom_toBottomOf="@+id/post_detail_comment"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -140,6 +140,6 @@
         app:layout_constraintStart_toEndOf="@+id/comment_detail_date_name"
         app:layout_constraintTop_toTopOf="@+id/comment_detail_date_name"
         android:src="@drawable/ic_launcher_foreground"
-        android:background="@drawable/ic_launcher_background" />
+        android:background="@color/black" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
