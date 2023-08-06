@@ -73,7 +73,7 @@ class ProductPreviewFragment : Fragment() {
         setupSizesRecyclerview()
 
 
-        setProductInformation(product)
+//        setProductInformation(product)
 
         onImageCloseClick()
         onBtnAddToCartClick()
