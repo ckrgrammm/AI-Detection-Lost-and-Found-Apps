@@ -180,37 +180,37 @@ class ProductPreviewFragment : Fragment() {
         }
     }
 
-    @SuppressLint("SetTextI18n")
-    private fun setProductInformation(product: Product) {
-        val imagesList = product.images!![IMAGES] as List<String>
-        val colors = product.colors!![COLORS] as List<String>
-        val sizes = product.sizes!![SIZES] as List<String>
-        binding.apply {
-            viewPagerAdapter.differ.submitList(imagesList)
-            if (colors.isNotEmpty() && colors[0] != "")
-                colorsAdapter.differ.submitList(colors.toList())
-            if (sizes.isNotEmpty() && sizes[0] != "")
-                sizesAdapter.differ.submitList(sizes)
-            tvProductName.text = product.title
-            tvProductDescription.text = product.description
-            tvProductPrice.text = "$${product.price}"
-            tvProductOfferPrice.visibility = View.GONE
-            product.newPrice?.let {
-                if (product.newPrice.isNotEmpty() && product.newPrice != "0") {
-                    tvProductPrice.paintFlags =
-                        tvProductPrice.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
-                    tvProductOfferPrice.text = "$${product.newPrice}"
-                    tvProductOfferPrice.visibility = View.VISIBLE
-                }
-            }
-            product.sizeUnit?.let {
-                if (it.isNotEmpty()) {
-                    binding.tvSizeUnit.visibility = View.VISIBLE
-                    binding.tvSizeUnit.text = " ($it)"
-                }
-            }
-        }
-    }
+//    @SuppressLint("SetTextI18n")
+//    private fun setProductInformation(product: Product) {
+//        val imagesList = product.images!![IMAGES] as List<String>
+//        val colors = product.colors!![COLORS] as List<String>
+//        val sizes = product.sizes!![SIZES] as List<String>
+//        binding.apply {
+//            viewPagerAdapter.differ.submitList(imagesList)
+//            if (colors.isNotEmpty() && colors[0] != "")
+//                colorsAdapter.differ.submitList(colors.toList())
+//            if (sizes.isNotEmpty() && sizes[0] != "")
+//                sizesAdapter.differ.submitList(sizes)
+//            tvProductName.text = product.title
+//            tvProductDescription.text = product.description
+//            tvProductPrice.text = "$${product.price}"
+//            tvProductOfferPrice.visibility = View.GONE
+//            product.newPrice?.let {
+//                if (product.newPrice.isNotEmpty() && product.newPrice != "0") {
+//                    tvProductPrice.paintFlags =
+//                        tvProductPrice.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+//                    tvProductOfferPrice.text = "$${product.newPrice}"
+//                    tvProductOfferPrice.visibility = View.VISIBLE
+//                }
+//            }
+//            product.sizeUnit?.let {
+//                if (it.isNotEmpty()) {
+//                    binding.tvSizeUnit.visibility = View.VISIBLE
+//                    binding.tvSizeUnit.text = " ($it)"
+//                }
+//            }
+//        }
+//    }
 
     private fun setupSizesRecyclerview() {
         binding.rvSizes.apply {
