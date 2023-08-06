@@ -44,9 +44,8 @@ class HomeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
 
-        binding.frameScan.setOnClickListener {
-            val snackBar = requireActivity().findViewById<CoordinatorLayout>(R.id.snackBar_coordinator)
-            Snackbar.make(snackBar,resources.getText(R.string.g_coming_soon), Snackbar.LENGTH_SHORT).show()
+        binding.frameAdd.setOnClickListener {
+//            findNavController().navigate(R.id.action_homeFragment_to_joinPartnerFragment)
         }
         binding.fragmeMicrohpone.setOnClickListener {
             val snackBar = requireActivity().findViewById<CoordinatorLayout>(R.id.snackBar_coordinator)

@@ -1,4 +1,4 @@
-package com.example.kleine.fragments.partnership
+package com.example.kleine.fragments.admin
 
 import android.content.Intent
 import android.os.Bundle
@@ -11,10 +11,15 @@ import android.widget.Toast
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
+import com.example.kleine.BuildConfig
 import com.example.kleine.R
 import com.example.kleine.activities.LunchActivity
 import com.example.kleine.activities.ShoppingActivity
+import com.example.kleine.databinding.FragmentAdminDashboardBinding
+import com.example.kleine.databinding.FragmentAdminViewPartnershipBinding
+import com.example.kleine.databinding.FragmentJoinPartnerBinding
 import com.example.kleine.databinding.FragmentProfileBinding
+import com.example.kleine.databinding.FragmentReplyCommentBinding
 import com.example.kleine.databinding.FragmentViewPartnershipBinding
 import com.example.kleine.model.User
 import com.example.kleine.resource.Resource
@@ -25,9 +30,9 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 
 
-class ViewPartnershipFragment : Fragment() {
-    val TAG = "ViewPartnershipFragment"
-    private lateinit var binding: FragmentViewPartnershipBinding
+class AdminViewPartnershipFragment : Fragment() {
+    val TAG = "AdminViewPartnershipFragment"
+    private lateinit var binding: FragmentAdminViewPartnershipBinding
     private lateinit var viewModel: ShoppingViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,7 +46,7 @@ class ViewPartnershipFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentViewPartnershipBinding.inflate(inflater, container, false)
+        binding = FragmentAdminViewPartnershipBinding.inflate(inflater, container, false)
 
         return binding.root
     }
@@ -49,13 +54,13 @@ class ViewPartnershipFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        onViewMaterialClick()
+        onViewRequestClick()
 
     }
 
-    private fun onViewMaterialClick() {
-        binding.viewMaterial.setOnClickListener {
-            findNavController().navigate(R.id.action_viewPartnershipFragment_to_partnershipViewMaterialFragment)
+    private fun onViewRequestClick() {
+        binding.viewRequest.setOnClickListener {
+            findNavController().navigate(R.id.action_adminViewPartnershipFragment_to_adminViewPartnershipRequestFragment)
         }
     }
 

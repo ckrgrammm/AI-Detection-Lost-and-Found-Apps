@@ -89,6 +89,20 @@
             app:exitAnim="@anim/to_left"
             app:popEnterAnim="@anim/from_left"
             app:popExitAnim="@anim/to_right"/>
+        <action
+            android:id="@+id/action_profileFragment_to_joinPartnerFragment"
+            app:destination="@id/joinPartnerFragment"
+            app:enterAnim="@anim/from_right"
+            app:exitAnim="@anim/to_left"
+            app:popEnterAnim="@anim/from_left"
+            app:popExitAnim="@anim/to_right"/>
+        <action
+            android:id="@+id/action_profileFragment_to_adminDashboardFragment"
+            app:destination="@id/adminDashboardFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim"/>
     </fragment>
     <fragment
         android:id="@+id/cartFragment"
@@ -257,11 +271,47 @@
         tools:layout="@layout/fragment_partnership_view_material_detail" >
         <action
             android:id="@+id/action_partnershipViewMaterialDetailFragment_to_replyCommentFragment"
-            app:destination="@id/replyCommentFragment" />
+            app:destination="@id/replyCommentFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim"/>
     </fragment>
     <fragment
         android:id="@+id/replyCommentFragment"
         android:name="com.example.kleine.fragments.partnership.ReplyCommentFragment"
         android:label="fragment_reply_comment"
         tools:layout="@layout/fragment_reply_comment" />
+    <fragment
+        android:id="@+id/joinPartnerFragment"
+        android:name="com.example.kleine.fragments.partnership.JoinPartnerFragment"
+        android:label="fragment_join__partner_"
+        tools:layout="@layout/fragment_join__partner_" />
+    <fragment
+        android:id="@+id/adminDashboardFragment"
+        android:name="com.example.kleine.fragments.admin.AdminDashboardFragment"
+        android:label="fragment_admin_dashboard"
+        tools:layout="@layout/fragment_admin_dashboard" >
+        <action
+            android:id="@+id/action_adminDashboardFragment_to_adminViewPartnershipFragment"
+            app:destination="@id/adminViewPartnershipFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim"/>
+    </fragment>
+    <fragment
+        android:id="@+id/adminViewPartnershipFragment"
+        android:name="com.example.kleine.fragments.admin.AdminViewPartnershipFragment"
+        android:label="fragment_admin_view_partnership"
+        tools:layout="@layout/fragment_admin_view_partnership" >
+        <action
+            android:id="@+id/action_adminViewPartnershipFragment_to_adminViewPartnershipRequestFragment"
+            app:destination="@id/adminViewPartnershipRequestFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/adminViewPartnershipRequestFragment"
+        android:name="com.example.kleine.fragments.admin.AdminViewPartnershipRequestFragment"
+        android:label="fragment_admin_view_partnership_request"
+        tools:layout="@layout/fragment_admin_view_partnership_request" />
 </navigation>
