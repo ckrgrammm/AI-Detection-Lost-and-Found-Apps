@@ -4,4 +4,5 @@
     <item name="quiz_layout" type="id" />
     <item name="cardHeader" type="id" />
     <item name="view_material" type="id" />
+    <item name="viewpager_home" type="id" />
 </resources>

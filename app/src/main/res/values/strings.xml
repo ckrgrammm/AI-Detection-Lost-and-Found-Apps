@@ -47,7 +47,7 @@
     <string name="g_see_product">See product</string>
     <string name="g_color">Color</string>
     <string name="g_size">Size</string>
-    <string name="g_add_to_card">Add to Card</string>
+    <string name="g_add_to_card">Enroll Courses</string>
     <string name="g_added">Added</string>
     <string name="g_already_added">Product is in your cart</string>
     <string name="g_please_select_color">Please select color</string>
@@ -141,6 +141,14 @@
     <string name="labelShippingVoucher">Voucher(s) can be selected: </string>
     <string name="voucherCodeHint">Enter Voucher Code</string>
     <string name="noVoucherMsg">No voucher available!</string>
+    <string name="g_difficultyLevel">Level : </string>
+    <string name="g_totalChapter">Chapter : </string>
+    <string name="g_product_name_label">Material Name</string>
+
+    <string name="voucherName">Voucher</string>
+    <string name="voucherExpired">Voucher Expired Date</string>
+
+
 
 
     <!-- Difficulty Levels  -->
