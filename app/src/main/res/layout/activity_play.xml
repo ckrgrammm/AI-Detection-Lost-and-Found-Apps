@@ -71,7 +71,7 @@
         android:fontFamily="@font/chakrapetchbold"
         android:textSize="20sp"
         android:padding="12sp"
-        android:background="@color/primary_color"
+        android:background="@color/black"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

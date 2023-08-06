@@ -20,7 +20,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginTop="16dp"
-            android:text="@string/voucherName"
+            android:text="@string/rewardName"
             app:layout_constraintStart_toStartOf="@+id/guideline3"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -46,7 +46,7 @@
             android:layout_width="wrap_content"
             android:layout_height="25dp"
             android:layout_marginStart="8dp"
-            android:text="@string/voucherExpired"
+            android:text="@string/rewardExpired"
             android:textColor="#BEA9A9"
             app:layout_constraintBottom_toBottomOf="@+id/textViewLabelVoucherExpiredDate"
             app:layout_constraintStart_toEndOf="@+id/textViewLabelVoucherExpiredDate"
@@ -84,6 +84,7 @@
             android:drawableEnd="@drawable/point"
             android:text="50"
             android:textStyle="bold"
+            android:backgroundTint="#FF5200"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
