@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <style name="regular_style">
+        <item name="android:textSize">@dimen/size_16</item>
+        <item name="android:color">@color/black</item>
+    </style>
+
 
     <style name="BigTextViewThin">
         <item name="android:textColor">#4b4f60</item>
@@ -43,5 +48,40 @@
     <style name="Widget.Kleine.Button" parent="Widget.MaterialComponents.Button">
         <item name="backgroundTint">@null</item>
     </style>
+
+    <style name="style_card_image">
+        <item name="android:layout_width">@dimen/_65sdp</item>
+        <item name="android:layout_height">@dimen/_65sdp</item>
+        <item name="android:layout_marginTop">@dimen/_14sdp</item>
+        <item name="android:layout_marginBottom">@dimen/_14sdp</item>
+        <item name="android:layout_marginStart">@dimen/_14sdp</item>
+    </style>
+
+    <style name="style_heart">
+        <item name="android:layout_width">@dimen/_14sdp</item>
+        <item name="android:layout_height">@dimen/_14sdp</item>
+        <item name="android:layout_marginEnd">@dimen/_12sdp</item>
+        <item name="android:background">@drawable/ic_heart</item>
+    </style>
+
+    <style name="style_text_white_small" parent="regular_style">
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textSize">@dimen/_10ssp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+
+    <style name="style_text_black_norm" parent="regular_style">
+        <item name="android:textColor">@color/black</item>
+        <item name="android:textSize">@dimen/_14ssp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="style_primaryColor_bold" parent="regular_style">
+        <item name="android:textColor">@color/colorPrimary</item>
+        <item name="android:textSize">@dimen/_16ssp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
 
 </resources>

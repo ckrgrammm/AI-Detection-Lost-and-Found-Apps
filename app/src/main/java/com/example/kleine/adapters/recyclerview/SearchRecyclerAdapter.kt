@@ -18,7 +18,7 @@ class SearchRecyclerAdapter : RecyclerView.Adapter<SearchRecyclerAdapter.SearchV
 
     private val diffCallback = object : DiffUtil.ItemCallback<Product>() {
         override fun areItemsTheSame(oldItem: Product, newItem: Product): Boolean {
-            return oldItem.id == newItem.id && oldItem.title == newItem.title
+            return oldItem.id == newItem.id && oldItem.description == newItem.description
         }
 
         override fun areContentsTheSame(oldItem: Product, newItem: Product): Boolean {
@@ -39,7 +39,7 @@ class SearchRecyclerAdapter : RecyclerView.Adapter<SearchRecyclerAdapter.SearchV
     }
 
     override fun onBindViewHolder(holder: SearchViewHolder, position: Int) {
-        holder.binding.tvSearchedWord.text = differ.currentList[position].title
+        holder.binding.tvSearchedWord.text = differ.currentList[position].description
         holder.itemView.setOnClickListener {
             onItemClick?.invoke(differ.currentList[position])
         }

@@ -588,15 +588,22 @@ class ShoppingViewModel(
     }
 
     fun uploadProfileImage(image: ByteArray) {
+        Log.d("ViewModel", "Image byte array size: ${image.size}")
         uploadProfileImage.postValue(Resource.Loading())
         val name = UUID.nameUUIDFromBytes(image).toString()
+        Log.d("ViewModel", "Generated UUID: $name")
+
         firebaseDatabase.uploadUserProfileImage(image, name).addOnCompleteListener {
-            if (it.isSuccessful)
+            if (it.isSuccessful) {
+                Log.d("ViewModel", "Upload successful with name: $name")
                 uploadProfileImage.postValue(Resource.Success(name))
-            else
+            } else {
+                Log.e("ViewModel", "Upload failed: ${it.exception}")
                 uploadProfileImage.postValue(Resource.Error(it.exception.toString()))
+            }
         }
     }
+
 
     fun updateInformation(firstName: String, lastName: String, email: String, imageName: String) {
         updateUserInformation.postValue(Resource.Loading())

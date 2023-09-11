@@ -16,6 +16,7 @@ data class User(
     var status: Status = Status.USERS
 ): Parcelable {
 
-    constructor() : this("","","","")
+    constructor() : this("","","","", Status.USERS)
 
 }
+

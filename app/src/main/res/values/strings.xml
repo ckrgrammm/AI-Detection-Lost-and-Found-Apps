@@ -150,6 +150,18 @@
 
 
 
+    <!-- Card View  -->
+
+    <string name="string_productCategory">Course Category</string>
+    <string name="string_productTitle">Course Title</string>
+    <string name="string_productPrice">Product Price</string>
+    <string name="string_productRate">4.9</string>
+    <string name="string_rate">Rate</string>
+    <string name="string_product_image">Course Image</string>
+    <string name="string_fav">Favourite</string>
+
+
+
 
     <!-- Difficulty Levels  -->
     <string-array name="difficulty_levels">

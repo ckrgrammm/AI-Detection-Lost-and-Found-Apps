@@ -59,11 +59,7 @@ class LoginFragment : Fragment() {
         onDontHaveAccountClick()
         onForgotPasswordClick()
         observeResetPassword()
-        binding.btnFacebook.setOnClickListener {
-            Snackbar.make(requireView(),resources.getText(R.string.g_coming_soon),Snackbar.LENGTH_SHORT).show()
-        }
 
-        onFacebookSignIn()
         observeSaveUserInformation()
         binding.btnLoginFragment.apply {
             btnLogin.spinningBarColor = resources.getColor(R.color.white)
@@ -71,20 +67,7 @@ class LoginFragment : Fragment() {
         }
     }
 
-    private fun onFacebookSignIn() {
 
-        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(getString(R.string.default_web_client_id))
-            .requestEmail()
-            .build()
-
-        val googleSignInClient = GoogleSignIn.getClient(requireActivity(), gso)
-
-        binding.btnGoogle.setOnClickListener {
-            val signInIntent = googleSignInClient.signInIntent
-            startActivityForResult(signInIntent, GOOGLE_REQ_CODE)
-        }
-    }
 
     private fun observeResetPassword() {
         viewModel.resetPassword.observe(viewLifecycleOwner, Observer { response ->

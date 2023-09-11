@@ -197,6 +197,8 @@ class EditUserInformationFragment : Fragment() {
                         Toast.LENGTH_SHORT
                     ).show()
                     Log.e(TAG, response.message.toString())
+
+
                     return@observe
                 }
             }

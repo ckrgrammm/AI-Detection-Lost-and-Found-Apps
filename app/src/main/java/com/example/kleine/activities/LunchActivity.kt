@@ -76,6 +76,11 @@ class LunchActivity : AppCompatActivity() {
 
         )
 
+
+        val productPrice: Float? = price.toFloatOrNull()  // Renamed from price to productPrice
+        val productRate: Float? = null  // You might want to get the actual rate here
+
+
         images.put(IMAGES,imagesList.toList())
 
         val colors = HashMap<String,Any>()
@@ -93,11 +98,25 @@ class LunchActivity : AppCompatActivity() {
 
         sizes.put(SIZES,sizesList.toList())
 
-        val prodcut = Product(1208025,title, description, category, newPrice,price, seller, images, colors, sizes,orders,null,sizeUnit)
-
+        val product = Product(
+            id = 1208025,
+            productName = title,
+            description = description,
+            productCategory = category,
+            newPrice = newPrice,
+            productPrice = productPrice.toString(),
+            productRate = productRate,
+            seller = seller,
+            images = images,
+            colors = colors,
+            sizes = sizes,
+            orders = orders,
+            offerTime = null,
+            sizeUnit = sizeUnit
+        )
         Firebase.firestore.collection(PRODUCTS_COLLECTION)
             .document()
-            .set(prodcut)
+            .set(product)
     }
 
 }

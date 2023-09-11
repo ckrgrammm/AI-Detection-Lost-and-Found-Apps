@@ -45,9 +45,9 @@ class BestDealsRecyclerAdapter :
         val image = (product.images?.get(IMAGES) as List<String>)[0]
         holder.binding.apply {
             Glide.with(holder.itemView).load(image).into(imgBestDeal)
-            tvDealProductName.text = product.title
+            tvDealProductName.text = product.description
             tvNewPrice.text = "$${product.newPrice}"
-            tvOldPrice.text = "$${product.price}"
+            tvOldPrice.text = "$${product.productPrice}"
             tvOldPrice.paintFlags = tvOldPrice.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
         }
 

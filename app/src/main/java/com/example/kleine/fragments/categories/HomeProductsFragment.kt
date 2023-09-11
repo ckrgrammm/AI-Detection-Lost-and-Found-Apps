@@ -150,10 +150,10 @@ class HomeProductsFragment : Fragment() {
             val image = (product.images?.get("images") as List<String>)[0]
             val cartProduct = CartProduct(
                 product.id,
-                product.title!!,
+                product.description!!,
                 product.seller!!,
                 image,
-                product.price!!,
+                product.productPrice!!,
                 product.newPrice,
                 1,
                 "",

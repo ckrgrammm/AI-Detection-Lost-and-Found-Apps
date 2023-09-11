@@ -52,8 +52,8 @@ class ProductsRecyclerAdapter() :
         val image = (product.images?.get(IMAGES) as List<String>)[0]
         holder.binding.apply {
             Glide.with(holder.itemView).load(image).into(imgProduct)
-            tvName.text = product.title
-            tvPrice.text = "$${product.price}"
+            tvName.text = product.description
+            tvPrice.text = "$${product.productPrice}"
             tvNewPrice.visibility = View.GONE
         }
 

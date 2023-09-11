@@ -44,8 +44,8 @@ class AdsRecyclerAdapter : RecyclerView.Adapter<AdsRecyclerAdapter.AdsViewHolder
 
         holder.binding.apply {
             Glide.with(holder.itemView).load(image).into(imgAd)
-            tvAdPrice.text = "$${product.price}"
-            tvAdName.text = product.title
+            tvAdPrice.text = "$${product.productPrice}"
+            tvAdName.text = product.description
         }
 
         holder.itemView.setOnClickListener {
