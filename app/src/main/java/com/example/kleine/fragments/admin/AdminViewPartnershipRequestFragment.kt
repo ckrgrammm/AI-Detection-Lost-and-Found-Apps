@@ -56,7 +56,7 @@ class AdminViewPartnershipRequestFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val includedLayout = view.findViewById<LinearLayout>(R.id.partnership_request_data)
+        val includedLayout = view.findViewById<LinearLayout>(R.id.partnershipData)
         val approveButton = includedLayout.findViewById<Button>(R.id.btnApprove)
         val rejectButton = includedLayout.findViewById<Button>(R.id.btnReject)
 

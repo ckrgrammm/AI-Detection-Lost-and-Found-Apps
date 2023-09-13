@@ -12,6 +12,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.kleine.BuildConfig
 import com.example.kleine.R
@@ -28,11 +29,20 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
 
+interface OnCommentClickListener {
+    fun onCommentReplyClicked(position: Int)
+}
 
-class PartnershipViewMaterialDetailFragment : Fragment() {
+class PartnershipViewMaterialDetailFragment : Fragment(), OnCommentClickListener {
     val TAG = "PartnershipViewMaterialDetailFragment"
     private lateinit var binding: FragmentPartnershipViewMaterialDetailBinding
+
+    override fun onCommentReplyClicked(position: Int) {
+        findNavController().navigate(R.id.action_partnershipViewMaterialDetailFragment_to_replyCommentFragment)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,40 +61,56 @@ class PartnershipViewMaterialDetailFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        val documentId = arguments?.getString("documentId") ?: return
+
+        // Initialize Firestore
+        val db = FirebaseFirestore.getInstance()
+
+        // Fetch specific fields from Firestore
+        db.collection("Materials").document(documentId)
+            .get()
+            .addOnSuccessListener { document ->
+                if (document != null) {
+                    val materialName = document.getString("name") ?: ""
+                    val viewCount = document.getLong("view") ?: 0
+                    val enrollCount = document.getLong("enroll") ?: 0
+                    val graduateCount = document.getLong("graduate") ?: 0
+                    val imageUrl = document.getString("imageUrl") ?: ""
+
+                    // Update your UI elements with these values
+                    // For example, if you have TextViews to display these, you can set their text.
+                    binding.textTitle.text = materialName
+                    binding.viewNum.text = viewCount.toString()
+                    binding.enrollNum.text = enrollCount.toString()
+                    binding.graduateNum.text = graduateCount.toString()
+                    val storageReference =
+                        FirebaseStorage.getInstance().getReferenceFromUrl(imageUrl)
+                    storageReference.downloadUrl.addOnSuccessListener { uri ->
+                        Glide.with(binding.root.context)
+                            .load(uri.toString())
+                            .into(binding.viewHeaderBackground) // Replace with the actual ID of your ImageView
+                    }
+                }
+            }
         val quizLayout = view.findViewById<View>(R.id.quiz_layout)
         val commentLayout = view.findViewById<View>(R.id.comment_layout)
 
         // For quizLayout
         val quizCard = quizLayout.findViewById<MaterialCardView>(R.id.quiz_card)
         val downArrowQuiz = quizLayout.findViewById<ImageView>(R.id.down_arrow)
-        val firstDataQuiz = quizLayout.findViewById<MaterialCardView>(R.id.firstData)
-        val firstImgQuiz = quizLayout.findViewById<MaterialCardView>(R.id.firstImg)
-        val secondDataQuiz = quizLayout.findViewById<MaterialCardView>(R.id.secondData)
-        val secondImgQuiz = quizLayout.findViewById<MaterialCardView>(R.id.secondImg)
-        val thirdDataQuiz = quizLayout.findViewById<MaterialCardView>(R.id.thirdData)
-        val thirdImgQuiz = quizLayout.findViewById<MaterialCardView>(R.id.thirdImg)
+        val quizData = quizLayout.findViewById<RecyclerView>(R.id.quizData)
 
         // For commentLayout
         val commentCard = commentLayout.findViewById<MaterialCardView>(R.id.comment_card)
         val downArrowComment = commentLayout.findViewById<ImageView>(R.id.down_arrow_comment)
-        val firstDataComment = commentLayout.findViewById<MaterialCardView>(R.id.firstCommentData)
-        val firstImgComment = commentLayout.findViewById<MaterialCardView>(R.id.firstCommentImg)
-        val secondDataComment = commentLayout.findViewById<MaterialCardView>(R.id.secondCommentData)
-        val secondImgComment = commentLayout.findViewById<MaterialCardView>(R.id.secondCommentImg)
-        val thirdDataComment = commentLayout.findViewById<MaterialCardView>(R.id.thirdCommentData)
-        val thirdImgComment = commentLayout.findViewById<MaterialCardView>(R.id.thirdCommentImg)
+        val commentData = quizLayout.findViewById<RecyclerView>(R.id.commentData)
 
         downArrowQuiz.setOnClickListener {
             val visibility = if (quizCard.visibility == View.VISIBLE) View.GONE else View.VISIBLE
 
             // Toggle visibility
             quizCard.visibility = visibility
-            firstDataQuiz.visibility = visibility
-            firstImgQuiz.visibility = visibility
-            secondDataQuiz.visibility = visibility
-            secondImgQuiz.visibility = visibility
-            thirdDataQuiz.visibility = visibility
-            thirdImgQuiz.visibility = visibility
+            quizData.visibility = visibility
         }
 
         downArrowComment.setOnClickListener {
@@ -92,27 +118,9 @@ class PartnershipViewMaterialDetailFragment : Fragment() {
 
             // Toggle visibility
             commentCard.visibility = visibility
-            firstDataComment.visibility = visibility
-            firstImgComment.visibility = visibility
-            secondDataComment.visibility = visibility
-            secondImgComment.visibility = visibility
-            thirdDataComment.visibility = visibility
-            thirdImgComment.visibility = visibility
+            commentData.visibility = visibility
         }
-        onCommentReplyClick()
 
-    }
-
-    private fun onCommentReplyClick() {
-        binding.commentLayout.commentReply.setOnClickListener {
-            findNavController().navigate(R.id.action_partnershipViewMaterialDetailFragment_to_replyCommentFragment)
-        }
-        binding.commentLayout.commentReply2.setOnClickListener {
-            findNavController().navigate(R.id.action_partnershipViewMaterialDetailFragment_to_replyCommentFragment)
-        }
-        binding.commentLayout.commentReply3.setOnClickListener {
-            findNavController().navigate(R.id.action_partnershipViewMaterialDetailFragment_to_replyCommentFragment)
-        }
     }
 
 

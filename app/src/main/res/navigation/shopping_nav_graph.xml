@@ -269,7 +269,12 @@
             app:enterAnim="@anim/from_right"
             app:exitAnim="@anim/to_left"
             app:popEnterAnim="@anim/from_left"
-            app:popExitAnim="@anim/to_right" />
+            app:popExitAnim="@anim/to_right">
+            <argument
+                android:name="documentId"
+                app:argType="string"
+                app:nullable="false" />
+        </action>
     </fragment>
     <fragment
         android:id="@+id/partnershipViewMaterialDetailFragment"

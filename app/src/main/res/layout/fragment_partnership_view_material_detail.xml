@@ -1,18 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@color/background">
 
 
-
-    <View
+    <ImageView
         android:id="@+id/viewHeaderBackground"
         android:layout_width="match_parent"
         android:layout_height="125dp"
-        android:background="@drawable/addmath"
-        app:layout_constraintBaseline_toTopOf="parent" />
+        android:background="@color/black"
+        app:layout_constraintBaseline_toTopOf="parent"
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="0dp" />
 
     <TextView
         android:layout_width="match_parent"
@@ -81,6 +83,7 @@
                     android:textSize="10sp" />
 
                 <TextView
+                    android:id="@+id/viewNum"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="395"
@@ -114,6 +117,7 @@
                     android:textSize="10sp" />
 
                 <TextView
+                    android:id="@+id/enrollNum"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="147"
@@ -147,6 +151,7 @@
                     android:textSize="10sp" />
 
                 <TextView
+                    android:id="@+id/graduateNum"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="100"
