@@ -15,7 +15,7 @@
     android:icon="@drawable/ic_all_orders"/>
 
     <item android:id="@+id/mnu_language"
-        android:title="@string/g_language"
+        android:title="@string/g_preference"
         android:icon="@drawable/ic_language"/>
 
     <item android:id="@+id/mnu_switch_account"

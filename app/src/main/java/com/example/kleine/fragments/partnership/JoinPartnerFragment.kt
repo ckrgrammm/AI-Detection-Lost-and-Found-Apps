@@ -1,7 +1,6 @@
 package com.example.kleine.fragments.partnership
 
 import android.Manifest
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
@@ -11,78 +10,283 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.navigation.fragment.findNavController
-import com.bumptech.glide.Glide
-import com.example.kleine.BuildConfig
 import com.example.kleine.R
-import com.example.kleine.activities.LunchActivity
 import com.example.kleine.activities.ShoppingActivity
 import com.example.kleine.databinding.FragmentJoinPartnerBinding
-import com.example.kleine.databinding.FragmentProfileBinding
-import com.example.kleine.databinding.FragmentReplyCommentBinding
-import com.example.kleine.databinding.FragmentViewPartnershipBinding
-import com.example.kleine.model.User
-import com.example.kleine.resource.Resource
-import com.example.kleine.util.Constants.Companion.UPDATE_ADDRESS_FLAG
 import com.example.kleine.viewmodel.shopping.ShoppingViewModel
-import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
 
 
 class JoinPartnerFragment : Fragment() {
-    val TAG = "JoinPartnerFragment"
+    private val TAG = "JoinPartnerFragment"
     private lateinit var binding: FragmentJoinPartnerBinding
     private lateinit var viewModel: ShoppingViewModel
-    private lateinit var documentUploadBtn : Button
-    private val PICK_PDF_FILE = 2
+    private lateinit var documentUploadBtn: Button
     private val REQUEST_CODE = 100
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-    }
-
+    private lateinit var getContent: ActivityResultLauncher<String>
+    private val selectedPDFs = ArrayList<Uri>()
+    private val db = FirebaseFirestore.getInstance()
+    private val storage = FirebaseStorage.getInstance()
+    private val uploadedPDFLinks = ArrayList<String>()
+    private val userId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
     override fun onCreateView (
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentJoinPartnerBinding.inflate(inflater, container, false)
-
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         viewModel = (activity as ShoppingActivity).viewModel
-        viewModel.getUser()
-
         documentUploadBtn = view.findViewById(R.id.documentUploadBtn)
+        checkExistingRequest()
+        checkAndRequestPermissions()
 
-        if (ContextCompat.checkSelfPermission(requireActivity(), Manifest.permission.READ_EXTERNAL_STORAGE)
-            != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(
-                requireActivity(),
-                arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
-                REQUEST_CODE
-            )
-        }
+        getContent = registerForActivityResult(ActivityResultContracts.GetMultipleContents()) { uris ->
+            if (uris.isNotEmpty()) {
+                selectedPDFs.clear()
+                for (uri in uris) {
+                    val path = uri.path
+                    if (path != null && path.endsWith(".pdf")) {
+                        selectedPDFs.add(uri)
+                    } else {
+                        Toast.makeText(requireContext(), "Only PDF files are allowed", Toast.LENGTH_SHORT).show()
+                    }
+                }
 
-        val getContent = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-            // Handle the returned Uri, this will be called after user picks a file
-            if(uri != null) {
-                // Do something with the Uri (upload, read, etc.)
+                if (selectedPDFs.size > 2) {
+                    Toast.makeText(requireContext(), "You can only upload up to two PDF files", Toast.LENGTH_SHORT).show()
+                    selectedPDFs.clear()
+                } else {
+                    documentUploadBtn.text = "${selectedPDFs.size} PDF(s) Selected"
+                }
             }
         }
 
         documentUploadBtn.setOnClickListener {
             getContent.launch("application/pdf")
         }
+
+        binding.btnRequest.setOnClickListener {
+            it.isEnabled = false
+            (it as Button).text = "Wait for a while"
+            it.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.white))
+            binding.instiName.isEnabled = false
+            binding.instiType.isEnabled = false
+            binding.location.isEnabled = false
+            binding.contactNo.isEnabled = false
+            binding.reason.isEnabled = false
+            binding.documentUploadBtn.isEnabled = false
+            val errors = StringBuilder()
+            // Validation starts here
+            if (selectedPDFs.size == 0 || selectedPDFs.size > 2) {
+                errors.append("• Please select up to two PDF files.\n")
+            }
+
+            val name = binding.instiName.text.toString()
+            if (name.isEmpty()) {
+                errors.append("• Institution name is empty.\n")
+            }
+
+            val type = binding.instiType.text.toString()
+            if (type.isEmpty()) {
+                errors.append("• Institution type is empty.\n")
+            }
+
+            val loc = binding.location.text.toString()
+            if (loc.isEmpty()) {
+                errors.append("• Location is empty.\n")
+            }
+
+            val contact = binding.contactNo.text.toString()
+            val contactPattern = "^\\d{3}-\\d{7,8}$"
+            if (contact.isEmpty()) {
+                errors.append("• Contact number is empty.\n")
+            } else if (!contact.matches(contactPattern.toRegex())) {
+                errors.append("• Contact number should be in the format 012-1231231 or 012-12341234.\n")
+            }
+
+            val res = binding.reason.text.toString()
+            if (res.isEmpty()) {
+                errors.append("• Reason is empty.\n")
+            }
+
+            if (errors.isNotEmpty()) {
+                showErrorDialog("Validation Error", errors.toString())
+                it.isEnabled = true
+                it.text = "Request"
+                it.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.white))
+
+                binding.instiName.isEnabled = true
+                binding.instiType.isEnabled = true
+                binding.location.isEnabled = true
+                binding.contactNo.isEnabled = true
+                binding.reason.isEnabled = true
+                binding.documentUploadBtn.isEnabled = true
+                return@setOnClickListener
+            }
+            uploadDataToFirestoreAndStorage()
+        }
     }
+    private fun checkExistingRequest() {
+        if (userId != "") {
+            val query = db.collection("Partnerships")
+                .whereEqualTo("userId", userId)
+
+            query.get().addOnSuccessListener { querySnapshot ->
+                if (!querySnapshot.isEmpty) {
+                    for (document in querySnapshot.documents) {
+                        val status = document.getString("status")
+                        val rejectReason = document.getString("rejectReason")
+                        if (status == "pending") {
+                            binding.requestedText.visibility = View.VISIBLE
+                            binding.requestedText.text = "Waiting for response"
+                            binding.instiName.visibility = View.GONE
+                            binding.instiType.visibility = View.GONE
+                            binding.location.visibility = View.GONE
+                            binding.contactNo.visibility = View.GONE
+                            binding.reason.visibility = View.GONE
+                            binding.documentUploadBtn.visibility = View.GONE
+                            binding.instiNameText.visibility = View.GONE
+                            binding.instiTypeText.visibility = View.GONE
+                            binding.locText.visibility = View.GONE
+                            binding.contactNoText.visibility = View.GONE
+                            binding.reasonText.visibility = View.GONE
+                            binding.docText.visibility = View.GONE
+                            binding.btnRequest.visibility = View.GONE
+                        } else if (status == "rejected") {
+                            binding.rejectText.visibility = View.VISIBLE
+                            binding.rejectText.text = "Reject Reason: $rejectReason"
+                        }
+                    }
+                }
+            }.addOnFailureListener { e ->
+                Log.e(TAG, "Error checking for existing request: ", e)
+            }
+        }
+    }
+    private fun checkAndRequestPermissions() {
+        if (ContextCompat.checkSelfPermission(
+                requireActivity(),
+                Manifest.permission.READ_EXTERNAL_STORAGE
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                requireActivity(),
+                arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
+                REQUEST_CODE
+            )
+        }
+    }
+
+    private fun uploadDataToFirestoreAndStorage() {
+        uploadedPDFLinks.clear()
+
+        db.collection("Partnerships")
+            .whereEqualTo("userId", userId)
+            .whereEqualTo("status", "rejected")
+            .get()
+            .addOnSuccessListener { querySnapshot ->
+                val name = binding.instiName.text.toString()
+                val type = binding.instiType.text.toString()
+                val loc = binding.location.text.toString()
+                val contact = binding.contactNo.text.toString()
+                val res = binding.reason.text.toString()
+
+                // Prepare data for Firestore
+                val data = HashMap<String, Any>()
+                data["userId"] = userId
+                data["instiName"] = name
+                data["instiType"] = type
+                data["location"] = loc
+                data["contactNum"] = contact
+                data["reason"] = res
+                data["status"] = "pending"
+                data["rejectReason"] = ""
+
+                var uploadedCount = 0
+                for (uri in selectedPDFs) {
+                    val randomFileName = "${System.currentTimeMillis()}-${java.util.UUID.randomUUID()}.pdf"
+                    val storageReference: StorageReference = storage.reference.child("partnershipPDF/$randomFileName")
+                    storageReference.putFile(uri)
+                        .addOnSuccessListener { _ ->
+                            storageReference.downloadUrl.addOnSuccessListener { downloadUri ->
+                                uploadedPDFLinks.add(downloadUri.toString())
+                                uploadedCount++
+
+                                if (uploadedCount == selectedPDFs.size) {
+                                    data["documentation"] = uploadedPDFLinks.joinToString("|")
+
+                                    if (querySnapshot.isEmpty) {
+                                        // No existing rejected request, create a new document
+                                        db.collection("Partnerships").add(data)
+                                            .addOnSuccessListener {
+                                                Toast.makeText(requireContext(), "Partner Request Successfully", Toast.LENGTH_SHORT).show()
+                                                findNavController().popBackStack()
+                                            }
+                                            .addOnFailureListener { exception: Exception ->
+                                                Toast.makeText(requireContext(), "Failed to upload data", Toast.LENGTH_SHORT).show()
+                                            }
+                                    } else {
+                                        // Existing rejected request, update it
+                                        val docId = querySnapshot.documents[0].id
+                                        db.collection("Partnerships").document(docId).set(data)
+                                            .addOnSuccessListener {
+                                                Toast.makeText(requireContext(), "Partner Request Successfully", Toast.LENGTH_SHORT).show()
+                                                findNavController().popBackStack()
+                                            }
+                                            .addOnFailureListener { exception: Exception ->
+                                                Toast.makeText(requireContext(), "Failed to update data", Toast.LENGTH_SHORT).show()
+                                            }
+                                    }
+                                }
+                            }
+                        }
+                        .addOnFailureListener { exception: Exception ->
+                            Toast.makeText(requireContext(), "Failed to upload PDF", Toast.LENGTH_SHORT).show()
+                        }
+                }
+            }
+            .addOnFailureListener { exception: Exception ->
+                Toast.makeText(requireContext(), "Failed to check for existing requests", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+
+    private fun showErrorDialog(title: String, message: String) {
+        val builder = AlertDialog.Builder(requireContext())
+        val inflater = layoutInflater
+        val dialogLayout = inflater.inflate(R.layout.error_message_dialog, null)
+
+        with(dialogLayout) {
+            findViewById<TextView>(R.id.tv_error_title).text = title
+            findViewById<TextView>(R.id.tv_error_message).text = message
+        }
+
+        val okButton = dialogLayout.findViewById<Button>(R.id.btn_ok)
+        builder.setView(dialogLayout)
+        val alertDialog = builder.create()
+
+        okButton.setOnClickListener {
+            alertDialog.dismiss()
+        }
+
+        alertDialog.show()
+    }
+
 
 
 

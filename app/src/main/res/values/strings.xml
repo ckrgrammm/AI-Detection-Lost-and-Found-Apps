@@ -94,8 +94,10 @@
     <string name="g_notifications">Notifications</string>
     <string name="g_information">Information</string>
 
-    <string name="g_regional">Preferences</string>
-    <string name="g_language">Join Partnership</string>
+
+    <string name="g_admin">Admin</string>
+    <string name="g_preference">Preferences</string>
+    <string name="g_join_partnership">Join Partnership</string>
     <string name="g_logout">Logout</string>
     <string name="g_billing">Billing And Addresses</string>
     <string name="g_version">Version</string>

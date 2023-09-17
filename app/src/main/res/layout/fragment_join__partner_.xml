@@ -15,6 +15,7 @@
         android:textColor="#FFF"/>
 
     <TextView
+        android:id="@+id/instiNameText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
@@ -33,6 +34,7 @@
         android:id="@+id/instiName"/>
 
     <TextView
+        android:id="@+id/instiTypeText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
@@ -51,6 +53,7 @@
         android:id="@+id/instiType"/>
 
     <TextView
+        android:id="@+id/locText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
@@ -69,6 +72,7 @@
         android:id="@+id/location"/>
 
     <TextView
+        android:id="@+id/contactNoText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
@@ -87,6 +91,7 @@
         android:id="@+id/contactNo"/>
 
     <TextView
+        android:id="@+id/reasonText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
@@ -105,13 +110,14 @@
         android:id="@+id/reason"/>
 
     <TextView
+        android:id="@+id/docText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:textSize="20sp"
         android:layout_marginTop="5dp"
         android:layout_marginBottom="5dp"
-        android:text="Documentation"/>
+        android:gravity="center"
+        android:text="Documentation"
+        android:textSize="20sp" />
 
     <Button
         android:layout_width="match_parent"
@@ -136,4 +142,28 @@
         android:textAllCaps="false"
         android:textSize="21dp" />
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:layout_gravity="center"
+        android:textSize="@dimen/_40sdp"
+        android:text="Waiting For Response"
+        android:textStyle="bold"
+        android:visibility="gone"
+        android:id="@+id/requestedText"
+        />
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:layout_gravity="center"
+        android:textSize="@dimen/_16sdp"
+        android:layout_margin="@dimen/_12sdp"
+        android:text="reject reason"
+        android:textStyle="bold"
+        android:textColor="@color/red"
+        android:visibility="gone"
+        android:id="@+id/rejectText"
+        />
 </LinearLayout>

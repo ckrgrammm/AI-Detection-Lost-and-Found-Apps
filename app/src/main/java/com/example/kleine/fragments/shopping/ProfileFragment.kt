@@ -23,6 +23,7 @@ import com.example.kleine.viewmodel.shopping.ShoppingViewModel
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 
 class ProfileFragment : Fragment() {
@@ -36,12 +37,40 @@ class ProfileFragment : Fragment() {
         viewModel = (activity as ShoppingActivity).viewModel
         viewModel.getUser()
     }
-
-    override fun onCreateView (
+    override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentProfileBinding.inflate(inflater, container, false)
+        val currentUser = FirebaseAuth.getInstance().currentUser
+
+        if (currentUser != null) {
+            val userId = currentUser.uid
+            val db = FirebaseFirestore.getInstance()
+            db.collection("users").document(userId)
+                .get()
+                .addOnSuccessListener { document ->
+                    if (document != null) {
+                        val status = document.getString("status")
+                        Log.d(TAG, "User Status: $status")
+                        if (status == "ADMINS") {
+                            // Admin user, show the fragment
+                            binding.adminOrders.visibility = View.VISIBLE
+                            binding.linearAdmin.visibility = View.VISIBLE
+                            binding.linearJoinPartnership.visibility = View.GONE
+                        }else if(status == "PARTNERS"){
+                            binding.adminOrders.visibility = View.GONE
+                            binding.linearAdmin.visibility = View.GONE
+                            binding.linearJoinPartnership.visibility = View.GONE
+                        }else{
+                            binding.linearJoinPartnership.visibility = View.VISIBLE
+                            binding.linearViewPartnership.visibility = View.GONE
+                            binding.adminOrders.visibility = View.GONE
+                            binding.linearAdmin.visibility = View.GONE
+                        }
+                    }
+                }
+        }
 
         return binding.root
     }

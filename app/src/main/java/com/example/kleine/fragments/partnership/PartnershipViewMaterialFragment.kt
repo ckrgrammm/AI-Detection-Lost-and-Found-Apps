@@ -1,7 +1,6 @@
 package com.example.kleine.fragments.partnership
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -23,7 +22,6 @@ class PartnershipViewMaterialFragment : Fragment() {
     val TAG = "PartnershipViewMaterialFragment"
     private lateinit var binding: FragmentPartnershipViewMaterialBinding
     private lateinit var materialAdapter: MaterialAdapter
-//    val storageRef = FirebaseStorage.getInstance().reference
     private val db = FirebaseFirestore.getInstance()
 
     override fun onCreateView (
