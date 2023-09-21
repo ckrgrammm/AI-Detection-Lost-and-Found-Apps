@@ -15,8 +15,7 @@ import com.example.kleine.activities.ShoppingActivity
 import com.example.kleine.adapters.recyclerview.MaterialAdapter
 import com.example.kleine.adapters.viewpager.HomeViewpagerAdapter
 import com.example.kleine.databinding.FragmentHomeBinding
-import com.example.kleine.fragments.categories.*
-import com.example.kleine.fragments.categories.HomeProductsFragment
+
 import com.example.kleine.viewmodel.shopping.ShoppingViewModel
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.snackbar.Snackbar

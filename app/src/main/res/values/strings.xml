@@ -168,6 +168,11 @@
     <string name="string_curve_image">Curve Image</string>
     <string name="string_75">520%</string>
 
+    <string name="string_status">Status</string>
+
+    <string name="string_rating">Rating</string>
+
+
 
     <!-- Difficulty Levels  -->
     <string-array name="difficulty_levels">

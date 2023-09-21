@@ -118,10 +118,10 @@ class SearchFragment : Fragment() {
                 activity?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager?
             imm!!.hideSoftInputFromWindow(requireView().windowToken, 0)
 
-            findNavController().navigate(
-                R.id.action_searchFragment_to_productPreviewFragment2,
-                bundle
-            )
+//            findNavController().navigate(
+//                R.id.action_searchFragment_to_materialPreviewFragment,
+//                bundle
+//            )
 
         }
     }

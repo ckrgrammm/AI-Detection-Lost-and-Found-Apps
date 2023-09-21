@@ -1,5 +1,6 @@
 package com.example.kleine.adapters.viewpager
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.AsyncListDiffer
@@ -32,8 +33,11 @@ class ViewPager2Images : RecyclerView.Adapter<ViewPager2Images.ViewPager2ImagesV
     }
 
     override fun onBindViewHolder(holder: ViewPager2ImagesViewHolder, position: Int) {
-        Glide.with(holder.itemView).load(differ.currentList[position]).into(holder.binding.imgsProduct)
+        val imageUrl = differ.currentList[position]
+        Log.d("ViewPager2Images", "Loading image at position $position: $imageUrl")
+        Glide.with(holder.itemView).load(imageUrl).into(holder.binding.imgsProduct)
     }
+
 
     override fun getItemCount(): Int {
         return differ.currentList.size

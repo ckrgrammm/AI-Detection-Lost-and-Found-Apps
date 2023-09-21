@@ -5,6 +5,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import kotlinx.parcelize.Parcelize
 
+@Parcelize
 @Entity(tableName = "material")
 data class Material(
     @PrimaryKey(autoGenerate = true) // ID as auto increment
@@ -19,7 +20,8 @@ data class Material(
     val enroll: Int = 0, // Number of students enrolled in this course/subject
     val partnershipsID: String? = null  // partnership ID
 
-)
+): Parcelable
+
 @Parcelize
 data class MaterialData(
     var id: String = "",

@@ -1,0 +1,1927 @@
+Index: app/src/main/java/com/example/kleine/adapters/recyclerview/MaterialAdapter.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.example.kleine.adapters.recyclerview\n\nimport android.util.Log\nimport android.view.LayoutInflater\nimport android.view.ViewGroup\nimport androidx.recyclerview.widget.AsyncListDiffer\nimport androidx.recyclerview.widget.DiffUtil\nimport androidx.recyclerview.widget.RecyclerView\nimport com.bumptech.glide.Glide\nimport com.example.kleine.R\nimport com.example.kleine.databinding.ProductLayoutRowBinding\nimport com.example.kleine.model.Material\nimport com.google.firebase.storage.FirebaseStorage\n\nclass MaterialAdapter : RecyclerView.Adapter<MaterialAdapter.MaterialViewHolder>() {\n\n    var onItemClick: ((Material) -> Unit)? = null\n\n    inner class MaterialViewHolder(val binding: ProductLayoutRowBinding) :\n        RecyclerView.ViewHolder(binding.root)\n\n    private val diffCallback = object : DiffUtil.ItemCallback<Material>() {\n        override fun areItemsTheSame(oldItem: Material, newItem: Material): Boolean {\n            return oldItem == newItem\n        }\n\n        override fun areContentsTheSame(oldItem: Material, newItem: Material): Boolean {\n            return oldItem == newItem\n        }\n    }\n\n    val differ = AsyncListDiffer(this, diffCallback)\n\n    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MaterialViewHolder {\n        Log.d(\"MaterialAdapter\", \"onCreateViewHolder called\")\n        return MaterialViewHolder(\n            ProductLayoutRowBinding.inflate(\n                LayoutInflater.from(parent.context),\n                parent,\n                false\n            )\n        )\n    }\n\n\n    override fun onBindViewHolder(holder: MaterialViewHolder, position: Int) {\n        Log.d(\"MaterialAdapter\", \"onBindViewHolder called for position $position\")\n\n        val material = differ.currentList[position]\n        holder.binding.apply {\n            productModel = material  // This binds your XML views to your data model\n\n            val storage = FirebaseStorage.getInstance()\n            val storageRef = storage.reference\n\n            // Check if imageUrl is not empty\n            if (material.imageUrl.isNotEmpty()) {\n                // Construct the dynamic path based on the material's image URL\n                val pathToImage = \"materialImages/${material.imageUrl}\"\n\n                // Log the dynamic path and material image URL for debugging\n                Log.d(\"MaterialAdapter\", \"Dynamic Path to image: $pathToImage\")\n                Log.d(\"MaterialAdapter\", \"Material image URL: ${material.imageUrl}\")\n\n                // Use the dynamic path to reference the image in Firebase Storage\n                val pathReference = storageRef.child(pathToImage)\n\n                // Attempt to download the image using the dynamic path\n                pathReference.downloadUrl.addOnSuccessListener { uri ->\n                    Log.d(\"MaterialAdapter\", \"Successfully fetched URI: $uri\")\n                    Glide.with(holder.itemView).load(uri).into(imageView)\n                }.addOnFailureListener { exception ->\n                    Log.e(\"MaterialAdapter\", \"Failed to load image\", exception)\n                    imageView.setImageResource(R.drawable.default_book_logo)  // Set a default image\n                }\n            } else {\n                imageView.setImageResource(R.drawable.default_book_logo)  // Set a default image\n            }\n        }\n\n        // Set an onClick listener for the item\n        holder.itemView.setOnClickListener {\n            onItemClick?.invoke(differ.currentList[position])\n        }\n    }\n\n\n\n\n\n\n\n\n\n    override fun getItemCount(): Int {\n        val count = differ.currentList.size\n        Log.d(\"MaterialAdapter\", \"Item count: $count\")\n        return count\n    }\n}\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/example/kleine/adapters/recyclerview/MaterialAdapter.kt b/app/src/main/java/com/example/kleine/adapters/recyclerview/MaterialAdapter.kt
+--- a/app/src/main/java/com/example/kleine/adapters/recyclerview/MaterialAdapter.kt	(revision 92515cec441a647908e8034027ccf94c3bea201a)
++++ b/app/src/main/java/com/example/kleine/adapters/recyclerview/MaterialAdapter.kt	(date 1695310555819)
+@@ -3,6 +3,8 @@
+ import android.util.Log
+ import android.view.LayoutInflater
+ import android.view.ViewGroup
++import androidx.navigation.NavDirections
++import androidx.navigation.findNavController
+ import androidx.recyclerview.widget.AsyncListDiffer
+ import androidx.recyclerview.widget.DiffUtil
+ import androidx.recyclerview.widget.RecyclerView
+@@ -16,8 +18,15 @@
+ 
+     var onItemClick: ((Material) -> Unit)? = null
+ 
+-    inner class MaterialViewHolder(val binding: ProductLayoutRowBinding) :
+-        RecyclerView.ViewHolder(binding.root)
++    inner class MaterialViewHolder(val binding: ProductLayoutRowBinding) : RecyclerView.ViewHolder(binding.root) {
++        init {
++            itemView.setOnClickListener {
++                val material = differ.currentList[adapterPosition]
++                val actionId = R.id.action_homeFragment_to_materialDetailsFragment
++                it.findNavController().navigate(actionId)
++            }
++        }
++    }
+ 
+     private val diffCallback = object : DiffUtil.ItemCallback<Material>() {
+         override fun areItemsTheSame(oldItem: Material, newItem: Material): Boolean {
+@@ -48,46 +57,30 @@
+ 
+         val material = differ.currentList[position]
+         holder.binding.apply {
+-            productModel = material  // This binds your XML views to your data model
++            productModel = material
+ 
+             val storage = FirebaseStorage.getInstance()
+             val storageRef = storage.reference
+ 
+-            // Check if imageUrl is not empty
+             if (material.imageUrl.isNotEmpty()) {
+-                // Construct the dynamic path based on the material's image URL
+                 val pathToImage = "materialImages/${material.imageUrl}"
+-
+-                // Log the dynamic path and material image URL for debugging
+                 Log.d("MaterialAdapter", "Dynamic Path to image: $pathToImage")
+                 Log.d("MaterialAdapter", "Material image URL: ${material.imageUrl}")
+ 
+-                // Use the dynamic path to reference the image in Firebase Storage
+                 val pathReference = storageRef.child(pathToImage)
+ 
+-                // Attempt to download the image using the dynamic path
+                 pathReference.downloadUrl.addOnSuccessListener { uri ->
+                     Log.d("MaterialAdapter", "Successfully fetched URI: $uri")
+                     Glide.with(holder.itemView).load(uri).into(imageView)
+                 }.addOnFailureListener { exception ->
+                     Log.e("MaterialAdapter", "Failed to load image", exception)
+-                    imageView.setImageResource(R.drawable.default_book_logo)  // Set a default image
++                    imageView.setImageResource(R.drawable.default_book_logo)
+                 }
+             } else {
+-                imageView.setImageResource(R.drawable.default_book_logo)  // Set a default image
++                imageView.setImageResource(R.drawable.default_book_logo)
+             }
+         }
+-
+-        // Set an onClick listener for the item
+-        holder.itemView.setOnClickListener {
+-            onItemClick?.invoke(differ.currentList[position])
+-        }
+     }
+-
+-
+-
+-
+-
+ 
+ 
+ 
+Index: app/src/main/res/layout/fragment_product_preview.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"utf-8\"?>\n<androidx.core.widget.NestedScrollView xmlns:android=\"http://schemas.android.com/apk/res/android\"\n    xmlns:app=\"http://schemas.android.com/apk/res-auto\"\n    xmlns:tools=\"http://schemas.android.com/tools\"\n    android:layout_width=\"match_parent\"\n    android:layout_height=\"match_parent\"\n    tools:context=\".fragments.shopping.ProductPreviewFragment\"\n    android:fillViewport=\"true\">\n\n\n    <androidx.constraintlayout.widget.ConstraintLayout\n        android:layout_width=\"match_parent\"\n        android:layout_height=\"match_parent\">\n        <androidx.cardview.widget.CardView\n            android:id=\"@+id/viewpager_card\"\n            android:layout_width=\"0dp\"\n            android:layout_height=\"@dimen/_350sdp\"\n            android:layout_marginTop=\"20dp\"\n            app:cardCornerRadius=\"15dp\"\n            app:layout_constraintEnd_toEndOf=\"@id/guideline2\"\n            app:layout_constraintStart_toStartOf=\"@id/guideline1\"\n            app:layout_constraintTop_toTopOf=\"parent\"\n            android:orientation=\"vertical\"\n            android:backgroundTint=\"@color/white\"\n            android:overScrollMode=\"never\"\n            app:cardElevation=\"0dp\"\n            >\n\n\n            <androidx.viewpager2.widget.ViewPager2\n                android:id=\"@+id/viewpager2_images\"\n                android:layout_width=\"match_parent\"\n                android:layout_height=\"match_parent\"\n                android:scaleType=\"fitCenter\"\n                android:src=\"@drawable/test_image_cchair\"\n                />\n\n\n            <ImageView\n                android:id=\"@+id/img_close\"\n                android:layout_width=\"@dimen/_20sdp\"\n                android:layout_height=\"@dimen/_20sdp\"\n                android:layout_marginStart=\"10dp\"\n                android:layout_marginTop=\"10dp\"\n                android:src=\"@drawable/ic_close\"\n                app:tint=\"@color/black\"\n                android:scaleType=\"centerInside\"\n                />\n\n\n\n\n        </androidx.cardview.widget.CardView>\n\n\n        <androidx.constraintlayout.widget.Guideline\n            android:id=\"@+id/guideline1\"\n            android:layout_width=\"wrap_content\"\n            android:layout_height=\"wrap_content\"\n            android:orientation=\"vertical\"\n            app:layout_constraintGuide_percent=\"0.04\" />\n\n\n        <androidx.constraintlayout.widget.Guideline\n            android:id=\"@+id/guideline2\"\n            android:layout_width=\"wrap_content\"\n            android:layout_height=\"wrap_content\"\n            android:orientation=\"vertical\"\n            app:layout_constraintGuide_percent=\"0.96\" />\n\n\n\n\n\n\n\n\n        <LinearLayout\n            android:id=\"@+id/linear_product_name\"\n            android:layout_width=\"0dp\"\n            android:layout_height=\"wrap_content\"\n            app:layout_constraintStart_toStartOf=\"@id/guideline1\"\n            app:layout_constraintEnd_toEndOf=\"@id/guideline2\"\n            app:layout_constraintTop_toBottomOf=\"@+id/circle_indicator\"\n            android:orientation=\"horizontal\"\n            android:layout_marginTop=\"35dp\">\n\n\n            <TextView\n                android:id=\"@+id/tv_product_name\"\n                android:layout_width=\"wrap_content\"\n                android:layout_height=\"wrap_content\"\n                android:layout_weight=\"1\"\n                android:fontFamily=\"@font/poppins_light\"\n                android:text=\"Foundation of Mathematics\"\n                android:textColor=\"@color/black\"\n                android:textSize=\"@dimen/_20ssp\"\n                android:textStyle=\"bold\"\n                app:layout_constraintStart_toStartOf=\"@id/guideline1\"\n                app:layout_constraintTop_toBottomOf=\"@id/guideline3\" />\n\n\n            <!--        <TextView-->\n            <!--            android:id=\"@+id/tv_product_offer_price\"-->\n            <!--            android:layout_width=\"wrap_content\"-->\n            <!--            android:layout_height=\"wrap_content\"-->\n            <!--            android:fontFamily=\"@font/poppins_light\"-->\n            <!--            android:text=\"$300\"-->\n            <!--            android:textColor=\"@color/g_hint\"-->\n            <!--            android:textSize=\"@dimen/_20ssp\"-->\n            <!--            app:layout_constraintEnd_toEndOf=\"@id/guideline2\"-->\n            <!--            app:layout_constraintBottom_toBottomOf=\"@id/tv_product_name\"-->\n            <!--            app:layout_constraintTop_toTopOf=\"@+id/tv_product_name\"-->\n            <!--            android:layout_marginEnd=\"5dp\"/>-->\n\n\n            <!--        <TextView-->\n            <!--            android:id=\"@+id/tv_product_price\"-->\n            <!--            android:layout_width=\"wrap_content\"-->\n            <!--            android:layout_height=\"wrap_content\"-->\n            <!--            android:fontFamily=\"@font/poppins_light\"-->\n            <!--            android:text=\"$300\"-->\n            <!--            android:textColor=\"@color/g_hint\"-->\n            <!--            android:textSize=\"@dimen/_20ssp\"-->\n            <!--            app:layout_constraintEnd_toEndOf=\"@id/guideline2\"-->\n            <!--            app:layout_constraintBottom_toBottomOf=\"@id/tv_product_name\"-->\n            <!--            app:layout_constraintTop_toTopOf=\"@+id/tv_product_name\"/>-->\n\n\n        </LinearLayout>\n\n\n        <LinearLayout\n            android:id=\"@+id/linear_product_description\"\n            android:layout_width=\"0dp\"\n            android:layout_height=\"wrap_content\"\n            android:orientation=\"vertical\"\n            app:layout_constraintStart_toStartOf=\"@id/guideline1\"\n            app:layout_constraintTop_toBottomOf=\"@id/linear_product_name\"\n            app:layout_constraintEnd_toEndOf=\"@id/guideline2\">\n\n\n            <TextView\n                android:id=\"@+id/tv_product_description\"\n                android:layout_width=\"wrap_content\"\n                android:layout_height=\"wrap_content\"\n                android:fontFamily=\"@font/poppins_light\"\n                android:text=\"Subhead chair content.\"\n                android:textColor=\"@color/g_hint\"\n                android:textSize=\"@dimen/_10ssp\"\n                android:textStyle=\"bold\" />\n        </LinearLayout>\n\n\n        <View\n            android:id=\"@+id/line\"\n            android:layout_width=\"0dp\"\n            android:layout_height=\"@dimen/_1sdp\"\n            android:layout_marginTop=\"10dp\"\n            android:background=\"@drawable/line\"\n            app:layout_constraintEnd_toEndOf=\"@id/guideline2\"\n            app:layout_constraintStart_toStartOf=\"@id/guideline1\"\n            app:layout_constraintTop_toBottomOf=\"@id/linear_product_description\" />\n\n\n        <LinearLayout\n            android:id=\"@+id/linear\"\n            android:layout_width=\"0dp\"\n            android:layout_height=\"wrap_content\"\n            android:orientation=\"horizontal\"\n            app:layout_constraintEnd_toEndOf=\"@id/guideline2\"\n            app:layout_constraintStart_toStartOf=\"@id/guideline1\"\n            app:layout_constraintTop_toBottomOf=\"@id/line\"\n            android:layout_marginTop=\"20dp\">\n\n\n            <LinearLayout\n                android:layout_width=\"wrap_content\"\n                android:layout_height=\"wrap_content\"\n                android:layout_weight=\"1\"\n                android:orientation=\"vertical\">\n\n\n                <LinearLayout\n                    android:layout_width=\"wrap_content\"\n                    android:layout_height=\"wrap_content\"\n                    android:orientation=\"horizontal\">\n\n\n                    <TextView\n                        android:id=\"@+id/tv_color\"\n                        android:layout_width=\"wrap_content\"\n                        android:layout_height=\"wrap_content\"\n                        android:layout_marginTop=\"15dp\"\n                        android:fontFamily=\"@font/poppins_light\"\n                        android:text=\"@string/g_difficultyLevel\"\n                        android:textColor=\"@color/black\"\n                        android:textSize=\"@dimen/_15ssp\" />\n\n\n                    <TextView\n                        android:id=\"@+id/tv_color_error\"\n                        android:layout_width=\"wrap_content\"\n                        android:layout_height=\"wrap_content\"\n                        android:text=\"@string/g_please_select_color\"\n                        android:textColor=\"@color/g_red\"\n                        android:visibility=\"invisible\"\n                        android:layout_marginTop=\"14dp\"\n                        android:layout_marginStart=\"10dp\"\n                        android:textSize=\"@dimen/_9ssp\"\n                        />\n\n\n                </LinearLayout>\n                <androidx.recyclerview.widget.RecyclerView\n                    android:id=\"@+id/rv_colors\"\n                    android:layout_width=\"match_parent\"\n                    android:layout_height=\"wrap_content\"\n                    android:orientation=\"horizontal\"\n                    app:layoutManager=\"androidx.recyclerview.widget.LinearLayoutManager\"\n                    android:layout_marginEnd=\"15dp\"/>\n\n\n\n\n            </LinearLayout>\n\n\n            <LinearLayout\n                android:layout_width=\"wrap_content\"\n                android:layout_height=\"wrap_content\"\n                android:layout_weight=\"1\"\n                android:orientation=\"vertical\">\n                <LinearLayout\n                    android:layout_width=\"wrap_content\"\n                    android:layout_height=\"wrap_content\"\n                    android:orientation=\"horizontal\">\n                    <TextView\n                        android:id=\"@+id/tv_size\"\n                        android:layout_width=\"wrap_content\"\n                        android:layout_height=\"wrap_content\"\n                        android:layout_marginTop=\"15dp\"\n                        android:fontFamily=\"@font/poppins_light\"\n                        android:text=\"@string/g_totalChapter\"\n                        android:textColor=\"@color/black\"\n                        android:textSize=\"@dimen/_15ssp\" />\n\n\n                    <TextView\n                        android:id=\"@+id/tv_size_unit\"\n                        android:layout_width=\"wrap_content\"\n                        android:layout_height=\"wrap_content\"\n                        android:layout_marginTop=\"15dp\"\n                        android:textSize=\"@dimen/_10ssp\"\n                        android:visibility=\"invisible\"\n                        />\n\n\n                    <TextView\n                        android:id=\"@+id/tv_size_error\"\n                        android:layout_width=\"wrap_content\"\n                        android:layout_height=\"wrap_content\"\n                        android:text=\"@string/g_please_select_size\"\n                        android:textSize=\"@dimen/_9ssp\"\n                        android:textColor=\"@color/g_red\"\n                        android:visibility=\"invisible\"\n                        android:layout_marginTop=\"14dp\"\n                        android:layout_marginStart=\"10dp\"/>\n\n\n                </LinearLayout>\n                <androidx.recyclerview.widget.RecyclerView\n                    android:id=\"@+id/rv_sizes\"\n                    android:layout_width=\"match_parent\"\n                    android:layout_height=\"wrap_content\"\n                    android:orientation=\"horizontal\"\n                    app:layoutManager=\"androidx.recyclerview.widget.LinearLayoutManager\"/>\n\n\n\n\n            </LinearLayout>\n        </LinearLayout>\n\n\n        <ProgressBar\n            android:id=\"@+id/progressbar\"\n            android:layout_width=\"wrap_content\"\n            android:layout_height=\"wrap_content\"\n            android:indeterminateTint=\"@color/g_icon_tint\"\n            app:layout_constraintBottom_toBottomOf=\"parent\"\n            app:layout_constraintEnd_toEndOf=\"@id/guideline2\"\n            app:layout_constraintStart_toStartOf=\"@id/guideline1\"\n            app:layout_constraintTop_toBottomOf=\"@id/linear\"\n            android:layout_marginTop=\"45dp\"\n            android:visibility=\"invisible\"\n            />\n\n\n        <androidx.appcompat.widget.AppCompatButton\n            android:id=\"@+id/btn_add_to_cart\"\n            android:layout_width=\"0dp\"\n            android:layout_height=\"@dimen/_40sdp\"\n            android:layout_marginBottom=\"20dp\"\n            android:background=\"@drawable/btn_background\"\n            android:fontFamily=\"@font/poppins_thin\"\n            android:text=\"@string/g_add_to_card\"\n            android:textAllCaps=\"false\"\n            android:textColor=\"@color/white\"\n            android:textSize=\"@dimen/_12sdp\"\n            app:layout_constraintBottom_toBottomOf=\"parent\"\n            app:layout_constraintEnd_toEndOf=\"@id/guideline2\"\n            app:layout_constraintHorizontal_bias=\"1.0\"\n            app:layout_constraintStart_toStartOf=\"@id/guideline1\"\n            app:layout_constraintTop_toBottomOf=\"@id/linear\"\n            app:layout_constraintVertical_bias=\"0.494\"\n            android:layout_marginTop=\"45dp\"\n            android:visibility=\"visible\"\n            />\n\n\n        <io.github.vejei.viewpagerindicator.indicator.CircleIndicator\n            android:id=\"@+id/circle_indicator\"\n            android:layout_width=\"wrap_content\"\n            android:layout_height=\"wrap_content\"\n            app:layout_constraintTop_toBottomOf=\"@id/viewpager_card\"\n            app:layout_constraintStart_toStartOf=\"@id/viewpager_card\"\n            app:layout_constraintEnd_toEndOf=\"@+id/viewpager_card\"\n            android:layout_marginTop=\"10dp\"\n            app:indicatorGap=\"5dp\"\n            app:indicatorRadius=\"5dp\"\n            app:indicatorItemCount=\"4\"\n            app:indicatorSelectedColor=\"@color/g_black\"/>\n\n\n    </androidx.constraintlayout.widget.ConstraintLayout>\n</androidx.core.widget.NestedScrollView>\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/res/layout/fragment_product_preview.xml b/app/src/main/res/layout/fragment_product_preview.xml
+--- a/app/src/main/res/layout/fragment_product_preview.xml	(revision 92515cec441a647908e8034027ccf94c3bea201a)
++++ b/app/src/main/res/layout/fragment_product_preview.xml	(date 1695311056286)
+@@ -1,10 +1,18 @@
+ <?xml version="1.0" encoding="utf-8"?>
+-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
++<layout xmlns:android="http://schemas.android.com/apk/res/android"
+     xmlns:app="http://schemas.android.com/apk/res-auto"
+-    xmlns:tools="http://schemas.android.com/tools"
++    xmlns:tools="http://schemas.android.com/tools">
++    <data>
++        <variable
++            name="productModel"
++            type="com.example.kleine.model.Material" />
++    </data>
++
++
++<androidx.core.widget.NestedScrollView
+     android:layout_width="match_parent"
+     android:layout_height="match_parent"
+-    tools:context=".fragments.shopping.ProductPreviewFragment"
++    tools:context=".fragments.shopping.MaterialPreviewFragment"
+     android:fillViewport="true">
+ 
+ 
+@@ -28,12 +36,12 @@
+ 
+ 
+             <androidx.viewpager2.widget.ViewPager2
+-                android:id="@+id/viewpager2_images"
++                android:id="@+id/viewpager2Images"
+                 android:layout_width="match_parent"
+-                android:layout_height="match_parent"
+-                android:scaleType="fitCenter"
+-                android:src="@drawable/test_image_cchair"
+-                />
++                android:layout_height="0dp"
++                android:layout_weight="1"/>
++
++
+ 
+ 
+             <ImageView
+@@ -92,7 +100,7 @@
+                 android:layout_height="wrap_content"
+                 android:layout_weight="1"
+                 android:fontFamily="@font/poppins_light"
+-                android:text="Foundation of Mathematics"
++                android:text="@{productModel.name}"
+                 android:textColor="@color/black"
+                 android:textSize="@dimen/_20ssp"
+                 android:textStyle="bold"
+@@ -145,7 +153,7 @@
+                 android:layout_width="wrap_content"
+                 android:layout_height="wrap_content"
+                 android:fontFamily="@font/poppins_light"
+-                android:text="Subhead chair content."
++                android:text="@{String.valueOf(productModel.desc)}"
+                 android:textColor="@color/g_hint"
+                 android:textSize="@dimen/_10ssp"
+                 android:textStyle="bold" />
+@@ -193,7 +201,7 @@
+                         android:layout_height="wrap_content"
+                         android:layout_marginTop="15dp"
+                         android:fontFamily="@font/poppins_light"
+-                        android:text="@string/g_difficultyLevel"
++                        android:text="@string/string_status"
+                         android:textColor="@color/black"
+                         android:textSize="@dimen/_15ssp" />
+ 
+@@ -212,13 +220,7 @@
+ 
+ 
+                 </LinearLayout>
+-                <androidx.recyclerview.widget.RecyclerView
+-                    android:id="@+id/rv_colors"
+-                    android:layout_width="match_parent"
+-                    android:layout_height="wrap_content"
+-                    android:orientation="horizontal"
+-                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+-                    android:layout_marginEnd="15dp"/>
++
+ 
+ 
+ 
+@@ -241,7 +243,7 @@
+                         android:layout_height="wrap_content"
+                         android:layout_marginTop="15dp"
+                         android:fontFamily="@font/poppins_light"
+-                        android:text="@string/g_totalChapter"
++                        android:text="@string/string_rating"
+                         android:textColor="@color/black"
+                         android:textSize="@dimen/_15ssp" />
+ 
+@@ -269,13 +271,6 @@
+ 
+ 
+                 </LinearLayout>
+-                <androidx.recyclerview.widget.RecyclerView
+-                    android:id="@+id/rv_sizes"
+-                    android:layout_width="match_parent"
+-                    android:layout_height="wrap_content"
+-                    android:orientation="horizontal"
+-                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
+-
+ 
+ 
+ 
+@@ -335,3 +330,4 @@
+ 
+     </androidx.constraintlayout.widget.ConstraintLayout>
+ </androidx.core.widget.NestedScrollView>
++</layout>
+\ No newline at end of file
+Index: app/src/main/java/com/example/kleine/model/Material.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.example.kleine.model\n\nimport android.os.Parcelable\nimport androidx.room.Entity\nimport androidx.room.PrimaryKey\nimport kotlinx.parcelize.Parcelize\n\n@Entity(tableName = \"material\")\ndata class Material(\n    @PrimaryKey(autoGenerate = true) // ID as auto increment\n    val desc: String = \"\",\n    val name: String = \"\", // Course name\n    val pass: Int = 0, // Number of students who passed this course/subject\n    val rating: Float = 0f, // Rating (1 - 5)\n    val requirement: String = \"\", // Requirement (e.g., Free)\n    val status: String = \"\", // Status (Available/Unavailable)\n    val view: Int = 0, // Number of students who viewed this course/subject\n    val imageUrl: String = \"\", // URL for the course banner\n    val enroll: Int = 0, // Number of students enrolled in this course/subject\n    val partnershipsID: String? = null  // partnership ID\n\n)\n@Parcelize\ndata class MaterialData(\n    var id: String = \"\",\n    var name: String = \"\",\n    var desc: String = \"\",\n    var requirement: String = \"\",\n    var rating: Double = 0.0,\n    var imageUrl: String = \"\"\n): Parcelable {\n    constructor() : this(\"\", \"\", \"\", \"\", 0.0, \"\")\n}\n\n@Parcelize\ndata class MaterialEngageData(\n    val name: String = \"\",\n    val view: Long = 0,\n    val enroll: Long = 0,\n    val graduate: Long = 0,\n    val imageUrl: String = \"\"\n): Parcelable {\n    constructor() : this(\"\", 0,0,0,\"\")\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/example/kleine/model/Material.kt b/app/src/main/java/com/example/kleine/model/Material.kt
+--- a/app/src/main/java/com/example/kleine/model/Material.kt	(revision 92515cec441a647908e8034027ccf94c3bea201a)
++++ b/app/src/main/java/com/example/kleine/model/Material.kt	(date 1695286443832)
+@@ -5,6 +5,7 @@
+ import androidx.room.PrimaryKey
+ import kotlinx.parcelize.Parcelize
+ 
++@Parcelize
+ @Entity(tableName = "material")
+ data class Material(
+     @PrimaryKey(autoGenerate = true) // ID as auto increment
+@@ -19,7 +20,8 @@
+     val enroll: Int = 0, // Number of students enrolled in this course/subject
+     val partnershipsID: String? = null  // partnership ID
+ 
+-)
++): Parcelable
++
+ @Parcelize
+ data class MaterialData(
+     var id: String = "",
+Index: app/src/main/java/com/example/kleine/fragments/categories/HomeProductsFragment.kt
+===================================================================
+diff --git a/app/src/main/java/com/example/kleine/fragments/categories/HomeProductsFragment.kt b/app/src/main/java/com/example/kleine/fragments/categories/HomeProductsFragment.kt
+deleted file mode 100644
+--- a/app/src/main/java/com/example/kleine/fragments/categories/HomeProductsFragment.kt	(revision 92515cec441a647908e8034027ccf94c3bea201a)
++++ /dev/null	(revision 92515cec441a647908e8034027ccf94c3bea201a)
+@@ -1,291 +0,0 @@
+-package com.example.kleine.fragments.categories
+-
+-import android.os.Bundle
+-import android.util.Log
+-import android.view.LayoutInflater
+-import android.view.View
+-import android.view.ViewGroup
+-import androidx.coordinatorlayout.widget.CoordinatorLayout
+-import androidx.core.widget.NestedScrollView
+-import androidx.fragment.app.Fragment
+-import androidx.lifecycle.Observer
+-import androidx.navigation.fragment.findNavController
+-import androidx.recyclerview.widget.GridLayoutManager
+-import androidx.recyclerview.widget.LinearLayoutManager
+-import androidx.recyclerview.widget.RecyclerView
+-import com.example.kleine.R
+-import com.example.kleine.activities.ShoppingActivity
+-import com.example.kleine.adapters.recyclerview.AdsRecyclerAdapter
+-import com.example.kleine.adapters.recyclerview.BestDealsRecyclerAdapter
+-import com.example.kleine.adapters.recyclerview.ProductsRecyclerAdapter
+-import com.example.kleine.databinding.FragmentHomeProductsBinding
+-import com.example.kleine.firebaseDatabase.FirebaseDb
+-import com.example.kleine.model.CartProduct
+-import com.example.kleine.resource.Resource
+-import com.example.kleine.util.Constants.Companion.PRODUCT_FLAG
+-import com.example.kleine.viewmodel.shopping.ShoppingViewModel
+-import com.google.android.material.snackbar.Snackbar
+-
+-class HomeProductsFragment : Fragment() {
+-    private lateinit var binding: FragmentHomeProductsBinding
+-    private lateinit var headerAdapter: AdsRecyclerAdapter
+-    private lateinit var viewModel: ShoppingViewModel
+-    private lateinit var bestDealsAdapter: BestDealsRecyclerAdapter
+-    private lateinit var productsAdapter: ProductsRecyclerAdapter
+-    private val TAG = "HomeProductsFragment"
+-
+-    override fun onCreate(savedInstanceState: Bundle?) {
+-        super.onCreate(savedInstanceState)
+-        val database = FirebaseDb()
+-        viewModel = (activity as ShoppingActivity).viewModel
+-        headerAdapter = AdsRecyclerAdapter()
+-        bestDealsAdapter = BestDealsRecyclerAdapter()
+-        productsAdapter = ProductsRecyclerAdapter()
+-    }
+-
+-    override fun onCreateView(
+-        inflater: LayoutInflater,
+-        container: ViewGroup?,
+-        savedInstanceState: Bundle?
+-    ): View {
+-        binding = FragmentHomeProductsBinding.inflate(inflater, container, false)
+-        return binding.root
+-    }
+-
+-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+-        super.onViewCreated(view, savedInstanceState)
+-
+-        binding.tvBestDeals.visibility = View.GONE
+-
+-        setupHeaderRecyclerView()
+-        observeHeaderProducts()
+-
+-        setupBestDealsRecyclerView()
+-        observeBestDeals()
+-
+-        setupAllProductsRecyclerView()
+-        observeAllProducts()
+-
+-        headerPaging()
+-        bestDealsPaging()
+-        productsPaging()
+-
+-        observeEmptyHeader()
+-        observeEmptyBestDeals()
+-
+-        onHeaderProductClick()
+-        onBestDealsProductClick()
+-
+-        observeAddHeaderProductsToCart()
+-
+-
+-        productsAdapter.onItemClick = { product ->
+-            val bundle = Bundle()
+-            bundle.putParcelable("product", product)
+-            bundle.putString("flag", PRODUCT_FLAG)
+-            findNavController().navigate(
+-                R.id.action_homeFragment_to_productPreviewFragment2,
+-                bundle
+-            )
+-        }
+-
+-
+-    }
+-
+-    private fun observeAddHeaderProductsToCart() {
+-        viewModel.addToCart.observe(viewLifecycleOwner, Observer { response ->
+-
+-            when (response) {
+-                is Resource.Loading -> {
+-                    showTopScreenProgressbar()
+-                    return@Observer
+-                }
+-
+-                is Resource.Success -> {
+-                    hideTopScreenProgressbar()
+-                    val snackBarPosition = requireActivity().findViewById<CoordinatorLayout>(R.id.snackBar_coordinator)
+-                    Snackbar.make(snackBarPosition,requireContext().getText(R.string.product_added),2500).show()
+-                    return@Observer
+-                }
+-
+-                is Resource.Error -> {
+-                    hideTopScreenProgressbar()
+-                    return@Observer
+-                }
+-            }
+-        })
+-    }
+-
+-    private fun hideTopScreenProgressbar() {
+-
+-    }
+-
+-    private fun showTopScreenProgressbar() {
+-
+-    }
+-
+-    private fun onBestDealsProductClick() {
+-        bestDealsAdapter.onItemClick = { product ->
+-            val bundle = Bundle()
+-            bundle.putParcelable("product", product)
+-            findNavController().navigate(
+-                R.id.action_homeFragment_to_productPreviewFragment2,
+-                bundle
+-            )
+-
+-        }
+-    }
+-
+-    private fun onHeaderProductClick() {
+-        headerAdapter.onItemClick = { product ->
+-            val bundle = Bundle()
+-            bundle.putParcelable("product", product)
+-            findNavController().navigate(
+-                R.id.action_homeFragment_to_productPreviewFragment2,
+-                bundle
+-            )
+-        }
+-
+-        headerAdapter.onAddToCartClick = { product ->
+-            val image = (product.images?.get("images") as List<String>)[0]
+-            val cartProduct = CartProduct(
+-                product.id,
+-                product.description!!,
+-                product.seller!!,
+-                image,
+-                product.productPrice!!,
+-                product.newPrice,
+-                1,
+-                "",
+-                ""
+-            )
+-            viewModel.addProductToCart(cartProduct)
+-        }
+-    }
+-
+-    private fun observeEmptyBestDeals() {
+-        viewModel.emptyBestDeals.observe(viewLifecycleOwner, Observer {
+-            if (it == true) {
+-                binding.apply {
+-                    rvBestDeals.visibility = View.GONE
+-                    tvBestDeals.visibility = View.GONE
+-                }
+-            }
+-        })
+-    }
+-
+-    private fun observeEmptyHeader() {
+-        viewModel.emptyClothes.observe(viewLifecycleOwner, Observer {
+-            if (it == true) {
+-                binding.apply {
+-                    rvAds.visibility = View.GONE
+-                }
+-            }
+-        })
+-    }
+-
+-
+-    private fun bestDealsPaging() {
+-        binding.rvBestDeals.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+-                super.onScrolled(recyclerView, dx, dy)
+-                if (!recyclerView.canScrollHorizontally(1) && dx != 0) {
+-                    viewModel.getBestDealsProduct()
+-                }
+-            }
+-        })
+-    }
+-
+-    private fun headerPaging() {
+-        binding.rvAds.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+-                super.onScrolled(recyclerView, dx, dy)
+-                if (!recyclerView.canScrollVertically(1) && dx != 0) {
+-                    viewModel.getClothesProducts()
+-                }
+-            }
+-        })
+-    }
+-
+-    private fun productsPaging() {
+-        binding.scrollChair.setOnScrollChangeListener(NestedScrollView.OnScrollChangeListener { v, scrollX, scrollY, oldScrollX, oldScrollY ->
+-
+-            if (v!!.getChildAt(0).bottom <= (v.height + scrollY)) {
+-                viewModel.getHomeProduct(productsAdapter.differ.currentList.size)
+-            }
+-        })
+-    }
+-
+-    private fun observeAllProducts() {
+-        viewModel.home.observe(viewLifecycleOwner, Observer { response ->
+-
+-            when (response) {
+-                is Resource.Loading -> {
+-                    showBottomLoading()
+-
+-                    return@Observer
+-                }
+-
+-                is Resource.Success -> {
+-                    hideBottomLoading()
+-                    productsAdapter.differ.submitList(response.data)
+-                    Log.d("test", response.data?.size.toString())
+-                    return@Observer
+-                }
+-
+-                is Resource.Error -> {
+-                    hideBottomLoading()
+-                    Log.e(TAG, response.message.toString())
+-                    return@Observer
+-                }
+-            }
+-        })
+-    }
+-
+-    private fun hideBottomLoading() {
+-        binding.progressbar2.visibility = View.GONE
+-        binding.tvBestProducts.visibility = View.VISIBLE
+-
+-    }
+-
+-    private fun showBottomLoading() {
+-        binding.progressbar2.visibility = View.VISIBLE
+-        binding.tvBestProducts.visibility = View.GONE
+-    }
+-
+-    private fun setupAllProductsRecyclerView() {
+-        binding.rvChairs.apply {
+-            layoutManager = GridLayoutManager(context, 2, GridLayoutManager.VERTICAL, false)
+-            adapter = productsAdapter
+-        }
+-    }
+-
+-
+-    private fun setupBestDealsRecyclerView() {
+-        binding.rvBestDeals.apply {
+-            layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+-            adapter = bestDealsAdapter
+-        }
+-    }
+-
+-
+-    private fun observeHeaderProducts() {
+-        viewModel.clothes.observe(viewLifecycleOwner, Observer { clothesList ->
+-            headerAdapter.differ.submitList(clothesList.toList())
+-        })
+-    }
+-
+-    private fun observeBestDeals() {
+-        viewModel.bestDeals.observe(viewLifecycleOwner, Observer { bestDealsList ->
+-            bestDealsAdapter.differ.submitList(bestDealsList.toList())
+-            binding.tvBestDeals.visibility = View.VISIBLE
+-        })
+-    }
+-
+-    private fun setupHeaderRecyclerView() {
+-        binding.rvAds.apply {
+-            adapter = headerAdapter
+-            layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+-        }
+-    }
+-}
+\ No newline at end of file
+Index: app/src/main/java/com/example/kleine/fragments/categories/ChairFragment.kt
+===================================================================
+diff --git a/app/src/main/java/com/example/kleine/fragments/categories/ChairFragment.kt b/app/src/main/java/com/example/kleine/fragments/categories/ChairFragment.kt
+deleted file mode 100644
+--- a/app/src/main/java/com/example/kleine/fragments/categories/ChairFragment.kt	(revision 92515cec441a647908e8034027ccf94c3bea201a)
++++ /dev/null	(revision 92515cec441a647908e8034027ccf94c3bea201a)
+@@ -1,179 +0,0 @@
+-package com.example.kleine.fragments.categories
+-
+-import android.os.Bundle
+-import android.util.Log
+-import androidx.fragment.app.Fragment
+-import android.view.LayoutInflater
+-import android.view.View
+-import android.view.ViewGroup
+-import androidx.core.widget.NestedScrollView
+-import androidx.lifecycle.Observer
+-import androidx.navigation.fragment.findNavController
+-import androidx.recyclerview.widget.GridLayoutManager
+-import androidx.recyclerview.widget.LinearLayoutManager
+-import androidx.recyclerview.widget.RecyclerView
+-import com.example.kleine.R
+-import com.example.kleine.SpacingDecorator.HorizantalSpacingItemDecorator
+-import com.example.kleine.activities.ShoppingActivity
+-import com.example.kleine.adapters.recyclerview.ProductsRecyclerAdapter
+-import com.example.kleine.databinding.FragmentChairBinding
+-import com.example.kleine.resource.Resource
+-import com.example.kleine.util.Constants
+-import com.example.kleine.viewmodel.shopping.ShoppingViewModel
+-
+-
+-class ChairFragment : Fragment() {
+-    val TAG = "ChairFragment"
+-    private lateinit var viewModel: ShoppingViewModel
+-    private lateinit var binding: FragmentChairBinding
+-    private lateinit var headerAdapter: ProductsRecyclerAdapter
+-    private lateinit var productsAdapter: ProductsRecyclerAdapter
+-
+-    override fun onCreate(savedInstanceState: Bundle?) {
+-        super.onCreate(savedInstanceState)
+-
+-        headerAdapter = ProductsRecyclerAdapter()
+-        productsAdapter = ProductsRecyclerAdapter()
+-        viewModel = (activity as ShoppingActivity).viewModel
+-
+-        viewModel.getMostRequestedChairs()
+-        viewModel.getChairs()
+-    }
+-
+-    override fun onCreateView(
+-        inflater: LayoutInflater, container: ViewGroup?,
+-        savedInstanceState: Bundle?
+-    ): View? {
+-        binding = FragmentChairBinding.inflate(inflater)
+-        return binding.root
+-    }
+-
+-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+-        super.onViewCreated(view, savedInstanceState)
+-
+-        setupHeaderRecyclerview()
+-        observeHeader()
+-
+-        setupProductsRecyclerView()
+-        observeProducts()
+-
+-        headerPaging()
+-        productsPaging()
+-
+-        productsAdapter.onItemClick = { product ->
+-            val bundle = Bundle()
+-            bundle.putParcelable("product",product)
+-            bundle.putString("flag", Constants.PRODUCT_FLAG)
+-
+-            findNavController().navigate(R.id.action_homeFragment_to_productPreviewFragment2,bundle)
+-        }
+-
+-        headerAdapter.onItemClick = { product ->
+-            val bundle = Bundle()
+-            bundle.putParcelable("product",product)
+-            bundle.putString("flag", Constants.PRODUCT_FLAG)
+-            findNavController().navigate(R.id.action_homeFragment_to_productPreviewFragment2,bundle)
+-        }
+-
+-    }
+-
+-    private fun productsPaging() {
+-        binding.scrollCupboard.setOnScrollChangeListener(NestedScrollView.OnScrollChangeListener { v, scrollX, scrollY, oldScrollX, oldScrollY ->
+-            if (v!!.getChildAt(0).bottom <= (v.height + scrollY)) {
+-                viewModel.getChairs(productsAdapter.differ.currentList.size)
+-            }
+-        })
+-    }
+-
+-    private fun headerPaging() {
+-        binding.rvHeader.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+-                super.onScrolled(recyclerView, dx, dy)
+-
+-                if (!recyclerView.canScrollHorizontally(1) && dx != 0)
+-                    viewModel.getMostRequestedChairs(headerAdapter.differ.currentList.size)
+-
+-            }
+-        })
+-    }
+-
+-    private fun observeProducts() {
+-        viewModel.chairs.observe(viewLifecycleOwner, Observer { response ->
+-
+-            when (response) {
+-                is Resource.Loading -> {
+-                    showBottomLoading()
+-                    return@Observer
+-                }
+-
+-                is Resource.Success -> {
+-                    hideBottomLoading()
+-                    productsAdapter.differ.submitList(response.data)
+-                    return@Observer
+-                }
+-
+-                is Resource.Error -> {
+-                    hideBottomLoading()
+-                    Log.e(TAG, response.message.toString())
+-                    return@Observer
+-                }
+-            }
+-        })
+-    }
+-
+-    private fun hideBottomLoading() {
+-        binding.progressbar2.visibility = View.GONE
+-    }
+-
+-    private fun showBottomLoading() {
+-        binding.progressbar2.visibility = View.VISIBLE
+-    }
+-
+-    private fun setupProductsRecyclerView() {
+-        binding.rvProducts.apply {
+-            adapter = productsAdapter
+-            layoutManager = GridLayoutManager(context, 2, GridLayoutManager.VERTICAL, false)
+-        }
+-    }
+-
+-    private fun observeHeader() {
+-        viewModel.mostRequestedChairs.observe(viewLifecycleOwner, Observer { response ->
+-
+-            when (response) {
+-                is Resource.Loading -> {
+-                    showTopLoading()
+-                    return@Observer
+-                }
+-
+-                is Resource.Success -> {
+-                    hideTopLoading()
+-                    headerAdapter.differ.submitList(response.data)
+-                    return@Observer
+-                }
+-
+-                is Resource.Error -> {
+-                    hideTopLoading()
+-                    Log.e(TAG, response.message.toString())
+-                    return@Observer
+-                }
+-            }
+-        })
+-    }
+-
+-    private fun hideTopLoading() {
+-        binding.progressbar1.visibility = View.GONE
+-    }
+-
+-    private fun showTopLoading() {
+-        binding.progressbar1.visibility = View.VISIBLE
+-    }
+-
+-    private fun setupHeaderRecyclerview() {
+-        binding.rvHeader.apply {
+-            layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+-            adapter = headerAdapter
+-            addItemDecoration(HorizantalSpacingItemDecorator(100))
+-        }
+-    }
+-
+-}
+\ No newline at end of file
+Index: app/src/main/java/com/example/kleine/fragments/categories/CupboardFragment.kt
+===================================================================
+diff --git a/app/src/main/java/com/example/kleine/fragments/categories/CupboardFragment.kt b/app/src/main/java/com/example/kleine/fragments/categories/CupboardFragment.kt
+deleted file mode 100644
+--- a/app/src/main/java/com/example/kleine/fragments/categories/CupboardFragment.kt	(revision 92515cec441a647908e8034027ccf94c3bea201a)
++++ /dev/null	(revision 92515cec441a647908e8034027ccf94c3bea201a)
+@@ -1,192 +0,0 @@
+-package com.example.kleine.fragments.categories
+-
+-import android.os.Bundle
+-import android.util.Log
+-import android.view.LayoutInflater
+-import android.view.View
+-import android.view.ViewGroup
+-import android.widget.Toast
+-import androidx.core.widget.NestedScrollView
+-import androidx.fragment.app.Fragment
+-import androidx.lifecycle.Observer
+-import androidx.navigation.fragment.findNavController
+-import androidx.recyclerview.widget.GridLayoutManager
+-import androidx.recyclerview.widget.LinearLayoutManager
+-import androidx.recyclerview.widget.RecyclerView
+-import com.example.kleine.R
+-import com.example.kleine.SpacingDecorator.HorizantalSpacingItemDecorator
+-import com.example.kleine.activities.ShoppingActivity
+-import com.example.kleine.adapters.recyclerview.ProductsRecyclerAdapter
+-import com.example.kleine.databinding.FragmentCupboardBinding
+-import com.example.kleine.resource.Resource
+-import com.example.kleine.util.Constants
+-import com.example.kleine.viewmodel.shopping.ShoppingViewModel
+-
+-class CupboardFragment : Fragment(R.layout.fragment_cupboard) {
+-    private lateinit var viewModel: ShoppingViewModel
+-    private lateinit var binding: FragmentCupboardBinding
+-    private lateinit var mostOrderedCupboardsAdapter: ProductsRecyclerAdapter
+-    private lateinit var cupboardAdapter: ProductsRecyclerAdapter
+-    private val TAG = "CupboardFragment"
+-    override fun onCreate(savedInstanceState: Bundle?) {
+-        super.onCreate(savedInstanceState)
+-        mostOrderedCupboardsAdapter = ProductsRecyclerAdapter()
+-        cupboardAdapter = ProductsRecyclerAdapter()
+-        viewModel = (activity as ShoppingActivity).viewModel
+-
+-        viewModel.getMostRequestedCupboards()
+-        viewModel.getCupboardProduct()
+-        Log.d("test","cupboardFragment")
+-
+-    }
+-
+-    override fun onCreateView(
+-        inflater: LayoutInflater,
+-        container: ViewGroup?,
+-        savedInstanceState: Bundle?
+-    ): View {
+-
+-        binding = FragmentCupboardBinding.inflate(inflater)
+-        return binding.root
+-    }
+-
+-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+-        super.onViewCreated(view, savedInstanceState)
+-
+-        setupMostOrderedCupboardRecyclerView()
+-        observeMostOrderedCupboard()
+-
+-        setupCupboardRecyclerView()
+-        observeCupboard()
+-
+-        mostRequestedCupboardPaging()
+-        cupboardPaging()
+-
+-        cupboardAdapter.onItemClick = { product ->
+-            val bundle = Bundle()
+-            bundle.putParcelable("product",product)
+-            bundle.putString("flag", Constants.PRODUCT_FLAG)
+-
+-            findNavController().navigate(R.id.action_homeFragment_to_productPreviewFragment2,bundle)
+-        }
+-
+-        mostOrderedCupboardsAdapter.onItemClick = { product ->
+-            val bundle = Bundle()
+-            bundle.putParcelable("product",product)
+-            bundle.putString("flag", Constants.PRODUCT_FLAG)
+-            findNavController().navigate(R.id.action_homeFragment_to_productPreviewFragment2,bundle)
+-        }
+-
+-    }
+-
+-    private fun cupboardPaging() {
+-        binding.scrollCupboard.setOnScrollChangeListener(NestedScrollView.OnScrollChangeListener { v, scrollX, scrollY, oldScrollX, oldScrollY ->
+-            if (v!!.getChildAt(0).bottom <= (v.height + scrollY)) {
+-                viewModel.getCupboardProduct(cupboardAdapter.differ.currentList.size)
+-            }
+-        })
+-    }
+-
+-    private fun mostRequestedCupboardPaging() {
+-        binding.rvHeader.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+-                super.onScrolled(recyclerView, dx, dy)
+-
+-                if (!recyclerView.canScrollHorizontally(1) && dx != 0)
+-                    viewModel.getMostRequestedCupboards(mostOrderedCupboardsAdapter.differ.currentList.size)
+-
+-            }
+-        })
+-    }
+-
+-    private fun observeCupboard() {
+-        viewModel.cupboard.observe(viewLifecycleOwner, Observer { response ->
+-
+-            when (response) {
+-                is Resource.Loading -> {
+-                    showBottomLoading()
+-                    return@Observer
+-                }
+-
+-                is Resource.Success -> {
+-                    hideBottomLoading()
+-                    cupboardAdapter.differ.submitList(response.data)
+-                    return@Observer
+-                }
+-
+-                is Resource.Error -> {
+-                    hideBottomLoading()
+-                    Log.e(TAG, response.message.toString())
+-                    return@Observer
+-                }
+-            }
+-        })
+-    }
+-
+-    private fun hideBottomLoading() {
+-        binding.progressbar2.visibility = View.GONE
+-    }
+-
+-    private fun showBottomLoading() {
+-        binding.progressbar2.visibility = View.VISIBLE
+-    }
+-
+-    private fun setupCupboardRecyclerView() {
+-        binding.rvProducts.apply {
+-            adapter = cupboardAdapter
+-            layoutManager = GridLayoutManager(context, 2, GridLayoutManager.VERTICAL, false)
+-        }
+-    }
+-
+-    private fun observeMostOrderedCupboard() {
+-        viewModel.mostRequestedCupboard.observe(viewLifecycleOwner, Observer { response ->
+-
+-            when (response) {
+-                is Resource.Loading -> {
+-                    showTopLoading()
+-                    return@Observer
+-                }
+-
+-                is Resource.Success -> {
+-                    hideTopLoading()
+-                    mostOrderedCupboardsAdapter.differ.submitList(response.data)
+-                    return@Observer
+-                }
+-
+-                is Resource.Error -> {
+-                    hideTopLoading()
+-                    Log.e(TAG, response.message.toString())
+-                    return@Observer
+-                }
+-            }
+-        })
+-    }
+-
+-    private fun hideTopLoading() {
+-        binding.progressbar1.visibility = View.GONE
+-    }
+-
+-    private fun showTopLoading() {
+-        binding.progressbar1.visibility = View.VISIBLE
+-    }
+-
+-    private fun setupMostOrderedCupboardRecyclerView() {
+-        binding.rvHeader.apply {
+-            layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+-            adapter = mostOrderedCupboardsAdapter
+-            addItemDecoration(HorizantalSpacingItemDecorator(100))
+-        }
+-    }
+-
+-    override fun onDestroy() {
+-        super.onDestroy()
+-
+-    }
+-
+-    override fun onResume() {
+-        super.onResume()
+-
+-
+-    }
+-
+-}
+\ No newline at end of file
+Index: app/src/main/java/com/example/kleine/fragments/categories/FurnitureFragment.kt
+===================================================================
+diff --git a/app/src/main/java/com/example/kleine/fragments/categories/FurnitureFragment.kt b/app/src/main/java/com/example/kleine/fragments/categories/FurnitureFragment.kt
+deleted file mode 100644
+--- a/app/src/main/java/com/example/kleine/fragments/categories/FurnitureFragment.kt	(revision 92515cec441a647908e8034027ccf94c3bea201a)
++++ /dev/null	(revision 92515cec441a647908e8034027ccf94c3bea201a)
+@@ -1,185 +0,0 @@
+-package com.example.kleine.fragments.categories
+-
+-import android.os.Bundle
+-import android.util.Log
+-import android.view.LayoutInflater
+-import android.view.View
+-import android.view.ViewGroup
+-import androidx.core.widget.NestedScrollView
+-import androidx.fragment.app.Fragment
+-import androidx.lifecycle.Observer
+-import androidx.lifecycle.ViewModelProvider
+-import androidx.navigation.fragment.findNavController
+-import androidx.recyclerview.widget.GridLayoutManager
+-import androidx.recyclerview.widget.LinearLayoutManager
+-import androidx.recyclerview.widget.RecyclerView
+-import com.example.kleine.R
+-import com.example.kleine.SpacingDecorator.HorizantalSpacingItemDecorator
+-import com.example.kleine.activities.ShoppingActivity
+-import com.example.kleine.adapters.recyclerview.ProductsRecyclerAdapter
+-import com.example.kleine.databinding.FragmentChairBinding
+-import com.example.kleine.databinding.FragmentFurnitureBinding
+-import com.example.kleine.firebaseDatabase.FirebaseDb
+-import com.example.kleine.resource.Resource
+-import com.example.kleine.util.Constants
+-import com.example.kleine.viewmodel.shopping.ShoppingViewModel
+-import com.example.kleine.viewmodel.shopping.ShoppingViewModelProviderFactory
+-
+-class FurnitureFragment : Fragment(R.layout.fragment_furniture) {
+-    val TAG = "FurnitureFragment"
+-    private lateinit var viewModel: ShoppingViewModel
+-    private lateinit var binding: FragmentFurnitureBinding
+-    private lateinit var headerAdapter: ProductsRecyclerAdapter
+-    private lateinit var productsAdapter: ProductsRecyclerAdapter
+-
+-    override fun onCreate(savedInstanceState: Bundle?) {
+-        super.onCreate(savedInstanceState)
+-        headerAdapter = ProductsRecyclerAdapter()
+-        productsAdapter = ProductsRecyclerAdapter()
+-        viewModel = (activity as ShoppingActivity).viewModel
+-
+-        viewModel.getMostRequestedFurniture()
+-        viewModel.getFurniture()
+-
+-        Log.d("Test","Furniture")
+-
+-    }
+-
+-    override fun onCreateView(
+-        inflater: LayoutInflater,
+-        container: ViewGroup?,
+-        savedInstanceState: Bundle?
+-    ): View? {
+-        binding = FragmentFurnitureBinding.inflate(inflater)
+-        return binding.root
+-    }
+-
+-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+-        super.onViewCreated(view, savedInstanceState)
+-
+-        setupHeaderRecyclerview()
+-        observeHeader()
+-
+-        setupProductsRecyclerView()
+-        observeProducts()
+-
+-        headerPaging()
+-        productsPaging()
+-
+-        productsAdapter.onItemClick = { product ->
+-            val bundle = Bundle()
+-            bundle.putParcelable("product",product)
+-            bundle.putString("flag", Constants.PRODUCT_FLAG)
+-
+-            findNavController().navigate(R.id.action_homeFragment_to_productPreviewFragment2,bundle)
+-        }
+-
+-        headerAdapter.onItemClick = { product ->
+-            val bundle = Bundle()
+-            bundle.putParcelable("product",product)
+-            bundle.putString("flag", Constants.PRODUCT_FLAG)
+-            findNavController().navigate(R.id.action_homeFragment_to_productPreviewFragment2,bundle)
+-        }
+-
+-    }
+-
+-    private fun productsPaging() {
+-        binding.scrollCupboard.setOnScrollChangeListener(NestedScrollView.OnScrollChangeListener { v, scrollX, scrollY, oldScrollX, oldScrollY ->
+-            if (v!!.getChildAt(0).bottom <= (v.height + scrollY)) {
+-                viewModel.getFurniture(productsAdapter.differ.currentList.size)
+-            }
+-        })
+-    }
+-
+-    private fun headerPaging() {
+-        binding.rvHeader.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+-                super.onScrolled(recyclerView, dx, dy)
+-
+-                if (!recyclerView.canScrollHorizontally(1) && dx != 0)
+-                    viewModel.getMostRequestedFurniture(headerAdapter.differ.currentList.size)
+-
+-            }
+-        })
+-    }
+-
+-    private fun observeProducts() {
+-        viewModel.furniture.observe(viewLifecycleOwner, Observer { response ->
+-
+-            when (response) {
+-                is Resource.Loading -> {
+-                    showBottomLoading()
+-                    return@Observer
+-                }
+-
+-                is Resource.Success -> {
+-                    hideBottomLoading()
+-                    productsAdapter.differ.submitList(response.data)
+-                    return@Observer
+-                }
+-
+-                is Resource.Error -> {
+-                    hideBottomLoading()
+-                    Log.e(TAG, response.message.toString())
+-                    return@Observer
+-                }
+-            }
+-        })
+-    }
+-
+-    private fun hideBottomLoading() {
+-        binding.progressbar2.visibility = View.GONE
+-    }
+-
+-    private fun showBottomLoading() {
+-        binding.progressbar2.visibility = View.VISIBLE
+-    }
+-
+-    private fun setupProductsRecyclerView() {
+-        binding.rvProducts.apply {
+-            adapter = productsAdapter
+-            layoutManager = GridLayoutManager(context, 2, GridLayoutManager.VERTICAL, false)
+-        }
+-    }
+-
+-    private fun observeHeader() {
+-        viewModel.mostRequestedFurniture.observe(viewLifecycleOwner, Observer { response ->
+-
+-            when (response) {
+-                is Resource.Loading -> {
+-                    showTopLoading()
+-                    return@Observer
+-                }
+-
+-                is Resource.Success -> {
+-                    hideTopLoading()
+-                    headerAdapter.differ.submitList(response.data)
+-                    return@Observer
+-                }
+-
+-                is Resource.Error -> {
+-                    hideTopLoading()
+-                    Log.e(TAG, response.message.toString())
+-                    return@Observer
+-                }
+-            }
+-        })
+-    }
+-
+-    private fun hideTopLoading() {
+-        binding.progressbar1.visibility = View.GONE
+-    }
+-
+-    private fun showTopLoading() {
+-        binding.progressbar1.visibility = View.VISIBLE
+-    }
+-
+-    private fun setupHeaderRecyclerview() {
+-        binding.rvHeader.apply {
+-            layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+-            adapter = headerAdapter
+-            addItemDecoration(HorizantalSpacingItemDecorator(100))
+-        }
+-    }
+-
+-}
+Index: app/src/main/java/com/example/kleine/fragments/categories/AccessoryFragment.kt
+===================================================================
+diff --git a/app/src/main/java/com/example/kleine/fragments/categories/AccessoryFragment.kt b/app/src/main/java/com/example/kleine/fragments/categories/AccessoryFragment.kt
+deleted file mode 100644
+--- a/app/src/main/java/com/example/kleine/fragments/categories/AccessoryFragment.kt	(revision 92515cec441a647908e8034027ccf94c3bea201a)
++++ /dev/null	(revision 92515cec441a647908e8034027ccf94c3bea201a)
+@@ -1,188 +0,0 @@
+-package com.example.kleine.fragments.categories
+-
+-import android.os.Bundle
+-import android.util.Log
+-import android.view.LayoutInflater
+-import android.view.View
+-import android.view.ViewGroup
+-import android.widget.Toast
+-import androidx.core.widget.NestedScrollView
+-import androidx.fragment.app.Fragment
+-import androidx.lifecycle.Observer
+-import androidx.lifecycle.ViewModelProvider
+-import androidx.navigation.fragment.findNavController
+-import androidx.recyclerview.widget.GridLayoutManager
+-import androidx.recyclerview.widget.LinearLayoutManager
+-import androidx.recyclerview.widget.RecyclerView
+-import com.example.kleine.R
+-import com.example.kleine.SpacingDecorator.HorizantalSpacingItemDecorator
+-import com.example.kleine.activities.ShoppingActivity
+-import com.example.kleine.adapters.recyclerview.ProductsRecyclerAdapter
+-import com.example.kleine.databinding.FragmentAccessoryBinding
+-import com.example.kleine.databinding.FragmentTableBinding
+-import com.example.kleine.firebaseDatabase.FirebaseDb
+-import com.example.kleine.resource.Resource
+-import com.example.kleine.util.Constants
+-import com.example.kleine.viewmodel.shopping.ShoppingViewModel
+-import com.example.kleine.viewmodel.shopping.ShoppingViewModelProviderFactory
+-
+-class AccessoryFragment : Fragment(R.layout.fragment_enlightening) {
+-    val TAG = "AccessoryFragment"
+-    private lateinit var viewModel: ShoppingViewModel
+-    private lateinit var binding: FragmentAccessoryBinding
+-    private lateinit var headerAdapter: ProductsRecyclerAdapter
+-    private lateinit var productsAdapter: ProductsRecyclerAdapter
+-
+-
+-    override fun onCreate(savedInstanceState: Bundle?) {
+-        super.onCreate(savedInstanceState)
+-        headerAdapter = ProductsRecyclerAdapter()
+-        productsAdapter = ProductsRecyclerAdapter()
+-        viewModel = (activity as ShoppingActivity).viewModel
+-
+-        viewModel.getAccessories()
+-        viewModel.getMostRequestedAccessories()
+-
+-        Log.d("Test","accessory")
+-
+-    }
+-
+-    override fun onCreateView(
+-        inflater: LayoutInflater,
+-        container: ViewGroup?,
+-        savedInstanceState: Bundle?
+-    ): View {
+-        binding = FragmentAccessoryBinding.inflate(inflater)
+-        return binding.root
+-    }
+-
+-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+-        super.onViewCreated(view, savedInstanceState)
+-
+-        setupHeaderRecyclerview()
+-        observeHeader()
+-
+-        setupProductsRecyclerView()
+-        observeProducts()
+-
+-        headerPaging()
+-        productsPaging()
+-
+-        productsAdapter.onItemClick = { product ->
+-            val bundle = Bundle()
+-            bundle.putParcelable("product",product)
+-            bundle.putString("flag", Constants.PRODUCT_FLAG)
+-            Log.d("test",product.newPrice!!)
+-
+-            findNavController().navigate(R.id.action_homeFragment_to_productPreviewFragment2,bundle)
+-        }
+-
+-        headerAdapter.onItemClick = { product ->
+-            val bundle = Bundle()
+-            bundle.putParcelable("product",product)
+-            bundle.putString("flag", Constants.PRODUCT_FLAG)
+-            findNavController().navigate(R.id.action_homeFragment_to_productPreviewFragment2,bundle)
+-        }
+-
+-    }
+-
+-    private fun productsPaging() {
+-        binding.scrollCupboard.setOnScrollChangeListener(NestedScrollView.OnScrollChangeListener { v, scrollX, scrollY, oldScrollX, oldScrollY ->
+-            if (v!!.getChildAt(0).bottom <= (v.height + scrollY)) {
+-                viewModel.getAccessories(productsAdapter.differ.currentList.size)
+-            }
+-        })
+-    }
+-
+-    private fun headerPaging() {
+-        binding.rvHeader.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+-                super.onScrolled(recyclerView, dx, dy)
+-
+-                if (!recyclerView.canScrollHorizontally(1) && dx != 0)
+-                    viewModel.getMostRequestedAccessories(headerAdapter.differ.currentList.size)
+-
+-            }
+-        })
+-    }
+-
+-    private fun observeProducts() {
+-        viewModel.accessory.observe(viewLifecycleOwner, Observer { response ->
+-
+-            when (response) {
+-                is Resource.Loading -> {
+-                    showBottomLoading()
+-                    return@Observer
+-                }
+-
+-                is Resource.Success -> {
+-                    hideBottomLoading()
+-                    productsAdapter.differ.submitList(response.data)
+-                    return@Observer
+-                }
+-
+-                is Resource.Error -> {
+-                    hideBottomLoading()
+-                    Log.e(TAG, response.message.toString())
+-                    return@Observer
+-                }
+-            }
+-        })
+-    }
+-
+-    private fun hideBottomLoading() {
+-        binding.progressbar2.visibility = View.GONE
+-    }
+-
+-    private fun showBottomLoading() {
+-        binding.progressbar2.visibility = View.VISIBLE
+-    }
+-
+-    private fun setupProductsRecyclerView() {
+-        binding.rvProducts.apply {
+-            adapter = productsAdapter
+-            layoutManager = GridLayoutManager(context, 2, GridLayoutManager.VERTICAL, false)
+-        }
+-    }
+-
+-    private fun observeHeader() {
+-        viewModel.mostRequestedAccessories.observe(viewLifecycleOwner, Observer { response ->
+-
+-            when (response) {
+-                is Resource.Loading -> {
+-                    showTopLoading()
+-                    return@Observer
+-                }
+-
+-                is Resource.Success -> {
+-                    hideTopLoading()
+-                    headerAdapter.differ.submitList(response.data)
+-                    return@Observer
+-                }
+-
+-                is Resource.Error -> {
+-                    hideTopLoading()
+-                    Log.e(TAG, response.message.toString())
+-                    return@Observer
+-                }
+-            }
+-        })
+-    }
+-
+-    private fun hideTopLoading() {
+-        binding.progressbar1.visibility = View.GONE
+-    }
+-
+-    private fun showTopLoading() {
+-        binding.progressbar1.visibility = View.VISIBLE
+-    }
+-
+-    private fun setupHeaderRecyclerview() {
+-        binding.rvHeader.apply {
+-            layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+-            adapter = headerAdapter
+-            addItemDecoration(HorizantalSpacingItemDecorator(100))
+-        }
+-    }
+-
+-}
+\ No newline at end of file
+Index: app/src/main/java/com/example/kleine/fragments/categories/TableFragment.kt
+===================================================================
+diff --git a/app/src/main/java/com/example/kleine/fragments/categories/TableFragment.kt b/app/src/main/java/com/example/kleine/fragments/categories/TableFragment.kt
+deleted file mode 100644
+--- a/app/src/main/java/com/example/kleine/fragments/categories/TableFragment.kt	(revision 92515cec441a647908e8034027ccf94c3bea201a)
++++ /dev/null	(revision 92515cec441a647908e8034027ccf94c3bea201a)
+@@ -1,185 +0,0 @@
+-package com.example.kleine.fragments.categories
+-
+-import android.os.Bundle
+-import android.util.Log
+-import android.view.LayoutInflater
+-import android.view.View
+-import android.view.ViewGroup
+-import android.widget.Toast
+-import androidx.core.widget.NestedScrollView
+-import androidx.fragment.app.Fragment
+-import androidx.lifecycle.Observer
+-import androidx.lifecycle.ViewModelProvider
+-import androidx.navigation.fragment.findNavController
+-import androidx.recyclerview.widget.GridLayoutManager
+-import androidx.recyclerview.widget.LinearLayoutManager
+-import androidx.recyclerview.widget.RecyclerView
+-import com.example.kleine.R
+-import com.example.kleine.SpacingDecorator.HorizantalSpacingItemDecorator
+-import com.example.kleine.activities.ShoppingActivity
+-import com.example.kleine.adapters.recyclerview.ProductsRecyclerAdapter
+-import com.example.kleine.databinding.FragmentChairBinding
+-import com.example.kleine.databinding.FragmentTableBinding
+-import com.example.kleine.firebaseDatabase.FirebaseDb
+-import com.example.kleine.resource.Resource
+-import com.example.kleine.util.Constants
+-import com.example.kleine.viewmodel.shopping.ShoppingViewModel
+-import com.example.kleine.viewmodel.shopping.ShoppingViewModelProviderFactory
+-
+-class TableFragment : Fragment(R.layout.fragment_table) {
+-    val TAG = "TableFragment"
+-    private lateinit var viewModel: ShoppingViewModel
+-    private lateinit var binding: FragmentTableBinding
+-    private lateinit var headerAdapter: ProductsRecyclerAdapter
+-    private lateinit var productsAdapter: ProductsRecyclerAdapter
+-
+-
+-    override fun onCreate(savedInstanceState: Bundle?) {
+-        super.onCreate(savedInstanceState)
+-        headerAdapter = ProductsRecyclerAdapter()
+-        productsAdapter = ProductsRecyclerAdapter()
+-        viewModel = (activity as ShoppingActivity).viewModel
+-        viewModel.getTables()
+-        viewModel.getMostRequestedTables()
+-    }
+-
+-    override fun onCreateView(
+-        inflater: LayoutInflater,
+-        container: ViewGroup?,
+-        savedInstanceState: Bundle?
+-    ): View? {
+-
+-        binding = FragmentTableBinding.inflate(inflater)
+-        return binding.root
+-    }
+-
+-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+-        super.onViewCreated(view, savedInstanceState)
+-
+-        setupHeaderRecyclerview()
+-        observeHeader()
+-
+-        setupProductsRecyclerView()
+-        observeProducts()
+-
+-        headerPaging()
+-        productsPaging()
+-
+-        productsAdapter.onItemClick = { product ->
+-            val bundle = Bundle()
+-            bundle.putParcelable("product",product)
+-            bundle.putString("flag", Constants.PRODUCT_FLAG)
+-            Log.d("test",product.newPrice!!)
+-
+-            findNavController().navigate(R.id.action_homeFragment_to_productPreviewFragment2,bundle)
+-        }
+-
+-        headerAdapter.onItemClick = { product ->
+-            val bundle = Bundle()
+-            bundle.putParcelable("product",product)
+-            bundle.putString("flag", Constants.PRODUCT_FLAG)
+-            findNavController().navigate(R.id.action_homeFragment_to_productPreviewFragment2,bundle)
+-        }
+-
+-    }
+-
+-    private fun productsPaging() {
+-        binding.scrollCupboard.setOnScrollChangeListener(NestedScrollView.OnScrollChangeListener { v, scrollX, scrollY, oldScrollX, oldScrollY ->
+-            if (v!!.getChildAt(0).bottom <= (v.height + scrollY)) {
+-                viewModel.getTables(productsAdapter.differ.currentList.size)
+-            }
+-        })
+-    }
+-
+-    private fun headerPaging() {
+-        binding.rvHeader.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+-                super.onScrolled(recyclerView, dx, dy)
+-
+-                if (!recyclerView.canScrollHorizontally(1) && dx != 0)
+-                    viewModel.getMostRequestedTables(headerAdapter.differ.currentList.size)
+-
+-            }
+-        })
+-    }
+-
+-    private fun observeProducts() {
+-        viewModel.tables.observe(viewLifecycleOwner, Observer { response ->
+-
+-            when (response) {
+-                is Resource.Loading -> {
+-                    showBottomLoading()
+-                    return@Observer
+-                }
+-
+-                is Resource.Success -> {
+-                    hideBottomLoading()
+-                    productsAdapter.differ.submitList(response.data)
+-                    return@Observer
+-                }
+-
+-                is Resource.Error -> {
+-                    hideBottomLoading()
+-                    Log.e(TAG, response.message.toString())
+-                    return@Observer
+-                }
+-            }
+-        })
+-    }
+-
+-    private fun hideBottomLoading() {
+-        binding.progressbar2.visibility = View.GONE
+-    }
+-
+-    private fun showBottomLoading() {
+-        binding.progressbar2.visibility = View.VISIBLE
+-    }
+-
+-    private fun setupProductsRecyclerView() {
+-        binding.rvProducts.apply {
+-            adapter = productsAdapter
+-            layoutManager = GridLayoutManager(context, 2, GridLayoutManager.VERTICAL, false)
+-        }
+-    }
+-
+-    private fun observeHeader() {
+-        viewModel.mostRequestedTables.observe(viewLifecycleOwner, Observer { response ->
+-
+-            when (response) {
+-                is Resource.Loading -> {
+-                    showTopLoading()
+-                    return@Observer
+-                }
+-
+-                is Resource.Success -> {
+-                    hideTopLoading()
+-                    headerAdapter.differ.submitList(response.data)
+-                    return@Observer
+-                }
+-
+-                is Resource.Error -> {
+-                    hideTopLoading()
+-                    Log.e(TAG, response.message.toString())
+-                    return@Observer
+-                }
+-            }
+-        })
+-    }
+-
+-    private fun hideTopLoading() {
+-        binding.progressbar1.visibility = View.GONE
+-    }
+-
+-    private fun showTopLoading() {
+-        binding.progressbar1.visibility = View.VISIBLE
+-    }
+-
+-    private fun setupHeaderRecyclerview() {
+-        binding.rvHeader.apply {
+-            layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+-            adapter = headerAdapter
+-            addItemDecoration(HorizantalSpacingItemDecorator(100))
+-        }
+-    }
+-
+-}
+\ No newline at end of file
+Index: app/src/main/java/com/example/kleine/fragments/shopping/SearchFragment.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.example.kleine.fragments.shopping\n\nimport android.content.Context\nimport android.os.Bundle\nimport android.util.Log\nimport android.view.LayoutInflater\nimport android.view.View\nimport android.view.ViewGroup\nimport android.view.inputmethod.InputMethodManager\nimport androidx.coordinatorlayout.widget.CoordinatorLayout\nimport androidx.core.widget.addTextChangedListener\nimport androidx.fragment.app.Fragment\nimport androidx.lifecycle.Observer\nimport androidx.navigation.fragment.findNavController\nimport androidx.recyclerview.widget.GridLayoutManager\nimport androidx.recyclerview.widget.LinearLayoutManager\nimport com.example.kleine.R\nimport com.example.kleine.SpacingDecorator.VerticalSpacingItemDecorator\nimport com.example.kleine.activities.ShoppingActivity\nimport com.example.kleine.adapters.recyclerview.CategoriesRecyclerAdapter\nimport com.example.kleine.adapters.recyclerview.SearchRecyclerAdapter\nimport com.example.kleine.databinding.FragmentSearchBinding\nimport com.example.kleine.resource.Resource\nimport com.example.kleine.viewmodel.shopping.ShoppingViewModel\nimport com.google.android.material.bottomnavigation.BottomNavigationView\nimport com.google.android.material.snackbar.Snackbar\nimport kotlinx.coroutines.*\n\nclass SearchFragment : Fragment() {\n    private val TAG = \"SearchFragment\"\n    private lateinit var binding: FragmentSearchBinding\n    private lateinit var inputMethodManger: InputMethodManager\n    private lateinit var viewModel: ShoppingViewModel\n    private lateinit var categoriesAdapter: CategoriesRecyclerAdapter\n    private lateinit var searchAdapter: SearchRecyclerAdapter\n\n\n    override fun onCreate(savedInstanceState: Bundle?) {\n        super.onCreate(savedInstanceState)\n        viewModel = (activity as ShoppingActivity).viewModel\n        viewModel.getCategories()\n\n    }\n\n    override fun onCreateView(\n        inflater: LayoutInflater, container: ViewGroup?,\n        savedInstanceState: Bundle?\n    ): View {\n        binding = FragmentSearchBinding.inflate(inflater)\n        return binding.root\n    }\n\n    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {\n        super.onViewCreated(view, savedInstanceState)\n\n        setupCategoryRecyclerView()\n        setupSearchRecyclerView()\n        showKeyboardAutomatically()\n        onHomeClick()\n\n        searchProducts()\n        observeSearch()\n\n        observeCategories()\n\n        onSearchTextClick()\n\n        onCancelTvClick()\n\n        onCategoryClick()\n\n        binding.frameScan.setOnClickListener {\n            val snackBar = requireActivity().findViewById<CoordinatorLayout>(R.id.snackBar_coordinator)\n            Snackbar.make(snackBar,resources.getText(R.string.g_coming_soon), Snackbar.LENGTH_SHORT).show()\n        }\n        binding.fragmeMicrohpone.setOnClickListener {\n            val snackBar = requireActivity().findViewById<CoordinatorLayout>(R.id.snackBar_coordinator)\n            Snackbar.make(snackBar,resources.getText(R.string.g_coming_soon), Snackbar.LENGTH_SHORT).show()\n        }\n\n    }\n\n    private fun onCategoryClick() {\n        categoriesAdapter.onItemClick = { category ->\n            var position = 0\n            when (category.name) {\n                resources.getString(R.string.g_chair) -> position = 1\n                resources.getString(R.string.g_cupboard) -> position = 2\n                resources.getString(R.string.g_table) -> position = 3\n                resources.getString(R.string.g_accessory) -> position = 4\n                resources.getString(R.string.g_furniture) -> position = 5\n            }\n\n            val bundle = Bundle()\n            bundle.putInt(\"position\", position)\n//            findNavController().navigate(R.id.action_searchFragment_to_homeFragment, bundle)\n        }\n    }\n\n    private fun onCancelTvClick() {\n        binding.tvCancel.setOnClickListener {\n            searchAdapter.differ.submitList(emptyList())\n            binding.edSearch.setText(\"\")\n            hideCancelTv()\n        }\n    }\n\n    private fun onSearchTextClick() {\n        searchAdapter.onItemClick = { product ->\n            val bundle = Bundle()\n            bundle.putParcelable(\"product\", product)\n\n            /**\n             * Hide the keyboard\n             */\n\n            val imm =\n                activity?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager?\n            imm!!.hideSoftInputFromWindow(requireView().windowToken, 0)\n\n            findNavController().navigate(\n                R.id.action_searchFragment_to_productPreviewFragment2,\n                bundle\n            )\n\n        }\n    }\n\n    private fun setupSearchRecyclerView() {\n        searchAdapter = SearchRecyclerAdapter()\n        binding.rvSearch.apply {\n            adapter = searchAdapter\n            layoutManager = LinearLayoutManager(context)\n        }\n    }\n\n    private fun setupCategoryRecyclerView() {\n        categoriesAdapter = CategoriesRecyclerAdapter()\n        binding.rvCategories.apply {\n            adapter = categoriesAdapter\n            layoutManager = GridLayoutManager(context, 2, GridLayoutManager.VERTICAL, false)\n            addItemDecoration(VerticalSpacingItemDecorator(40))\n        }\n    }\n\n    private fun observeCategories() {\n        viewModel.categories.observe(viewLifecycleOwner, Observer { response ->\n            when (response) {\n                is Resource.Loading -> {\n                    showCategoriesLoading()\n                    return@Observer\n                }\n\n                is Resource.Success -> {\n                    hideCategoriesLoading()\n                    val categories = response.data\n                    categoriesAdapter.differ.submitList(categories?.toList())\n                    return@Observer\n                }\n\n                is Resource.Error -> {\n                    hideCategoriesLoading()\n                    Log.e(TAG, response.message.toString())\n                    return@Observer\n                }\n            }\n        })\n    }\n\n    private fun hideCategoriesLoading() {\n        binding.progressbarCategories.visibility = View.GONE\n\n    }\n\n    private fun showCategoriesLoading() {\n        binding.progressbarCategories.visibility = View.VISIBLE\n\n    }\n\n\n    private fun observeSearch() {\n        viewModel.search.observe(viewLifecycleOwner, Observer { response ->\n            when (response) {\n                is Resource.Loading -> {\n                    Log.d(\"test\", \"Loading\")\n                    return@Observer\n                }\n\n                is Resource.Success -> {\n                    val products = response.data\n                    searchAdapter.differ.submitList(products)\n                    showChancelTv()\n                    return@Observer\n                }\n\n                is Resource.Error -> {\n                    Log.e(TAG, response.message.toString())\n                    showChancelTv()\n                    return@Observer\n                }\n            }\n        })\n    }\n\n    var job: Job? = null\n    private fun searchProducts() {\n        binding.edSearch.addTextChangedListener { query ->\n            val queryTrim = query.toString().trim()\n            if (queryTrim.isNotEmpty()) {\n                val searchQuery = query.toString().substring(0, 1).toUpperCase()\n                    .plus(query.toString().substring(1))\n                job?.cancel()\n                job = CoroutineScope(Dispatchers.IO).launch {\n                    delay(500L)\n                    viewModel.searchProducts(searchQuery)\n                }\n            } else {\n                searchAdapter.differ.submitList(emptyList())\n                hideCancelTv()\n            }\n        }\n\n\n    }\n\n    private fun showChancelTv() {\n        binding.tvCancel.visibility = View.VISIBLE\n        binding.imgMic.visibility = View.GONE\n        binding.imgScan.visibility = View.GONE\n        binding.fragmeMicrohpone.visibility = View.GONE\n        binding.frameScan.visibility = View.GONE\n\n    }\n\n    private fun hideCancelTv() {\n        binding.tvCancel.visibility = View.GONE\n        binding.imgMic.visibility = View.VISIBLE\n        binding.imgScan.visibility = View.VISIBLE\n        binding.fragmeMicrohpone.visibility = View.VISIBLE\n        binding.frameScan.visibility = View.VISIBLE\n    }\n\n    private fun onHomeClick() {\n        val btm = activity?.findViewById<BottomNavigationView>(R.id.bottom_navigation)\n        btm?.menu?.getItem(0)?.setOnMenuItemClickListener {\n            activity?.onBackPressed()\n            true\n        }\n    }\n\n    private fun showKeyboardAutomatically() {\n        inputMethodManger =\n            activity?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager\n        inputMethodManger.toggleSoftInput(\n            InputMethodManager.SHOW_FORCED,\n            InputMethodManager.HIDE_IMPLICIT_ONLY\n        )\n\n        binding.edSearch.requestFocus()\n    }\n\n    override fun onDestroy() {\n        super.onDestroy()\n        binding.edSearch.clearFocus()\n    }\n\n    override fun onResume() {\n        super.onResume()\n\n        val bottomNav = activity?.findViewById<BottomNavigationView>(R.id.bottom_navigation)\n        bottomNav?.visibility = View.VISIBLE\n    }\n\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/example/kleine/fragments/shopping/SearchFragment.kt b/app/src/main/java/com/example/kleine/fragments/shopping/SearchFragment.kt
+--- a/app/src/main/java/com/example/kleine/fragments/shopping/SearchFragment.kt	(revision 92515cec441a647908e8034027ccf94c3bea201a)
++++ b/app/src/main/java/com/example/kleine/fragments/shopping/SearchFragment.kt	(date 1695303450103)
+@@ -118,10 +118,10 @@
+                 activity?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager?
+             imm!!.hideSoftInputFromWindow(requireView().windowToken, 0)
+ 
+-            findNavController().navigate(
+-                R.id.action_searchFragment_to_productPreviewFragment2,
+-                bundle
+-            )
++//            findNavController().navigate(
++//                R.id.action_searchFragment_to_materialPreviewFragment,
++//                bundle
++//            )
+ 
+         }
+     }
+Index: app/src/main/java/com/example/kleine/fragments/shopping/ProductPreviewFragment.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.example.kleine.fragments.shopping\n\nimport android.annotation.SuppressLint\nimport android.graphics.Paint\nimport android.os.Bundle\nimport android.util.Log\nimport androidx.fragment.app.Fragment\nimport android.view.LayoutInflater\nimport android.view.View\nimport android.view.ViewGroup\nimport android.widget.Toast\nimport androidx.lifecycle.Observer\nimport androidx.navigation.fragment.navArgs\nimport androidx.recyclerview.widget.LinearLayoutManager\nimport com.example.kleine.R\nimport com.example.kleine.SpacingDecorator.HorizantalSpacingItemDecorator\nimport com.example.kleine.activities.ShoppingActivity\nimport com.example.kleine.adapters.recyclerview.ColorsAndSizesAdapter\nimport com.example.kleine.adapters.viewpager.ViewPager2Images\nimport com.example.kleine.databinding.FragmentProductPreviewBinding\nimport com.example.kleine.model.CartProduct\nimport com.example.kleine.model.Product\nimport com.example.kleine.resource.Resource\nimport com.example.kleine.util.Constants.Companion.COLORS\nimport com.example.kleine.util.Constants.Companion.COLORS_TYPE\nimport com.example.kleine.util.Constants.Companion.IMAGES\nimport com.example.kleine.util.Constants.Companion.PRODUCT_FLAG\nimport com.example.kleine.util.Constants.Companion.SIZES\nimport com.example.kleine.util.Constants.Companion.SIZES_TYPE\nimport com.example.kleine.viewmodel.shopping.ShoppingViewModel\nimport com.google.android.material.bottomnavigation.BottomNavigationView\nimport io.github.vejei.viewpagerindicator.indicator.CircleIndicator\n\nclass ProductPreviewFragment : Fragment() {\n\n    val args by navArgs<ProductPreviewFragmentArgs>()\n    val TAG = \"ProductPreviewFragment\"\n\n    private lateinit var binding: FragmentProductPreviewBinding\n    private lateinit var colorsAdapter: ColorsAndSizesAdapter\n    private lateinit var sizesAdapter: ColorsAndSizesAdapter\n    private lateinit var viewPagerAdapter: ViewPager2Images\n    private lateinit var viewModel: ShoppingViewModel\n\n    override fun onCreate(savedInstanceState: Bundle?) {\n        super.onCreate(savedInstanceState)\n        colorsAdapter = ColorsAndSizesAdapter(COLORS_TYPE)\n        sizesAdapter = ColorsAndSizesAdapter(SIZES_TYPE)\n        viewPagerAdapter = ViewPager2Images()\n        viewModel = (activity as ShoppingActivity).viewModel\n    }\n\n    override fun onCreateView(\n        inflater: LayoutInflater, container: ViewGroup?,\n        savedInstanceState: Bundle?\n    ): View? {\n\n        binding = FragmentProductPreviewBinding.inflate(inflater)\n        return binding.root\n    }\n\n    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {\n        super.onViewCreated(view, savedInstanceState)\n\n        val bottomNavigation =\n            requireActivity().findViewById<BottomNavigationView>(R.id.bottom_navigation)\n        bottomNavigation.visibility = View.GONE\n\n        val product = args.product\n\n        setupViewpager()\n        setupColorsRecyclerview()\n        setupSizesRecyclerview()\n\n\n//        setProductInformation(product)\n\n        onImageCloseClick()\n        onBtnAddToCartClick()\n\n        observeAddToCart()\n\n        onColorClick()\n        onSizeClick()\n    }\n\n    private var selectedSize: String = \"\"\n    private fun onSizeClick() {\n        sizesAdapter.onItemClick = { size ->\n            selectedSize = size\n            binding.tvSizeError.visibility = View.INVISIBLE\n\n        }\n    }\n\n    private var selectedColor: String = \"\"\n    private fun onColorClick() {\n        colorsAdapter.onItemClick = { color ->\n            selectedColor = color\n            binding.tvColorError.visibility = View.INVISIBLE\n        }\n    }\n\n\n    private fun observeAddToCart() {\n        viewModel.addToCart.observe(viewLifecycleOwner, Observer { response ->\n            val btn = binding.btnAddToCart\n            when (response) {\n                is Resource.Loading -> {\n                    startLoading()\n                    return@Observer\n                }\n\n                is Resource.Success -> {\n                    stopLoading()\n                    viewModel.addToCart.value = null\n                    return@Observer\n                }\n\n                is Resource.Error -> {\n                    Toast.makeText(activity, \"Oops! error occurred\", Toast.LENGTH_SHORT).show()\n                    viewModel.addToCart.value = null\n                    Log.e(TAG, response.message.toString())\n                }\n            }\n        })\n    }\n\n    private fun stopLoading() {\n        binding.apply {\n            btnAddToCart.visibility = View.VISIBLE\n            progressbar.visibility = View.INVISIBLE\n        }\n    }\n\n    private fun startLoading() {\n        binding.apply {\n            btnAddToCart.visibility = View.INVISIBLE\n            progressbar.visibility = View.VISIBLE\n        }\n    }\n\n\n    private fun onBtnAddToCartClick() {\n        binding.btnAddToCart.apply {\n            setOnClickListener {\n\n                if (selectedColor.isEmpty()) {\n                    binding.tvColorError.visibility = View.VISIBLE\n                    return@setOnClickListener\n                }\n\n                if (selectedSize.isEmpty()) {\n                    binding.tvSizeError.visibility = View.VISIBLE\n                    return@setOnClickListener\n                }\n\n                val product = args.product\n                val image = (product.images?.get(IMAGES) as List<String>)[0]\n                val cartProduct = CartProduct(\n                    product.id,\n                    product.description!!,\n                    product.seller!!,\n                    image,\n                    product.productPrice!!,\n                    product.newPrice,\n                    1,\n                    selectedColor,\n                    selectedSize\n                )\n                viewModel.addProductToCart(cartProduct)\n                setBackgroundResource(R.color.g_black)\n            }\n        }\n    }\n\n    private fun onImageCloseClick() {\n        binding.imgClose.setOnClickListener {\n            activity?.onBackPressed()\n        }\n    }\n\n//    @SuppressLint(\"SetTextI18n\")\n//    private fun setProductInformation(product: Product) {\n//        val imagesList = product.images!![IMAGES] as List<String>\n//        val colors = product.colors!![COLORS] as List<String>\n//        val sizes = product.sizes!![SIZES] as List<String>\n//        binding.apply {\n//            viewPagerAdapter.differ.submitList(imagesList)\n//            if (colors.isNotEmpty() && colors[0] != \"\")\n//                colorsAdapter.differ.submitList(colors.toList())\n//            if (sizes.isNotEmpty() && sizes[0] != \"\")\n//                sizesAdapter.differ.submitList(sizes)\n//            tvProductName.text = product.title\n//            tvProductDescription.text = product.description\n//            tvProductPrice.text = \"$${product.price}\"\n//            tvProductOfferPrice.visibility = View.GONE\n//            product.newPrice?.let {\n//                if (product.newPrice.isNotEmpty() && product.newPrice != \"0\") {\n//                    tvProductPrice.paintFlags =\n//                        tvProductPrice.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG\n//                    tvProductOfferPrice.text = \"$${product.newPrice}\"\n//                    tvProductOfferPrice.visibility = View.VISIBLE\n//                }\n//            }\n//            product.sizeUnit?.let {\n//                if (it.isNotEmpty()) {\n//                    binding.tvSizeUnit.visibility = View.VISIBLE\n//                    binding.tvSizeUnit.text = \" ($it)\"\n//                }\n//            }\n//        }\n//    }\n\n    private fun setupSizesRecyclerview() {\n        binding.rvSizes.apply {\n            adapter = sizesAdapter\n            layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)\n            addItemDecoration(HorizantalSpacingItemDecorator(45))\n        }\n    }\n\n    private fun setupColorsRecyclerview() {\n        binding.rvColors.apply {\n            adapter = colorsAdapter\n            layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)\n            addItemDecoration(HorizantalSpacingItemDecorator(45))\n        }\n    }\n\n    private fun setupViewpager() {\n        binding.viewpager2Images.adapter = viewPagerAdapter\n        binding.circleIndicator.setWithViewPager2(binding.viewpager2Images)\n        binding.circleIndicator.itemCount = (args.product.images?.get(IMAGES) as List<String>).size\n        binding.circleIndicator.setAnimationMode(CircleIndicator.AnimationMode.SLIDE)\n    }\n\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/example/kleine/fragments/shopping/ProductPreviewFragment.kt b/app/src/main/java/com/example/kleine/fragments/shopping/ProductPreviewFragment.kt
+--- a/app/src/main/java/com/example/kleine/fragments/shopping/ProductPreviewFragment.kt	(revision 92515cec441a647908e8034027ccf94c3bea201a)
++++ b/app/src/main/java/com/example/kleine/fragments/shopping/ProductPreviewFragment.kt	(date 1695303364794)
+@@ -33,7 +33,7 @@
+ 
+ class ProductPreviewFragment : Fragment() {
+ 
+-    val args by navArgs<ProductPreviewFragmentArgs>()
++    val args by navArgs<MaterialPreviewFragmentArgs>()
+     val TAG = "ProductPreviewFragment"
+ 
+     private lateinit var binding: FragmentProductPreviewBinding
+@@ -66,11 +66,10 @@
+             requireActivity().findViewById<BottomNavigationView>(R.id.bottom_navigation)
+         bottomNavigation.visibility = View.GONE
+ 
+-        val product = args.product
++        val product = args.material
+ 
+         setupViewpager()
+-        setupColorsRecyclerview()
+-        setupSizesRecyclerview()
++
+ 
+ 
+ //        setProductInformation(product)
+@@ -144,36 +143,22 @@
+     private fun onBtnAddToCartClick() {
+         binding.btnAddToCart.apply {
+             setOnClickListener {
+-
+                 if (selectedColor.isEmpty()) {
+                     binding.tvColorError.visibility = View.VISIBLE
+                     return@setOnClickListener
+                 }
+-
+                 if (selectedSize.isEmpty()) {
+                     binding.tvSizeError.visibility = View.VISIBLE
+                     return@setOnClickListener
+                 }
+ 
+-                val product = args.product
+-                val image = (product.images?.get(IMAGES) as List<String>)[0]
+-                val cartProduct = CartProduct(
+-                    product.id,
+-                    product.description!!,
+-                    product.seller!!,
+-                    image,
+-                    product.productPrice!!,
+-                    product.newPrice,
+-                    1,
+-                    selectedColor,
+-                    selectedSize
+-                )
+-                viewModel.addProductToCart(cartProduct)
++
+                 setBackgroundResource(R.color.g_black)
+             }
+         }
+     }
+ 
++
+     private fun onImageCloseClick() {
+         binding.imgClose.setOnClickListener {
+             activity?.onBackPressed()
+@@ -212,27 +197,16 @@
+ //        }
+ //    }
+ 
+-    private fun setupSizesRecyclerview() {
+-        binding.rvSizes.apply {
+-            adapter = sizesAdapter
+-            layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+-            addItemDecoration(HorizantalSpacingItemDecorator(45))
+-        }
+-    }
++
+ 
+-    private fun setupColorsRecyclerview() {
+-        binding.rvColors.apply {
+-            adapter = colorsAdapter
+-            layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+-            addItemDecoration(HorizantalSpacingItemDecorator(45))
+-        }
+-    }
++
+ 
+     private fun setupViewpager() {
+         binding.viewpager2Images.adapter = viewPagerAdapter
+         binding.circleIndicator.setWithViewPager2(binding.viewpager2Images)
+-        binding.circleIndicator.itemCount = (args.product.images?.get(IMAGES) as List<String>).size
++        binding.circleIndicator.itemCount = 1 // Only one image
+         binding.circleIndicator.setAnimationMode(CircleIndicator.AnimationMode.SLIDE)
+     }
+ 
++
+ }
+\ No newline at end of file
+Index: app/src/main/res/layout/fragment_product.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"utf-8\"?>\n<androidx.constraintlayout.widget.ConstraintLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\n    xmlns:app=\"http://schemas.android.com/apk/res-auto\"\n    xmlns:tools=\"http://schemas.android.com/tools\"\n    android:layout_width=\"match_parent\"\n    android:layout_height=\"match_parent\"\n    tools:context=\".activities.ShoppingActivity\">\n\n\n\n\n    <fragment\n        android:id=\"@+id/host_fragment\"\n        android:name=\"androidx.navigation.fragment.NavHostFragment\"\n        android:layout_width=\"0dp\"\n        android:layout_height=\"0dp\"\n        app:defaultNavHost=\"true\"\n        app:layout_constraintBottom_toTopOf=\"@id/bottom_navigation\"\n        app:layout_constraintEnd_toEndOf=\"parent\"\n        app:layout_constraintHorizontal_bias=\"0.0\"\n        app:layout_constraintStart_toStartOf=\"parent\"\n        app:layout_constraintTop_toTopOf=\"parent\"\n\n\n        app:layout_constraintVertical_bias=\"1.0\"\n        app:navGraph=\"@navigation/shopping_nav_graph\" />\n\n\n    <com.google.android.material.bottomnavigation.BottomNavigationView\n        android:id=\"@+id/bottom_navigation\"\n        android:layout_width=\"match_parent\"\n        android:layout_height=\"@dimen/_55sdp\"\n        android:background=\"@drawable/bottom_navigation_background\"\n        app:elevation=\"0dp\"\n        app:itemIconTint=\"@drawable/bottom_nav_item_background\"\n        app:itemPaddingBottom=\"@dimen/_10sdp\"\n        app:itemPaddingTop=\"@dimen/_10sdp\"\n        app:itemRippleColor=\"@color/g_white\"\n        app:labelVisibilityMode=\"unlabeled\"\n        app:layout_constraintBottom_toBottomOf=\"parent\"\n        app:layout_constraintEnd_toEndOf=\"parent\"\n        app:layout_constraintStart_toStartOf=\"parent\"\n        app:menu=\"@menu/bottom_menu\" />\n\n\n    <androidx.coordinatorlayout.widget.CoordinatorLayout\n        android:id=\"@+id/snackBar_coordinator\"\n        android:layout_width=\"0dp\"\n        android:layout_height=\"wrap_content\"\n        app:layout_constraintBottom_toTopOf=\"@id/bottom_navigation\"\n        app:layout_constraintStart_toStartOf=\"parent\"\n        app:layout_constraintEnd_toEndOf=\"parent\"/>\n\n\n    <androidx.recyclerview.widget.RecyclerView\n        android:id=\"@+id/recycleViewProductList\"\n        android:layout_width=\"417dp\"\n        android:layout_height=\"696dp\"\n        app:layoutManager=\"androidx.recyclerview.widget.GridLayoutManager\"\n        app:layout_constraintBottom_toTopOf=\"@+id/snackBar_coordinator\"\n        app:layout_constraintEnd_toEndOf=\"parent\"\n        app:layout_constraintHorizontal_bias=\"0.0\"\n        app:layout_constraintStart_toStartOf=\"parent\"\n        app:layout_constraintTop_toTopOf=\"@+id/host_fragment\"\n        app:layout_constraintVertical_bias=\"1.0\"\n        tools:listitem=\"@layout/product_cart\" />\n\n\n</androidx.constraintlayout.widget.ConstraintLayout>\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/res/layout/fragment_product.xml b/app/src/main/res/layout/fragment_product.xml
+--- a/app/src/main/res/layout/fragment_product.xml	(revision 92515cec441a647908e8034027ccf94c3bea201a)
++++ b/app/src/main/res/layout/fragment_product.xml	(date 1695284306369)
+@@ -52,18 +52,6 @@
+         app:layout_constraintEnd_toEndOf="parent"/>
+ 
+ 
+-    <androidx.recyclerview.widget.RecyclerView
+-        android:id="@+id/recycleViewProductList"
+-        android:layout_width="417dp"
+-        android:layout_height="696dp"
+-        app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+-        app:layout_constraintBottom_toTopOf="@+id/snackBar_coordinator"
+-        app:layout_constraintEnd_toEndOf="parent"
+-        app:layout_constraintHorizontal_bias="0.0"
+-        app:layout_constraintStart_toStartOf="parent"
+-        app:layout_constraintTop_toTopOf="@+id/host_fragment"
+-        app:layout_constraintVertical_bias="1.0"
+-        tools:listitem="@layout/product_cart" />
+ 
+ 
+ </androidx.constraintlayout.widget.ConstraintLayout>
+Index: app/src/main/res/navigation/shopping_nav_graph.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"utf-8\"?>\n<navigation xmlns:android=\"http://schemas.android.com/apk/res/android\"\n    xmlns:app=\"http://schemas.android.com/apk/res-auto\"\n    xmlns:tools=\"http://schemas.android.com/tools\"\n    android:id=\"@+id/shopping_nav_graph\"\n    app:startDestination=\"@id/homeFragment\">\n\n    <fragment\n        android:id=\"@+id/homeFragment\"\n        android:name=\"com.example.kleine.fragments.shopping.HomeFragment\"\n        android:label=\"fragment_home\"\n        tools:layout=\"@layout/fragment_home\">\n        <action\n            android:id=\"@+id/action_homeFragment_to_productPreviewFragment2\"\n            app:destination=\"@id/productPreviewFragment2\"\n            app:enterAnim=\"@anim/nav_default_enter_anim\"\n            app:exitAnim=\"@anim/nav_default_exit_anim\"\n            app:popEnterAnim=\"@anim/nav_default_pop_enter_anim\"\n            app:popExitAnim=\"@anim/nav_default_pop_exit_anim\"/>\n        <action\n            android:id=\"@+id/action_homeFragment_to_searchFragment\"\n            app:destination=\"@id/searchFragment\"\n            app:popUpTo=\"@id/homeFragment\" />\n        <argument\n            android:name=\"position\"\n            app:argType=\"integer\"\n            android:defaultValue=\"0\" />\n    </fragment>\n    <fragment\n        android:id=\"@+id/searchFragment\"\n        android:name=\"com.example.kleine.fragments.shopping.SearchFragment\"\n        android:label=\"fragment_search\"\n        tools:layout=\"@layout/fragment_search\">\n        <action\n            android:id=\"@+id/action_searchFragment_to_productPreviewFragment2\"\n            app:destination=\"@id/productPreviewFragment2\"\n            app:enterAnim=\"@anim/nav_default_enter_anim\"\n            app:exitAnim=\"@anim/nav_default_exit_anim\"\n            app:popEnterAnim=\"@anim/nav_default_pop_enter_anim\"\n            app:popExitAnim=\"@anim/nav_default_pop_exit_anim\"/>\n        <action\n            android:id=\"@+id/action_searchFragment_to_homeFragment\"\n            app:destination=\"@id/homeFragment\" />\n    </fragment>\n    <fragment\n        android:id=\"@+id/profileFragment\"\n        android:name=\"com.example.kleine.fragments.shopping.ProfileFragment\"\n        android:label=\"fragment_profile\"\n        tools:layout=\"@layout/fragment_profile\">\n        <action\n            android:id=\"@+id/action_profileFragment_to_billingFragment\"\n            app:destination=\"@id/billingFragment\"\n            app:enterAnim=\"@anim/from_right\"\n            app:exitAnim=\"@anim/to_left\"\n            app:popEnterAnim=\"@anim/from_left\"\n            app:popExitAnim=\"@anim/to_right\"/>\n        <action\n            android:id=\"@+id/action_profileFragment_to_editUserInformation\"\n            app:destination=\"@id/editUserInformation\"\n            app:enterAnim=\"@anim/from_right\"\n            app:exitAnim=\"@anim/to_left\"\n            app:popEnterAnim=\"@anim/from_left\"\n            app:popExitAnim=\"@anim/to_right\"/>\n        <action\n            android:id=\"@+id/action_profileFragment_to_allOrdersFragment\"\n            app:destination=\"@id/allOrdersFragment\"\n            app:enterAnim=\"@anim/from_right\"\n            app:exitAnim=\"@anim/to_left\"\n            app:popEnterAnim=\"@anim/from_left\"\n            app:popExitAnim=\"@anim/to_right\"/>\n        <action\n            android:id=\"@+id/action_profileFragment_to_languageFragment\"\n            app:destination=\"@id/languageFragment\"\n            app:enterAnim=\"@anim/from_right\"\n            app:exitAnim=\"@anim/to_left\"\n            app:popEnterAnim=\"@anim/from_left\"\n            app:popExitAnim=\"@anim/to_right\"/>\n        <action\n            android:id=\"@+id/action_profileFragment_to_viewPartnershipFragment\"\n            app:destination=\"@id/viewPartnershipFragment\"\n            app:enterAnim=\"@anim/from_right\"\n            app:exitAnim=\"@anim/to_left\"\n            app:popEnterAnim=\"@anim/from_left\"\n            app:popExitAnim=\"@anim/to_right\"/>\n        <action\n            android:id=\"@+id/action_profileFragment_to_helpFragment\"\n            app:destination=\"@id/helpFragment\"\n            app:enterAnim=\"@anim/from_right\"\n            app:exitAnim=\"@anim/to_left\"\n            app:popEnterAnim=\"@anim/from_left\"\n            app:popExitAnim=\"@anim/to_right\"/>\n        <action\n            android:id=\"@+id/action_profileFragment_to_joinPartnerFragment\"\n            app:destination=\"@id/joinPartnerFragment\"\n            app:enterAnim=\"@anim/from_right\"\n            app:exitAnim=\"@anim/to_left\"\n            app:popEnterAnim=\"@anim/from_left\"\n            app:popExitAnim=\"@anim/to_right\"/>\n        <action\n            android:id=\"@+id/action_profileFragment_to_adminDashboardFragment\"\n            app:destination=\"@id/adminDashboardFragment\"\n            app:enterAnim=\"@anim/nav_default_enter_anim\"\n            app:exitAnim=\"@anim/nav_default_exit_anim\"\n            app:popEnterAnim=\"@anim/nav_default_pop_enter_anim\"\n            app:popExitAnim=\"@anim/nav_default_pop_exit_anim\"/>\n    </fragment>\n    <fragment\n        android:id=\"@+id/cartFragment\"\n        android:name=\"com.example.kleine.fragments.shopping.CartFragment\"\n        android:label=\"fragment_cart\"\n        tools:layout=\"@layout/fragment_cart\">\n        <action\n            android:id=\"@+id/action_cartFragment_to_productPreviewFragment2\"\n            app:destination=\"@id/productPreviewFragment2\"\n            app:popUpToInclusive=\"false\"\n            app:enterAnim=\"@anim/nav_default_enter_anim\"\n            app:exitAnim=\"@anim/nav_default_exit_anim\"\n            app:popEnterAnim=\"@anim/nav_default_pop_enter_anim\"\n            app:popExitAnim=\"@anim/nav_default_pop_exit_anim\"/>\n        <action\n            android:id=\"@+id/action_cartFragment_to_billingFragment\"\n            app:destination=\"@id/billingFragment\" />\n    </fragment>\n    <fragment\n        android:id=\"@+id/productPreviewFragment2\"\n        android:name=\"com.example.kleine.fragments.shopping.ProductPreviewFragment\"\n        android:label=\"fragment_product_preview\"\n        tools:layout=\"@layout/fragment_product_preview\">\n        <argument\n            android:name=\"product\"\n            app:argType=\"com.example.kleine.model.Product\" />\n\n\n    </fragment>\n    <fragment\n        android:id=\"@+id/billingFragment\"\n        android:name=\"com.example.kleine.fragments.shopping.BillingFragment\"\n        android:label=\"fragment_billing\"\n        tools:layout=\"@layout/fragment_billing\">\n        <action\n            android:id=\"@+id/action_billingFragment_to_addressFragment\"\n            app:destination=\"@id/addressFragment\"\n            app:enterAnim=\"@anim/from_right\"\n            app:exitAnim=\"@anim/to_left\"\n            app:popEnterAnim=\"@anim/from_left\"\n            app:popExitAnim=\"@anim/to_right\" />\n        <argument\n            android:name=\"clickFlag\"\n            app:argType=\"string\" />\n        <argument\n            android:name=\"price\"\n            android:defaultValue=\"null\"\n            app:argType=\"string\"\n            app:nullable=\"true\" />\n        <argument\n            android:name=\"products\"\n            android:defaultValue=\"@null\"\n            app:argType=\"com.example.kleine.model.CartProductsList\"\n            app:nullable=\"true\" />\n        <action\n            android:id=\"@+id/action_billingFragment_to_orderCompletion\"\n            app:destination=\"@id/orderCompletion\"\n            app:popUpTo=\"@id/billingFragment\"\n            app:popUpToInclusive=\"true\" />\n    </fragment>\n    <fragment\n        android:id=\"@+id/addressFragment\"\n        android:name=\"com.example.kleine.fragments.shopping.AddressFragment\"\n        android:label=\"fragment_address\"\n        tools:layout=\"@layout/fragment_address\">\n\n        <argument\n            android:name=\"address\"\n            android:defaultValue=\"@null\"\n            app:argType=\"com.example.kleine.model.Address\"\n            app:nullable=\"true\" />\n    </fragment>\n    <fragment\n        android:id=\"@+id/orderCompletion\"\n        android:name=\"com.example.kleine.fragments.shopping.OrderCompletion\"\n        android:label=\"fragment_order_completion\"\n        tools:layout=\"@layout/fragment_order_completion\">\n        <argument\n            android:name=\"order_completion_flag\"\n            app:argType=\"string\" />\n        <argument\n            android:name=\"orderNumber\"\n            android:defaultValue=\"null\"\n            app:argType=\"string\"\n            app:nullable=\"true\" />\n        <action\n            android:id=\"@+id/action_orderCompletion_to_orderDetails\"\n            app:destination=\"@id/orderDetails\" />\n        <argument\n            android:name=\"order\"\n            app:argType=\"com.example.kleine.model.Order\"\n            app:nullable=\"true\"\n            android:defaultValue=\"@null\" />\n    </fragment>\n    <fragment\n        android:id=\"@+id/editUserInformation\"\n        android:name=\"com.example.kleine.fragments.settings.EditUserInformationFragment\"\n        android:label=\"fragment_edit_user_information\"\n        tools:layout=\"@layout/fragment_edit_user_information\">\n        <argument\n            android:name=\"user\"\n            app:argType=\"com.example.kleine.model.User\" />\n    </fragment>\n    <fragment\n        android:id=\"@+id/allOrdersFragment\"\n        android:name=\"com.example.kleine.fragments.settings.AllOrdersFragment\"\n        android:label=\"fragment_all_orders\"\n        tools:layout=\"@layout/fragment_all_orders\" >\n        <action\n            android:id=\"@+id/action_allOrdersFragment_to_orderDetails\"\n            app:destination=\"@id/orderDetails\"\n            app:enterAnim=\"@anim/from_right\"\n            app:exitAnim=\"@anim/to_left\"\n            app:popEnterAnim=\"@anim/from_left\"\n            app:popExitAnim=\"@anim/to_right\"/>\n    </fragment>\n    <fragment\n        android:id=\"@+id/orderDetails\"\n        android:name=\"com.example.kleine.fragments.settings.OrderDetails\"\n        android:label=\"fragment_order_details\"\n        tools:layout=\"@layout/fragment_order_details\" >\n        <argument\n            android:name=\"order\"\n            app:argType=\"com.example.kleine.model.Order\" />\n    </fragment>\n    <fragment\n        android:id=\"@+id/languageFragment\"\n        android:name=\"com.example.kleine.fragments.settings.LanguageFragment\"\n        android:label=\"fragment_language\"\n        tools:layout=\"@layout/fragment_language\" />\n    <fragment\n        android:id=\"@+id/viewPartnershipFragment\"\n        android:name=\"com.example.kleine.fragments.partnership.ViewPartnershipFragment\"\n        android:label=\"fragment_view_partnership\"\n        tools:layout=\"@layout/fragment_view_partnership\">\n        <action\n            android:id=\"@+id/action_viewPartnershipFragment_to_partnershipViewMaterialFragment\"\n            app:destination=\"@id/partnershipViewMaterialFragment\"\n            app:enterAnim=\"@anim/from_right\"\n            app:exitAnim=\"@anim/to_left\"\n            app:popEnterAnim=\"@anim/from_left\"\n            app:popExitAnim=\"@anim/to_right\"/>\n        <action\n            android:id=\"@+id/action_viewPartnershipFragment_to_updatePartnershipFragment\"\n            app:destination=\"@id/updatePartnershipFragment\"\n            app:enterAnim=\"@anim/from_right\"\n            app:exitAnim=\"@anim/to_left\"\n            app:popEnterAnim=\"@anim/from_left\"\n            app:popExitAnim=\"@anim/to_right\"/>\n    </fragment>\n    <fragment\n        android:id=\"@+id/helpFragment\"\n        android:name=\"com.example.kleine.fragments.settings.HelpFragment\"\n        android:label=\"HelpFragment\"\n        tools:layout=\"@layout/fragment_help\"/>\n    <fragment\n        android:id=\"@+id/partnershipViewMaterialFragment\"\n        android:name=\"com.example.kleine.fragments.partnership.PartnershipViewMaterialFragment\"\n        android:label=\"fragment_partnership_view_material\"\n        tools:layout=\"@layout/fragment_partnership_view_material\" >\n        <action\n            android:id=\"@+id/action_partnershipViewMaterialFragment_to_partnershipViewMaterialDetailFragment\"\n            app:destination=\"@id/partnershipViewMaterialDetailFragment\"\n            app:enterAnim=\"@anim/from_right\"\n            app:exitAnim=\"@anim/to_left\"\n            app:popEnterAnim=\"@anim/from_left\"\n            app:popExitAnim=\"@anim/to_right\">\n            <argument\n                android:name=\"documentId\"\n                app:argType=\"string\"\n                app:nullable=\"false\" />\n        </action>\n    </fragment>\n    <fragment\n        android:id=\"@+id/partnershipViewMaterialDetailFragment\"\n        android:name=\"com.example.kleine.fragments.partnership.PartnershipViewMaterialDetailFragment\"\n        android:label=\"fragment_partnership_view_material_detail\"\n        tools:layout=\"@layout/fragment_partnership_view_material_detail\" >\n        <action\n            android:id=\"@+id/action_partnershipViewMaterialDetailFragment_to_replyCommentFragment\"\n            app:destination=\"@id/replyCommentFragment\"\n            app:enterAnim=\"@anim/nav_default_enter_anim\"\n            app:exitAnim=\"@anim/nav_default_exit_anim\"\n            app:popEnterAnim=\"@anim/nav_default_pop_enter_anim\"\n            app:popExitAnim=\"@anim/nav_default_pop_exit_anim\"/>\n    </fragment>\n    <fragment\n        android:id=\"@+id/replyCommentFragment\"\n        android:name=\"com.example.kleine.fragments.partnership.ReplyCommentFragment\"\n        android:label=\"fragment_reply_comment\"\n        tools:layout=\"@layout/fragment_reply_comment\" />\n    <fragment\n        android:id=\"@+id/joinPartnerFragment\"\n        android:name=\"com.example.kleine.fragments.partnership.JoinPartnerFragment\"\n        android:label=\"fragment_join__partner_\"\n        tools:layout=\"@layout/fragment_join__partner_\" />\n    <fragment\n        android:id=\"@+id/adminDashboardFragment\"\n        android:name=\"com.example.kleine.fragments.admin.AdminDashboardFragment\"\n        android:label=\"fragment_admin_dashboard\"\n        tools:layout=\"@layout/fragment_admin_dashboard\" >\n        <action\n            android:id=\"@+id/action_adminDashboardFragment_to_adminViewPartnershipFragment\"\n            app:destination=\"@id/adminViewPartnershipFragment\"\n            app:enterAnim=\"@anim/nav_default_enter_anim\"\n            app:exitAnim=\"@anim/nav_default_exit_anim\"\n            app:popEnterAnim=\"@anim/nav_default_pop_enter_anim\"\n            app:popExitAnim=\"@anim/nav_default_pop_exit_anim\"/>\n    </fragment>\n    <fragment\n        android:id=\"@+id/adminViewPartnershipFragment\"\n        android:name=\"com.example.kleine.fragments.admin.AdminViewPartnershipFragment\"\n        android:label=\"fragment_admin_view_partnership\"\n        tools:layout=\"@layout/fragment_admin_view_partnership\" >\n        <action\n            android:id=\"@+id/action_adminViewPartnershipFragment_to_adminViewPartnershipRequestFragment\"\n            app:destination=\"@id/adminViewPartnershipRequestFragment\" />\n    </fragment>\n    <fragment\n        android:id=\"@+id/adminViewPartnershipRequestFragment\"\n        android:name=\"com.example.kleine.fragments.admin.AdminViewPartnershipRequestFragment\"\n        android:label=\"fragment_admin_view_partnership_request\"\n        tools:layout=\"@layout/fragment_admin_view_partnership_request\" />\n    <fragment\n        android:id=\"@+id/updatePartnershipFragment\"\n        android:name=\"com.example.kleine.fragments.partnership.UpdatePartnershipFragment\"\n        android:label=\"UpdatePartnershipFragment\"\n        tools:layout=\"@layout/fragment_update_partnership\"/>\n</navigation>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/res/navigation/shopping_nav_graph.xml b/app/src/main/res/navigation/shopping_nav_graph.xml
+--- a/app/src/main/res/navigation/shopping_nav_graph.xml	(revision 92515cec441a647908e8034027ccf94c3bea201a)
++++ b/app/src/main/res/navigation/shopping_nav_graph.xml	(date 1695302472836)
+@@ -11,13 +11,6 @@
+         android:label="fragment_home"
+         tools:layout="@layout/fragment_home">
+         <action
+-            android:id="@+id/action_homeFragment_to_productPreviewFragment2"
+-            app:destination="@id/productPreviewFragment2"
+-            app:enterAnim="@anim/nav_default_enter_anim"
+-            app:exitAnim="@anim/nav_default_exit_anim"
+-            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+-            app:popExitAnim="@anim/nav_default_pop_exit_anim"/>
+-        <action
+             android:id="@+id/action_homeFragment_to_searchFragment"
+             app:destination="@id/searchFragment"
+             app:popUpTo="@id/homeFragment" />
+@@ -26,18 +19,37 @@
+             app:argType="integer"
+             android:defaultValue="0" />
+     </fragment>
+-    <fragment
+-        android:id="@+id/searchFragment"
+-        android:name="com.example.kleine.fragments.shopping.SearchFragment"
+-        android:label="fragment_search"
+-        tools:layout="@layout/fragment_search">
+-        <action
+-            android:id="@+id/action_searchFragment_to_productPreviewFragment2"
+-            app:destination="@id/productPreviewFragment2"
+-            app:enterAnim="@anim/nav_default_enter_anim"
+-            app:exitAnim="@anim/nav_default_exit_anim"
+-            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+-            app:popExitAnim="@anim/nav_default_pop_exit_anim"/>
++
++    <action
++        android:id="@+id/action_homeFragment_to_materialDetailsFragment"
++        app:destination="@id/materialDetailsFragment"
++        app:enterAnim="@anim/nav_default_enter_anim"
++        app:exitAnim="@anim/nav_default_exit_anim"
++        app:popEnterAnim="@anim/nav_default_pop_enter_anim"
++        app:popExitAnim="@anim/nav_default_pop_exit_anim"/>
++
++
++    <fragment
++        android:id="@+id/materialDetailsFragment"
++        android:name="com.example.kleine.fragments.shopping.MaterialPreviewFragment"
++        android:label="Material Details">
++
++        <argument
++            android:name="material"
++            app:argType="com.example.kleine.model.Material"
++            android:defaultValue="@null"
++            app:nullable="true" />
++
++
++    </fragment>
++
++
++    <fragment
++        android:id="@+id/searchFragment"
++        android:name="com.example.kleine.fragments.shopping.SearchFragment"
++        android:label="fragment_search"
++        tools:layout="@layout/fragment_search">
++
+         <action
+             android:id="@+id/action_searchFragment_to_homeFragment"
+             app:destination="@id/homeFragment" />
+@@ -109,29 +121,12 @@
+         android:name="com.example.kleine.fragments.shopping.CartFragment"
+         android:label="fragment_cart"
+         tools:layout="@layout/fragment_cart">
+-        <action
+-            android:id="@+id/action_cartFragment_to_productPreviewFragment2"
+-            app:destination="@id/productPreviewFragment2"
+-            app:popUpToInclusive="false"
+-            app:enterAnim="@anim/nav_default_enter_anim"
+-            app:exitAnim="@anim/nav_default_exit_anim"
+-            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+-            app:popExitAnim="@anim/nav_default_pop_exit_anim"/>
++
+         <action
+             android:id="@+id/action_cartFragment_to_billingFragment"
+             app:destination="@id/billingFragment" />
+     </fragment>
+-    <fragment
+-        android:id="@+id/productPreviewFragment2"
+-        android:name="com.example.kleine.fragments.shopping.ProductPreviewFragment"
+-        android:label="fragment_product_preview"
+-        tools:layout="@layout/fragment_product_preview">
+-        <argument
+-            android:name="product"
+-            app:argType="com.example.kleine.model.Product" />
+-
+-
+-    </fragment>
++
+     <fragment
+         android:id="@+id/billingFragment"
+         android:name="com.example.kleine.fragments.shopping.BillingFragment"
+@@ -321,6 +316,8 @@
+             android:id="@+id/action_adminViewPartnershipFragment_to_adminViewPartnershipRequestFragment"
+             app:destination="@id/adminViewPartnershipRequestFragment" />
+     </fragment>
++
++
+     <fragment
+         android:id="@+id/adminViewPartnershipRequestFragment"
+         android:name="com.example.kleine.fragments.admin.AdminViewPartnershipRequestFragment"
+Index: app/src/main/res/values/strings.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><resources>\n    <string name=\"app_name\">HELP</string>\n    <string name=\"g_app_name\">HELP</string>\n    <string name=\"g_the_right_address\">In Learning, \\nWe Trust</string>\n\n    <!--    <string name=\"g_for_shopping\">For Shopping</string>-->\n    <!--    <string name=\"g_any_day\">Anyday</string>-->\n\n    <string name=\"g_best_quality\">Knowledge opens the door to a world of opportunities, illuminating the path to progress \\n When this wisdom intertwines with cooperative efforts, we collectively illuminate a brighter, more sustainable future</string>\n    <string name=\"g_start\">Start</string>\n    <!-- TODO: Remove or change this placeholder text -->\n    <string name=\"hello_blank_fragment\">Hello blank fragment</string>\n    <string name=\"all_your_orders\">All your orders in one \\n saved package</string>\n    <string name=\"g_register\">Register</string>\n    <string name=\"g_let_s_register\">Let\\'s Register</string>\n    <string name=\"g_do_you_have_an_account_log_in\">Do you have an account? log in</string>\n    <string name=\"g_first_name\">First Name</string>\n    <string name=\"g_email\">Email</string>\n    <string name=\"g_second_name\">Last Name</string>\n    <string name=\"g_password\">Password</string>\n    <string name=\"g_don_t_have_an_account_register\">Don\\'t have an account? Register</string>\n    <string name=\"g_let_s_login\">Let\\'s Login</string>\n    <string name=\"g_log_in\">Log in</string>\n    <string name=\"g_google\">Google</string>\n    <string name=\"g_facebook\">Facebook</string>\n    <string name=\"first_name_cant_be_empty\">First name can\\'t be empty</string>\n    <string name=\"last_name_cant_be_empty\">Last name can\\'t be empty</string>\n    <string name=\"email_cant_be_empty\">Email can\\'t be empty</string>\n    <string name=\"password_cant_be_empty\">password can\\'t be empty</string>\n    <string name=\"password_at_least_six\">password should have 6</string>\n    <string name=\"valid_email\">check your email</string>\n    <string name=\"signed_up_successfully\">you have created new account, login now</string>\n    <string name=\"g_home\">Novice</string>\n    <string name=\"g_search\">search</string>\n    <string name=\"g_cart\">Cart</string>\n    <string name=\"g_profile\">profile</string>\n    <string name=\"g_add_to_cart\">Add to cart</string>\n    <string name=\"g_search_now\">Search Now</string>\n    <string name=\"g_best_deals\">Best Deals</string>\n    <string name=\"g_chair\">Beginner</string>\n    <string name=\"g_cupboard\">Intermediate</string>\n    <string name=\"g_table\">Proficient</string>\n    <string name=\"g_accessory\">Advanced</string>\n    <string name=\"g_furniture\">Expert</string>\n    <string name=\"g_enlightening\">Master</string>\n    <string name=\"g_best_products\">Trending Courses</string>\n    <string name=\"g_see_product\">See product</string>\n    <string name=\"g_color\">Color</string>\n    <string name=\"g_size\">Size</string>\n    <string name=\"g_add_to_card\">Enroll Courses</string>\n    <string name=\"g_added\">Added</string>\n    <string name=\"g_already_added\">Product is in your cart</string>\n    <string name=\"g_please_select_color\">Please select color</string>\n    <string name=\"g_please_select_size\">Please select size</string>\n    <string name=\"g_my_cart\">My Course</string>\n    <string name=\"g_checkout\">Checkout</string>\n    <string name=\"g_total\">Total:</string>\n    <string name=\"g_your_shopping_cart_is_empty\">Your Course List \\n Is Empty</string>\n    <string name=\"g_delete_item\">Delete item</string>\n    <string name=\"g_are_you_sure_you_want_to_delete_this_item_from_cart\">Are you sure you want to delete this item from cart ?</string>\n    <string name=\"g_no\">No</string>\n    <string name=\"g_yes\">Yes</string>\n    <string name=\"g_categories\">Categories</string>\n    <string name=\"g_cancel\">Cancel</string>\n    <string name=\"g_payment_methods\">Redeem Reward</string>\n    <string name=\"payment_explanation\">Congratulations on completing one of our courses ! Kindly entered your address to redeem the reward ! </string>\n    <string name=\"g_shipping\">Address</string>\n    <string name=\"g_full_name\">Full Name</string>\n    <string name=\"g_city\">City</string>\n    <string name=\"g_phone\">Phone</string>\n    <string name=\"g_state\">State</string>\n    <string name=\"g_save\">Save</string>\n    <string name=\"g_address\">Address</string>\n    <string name=\"g_address_location_ie_home\">Address Location ie. Home</string>\n    <string name=\"g_update\">Update</string>\n    <string name=\"g_place_order\">Save</string>\n    <string name=\"g_delete\">Delete</string>\n    <string name=\"g_select_address_error\">Select or add new address !</string>\n    <string name=\"g_place_order_confirmation\">Are you sure you want to place this order ?</string>\n    <string name=\"g_confirm\">Confirm</string>\n    <string name=\"place_order_error\">Error occurred try again later or contact us</string>\n    <string name=\"g_payment_failed\">Your Order is Failed !</string>\n    <string name=\"g_payment_success\">Your Order is Completed</string>\n    <string name=\"order_error_message\">Try again later, if this error keeps showing up please contact us .</string>\n    <string name=\"order_success_message\">We received your order and we will contact you through a phone call in the next 24H\n    \\n your order number is #</string>\n    <string name=\"g_track_order\">You can track your order by going to your profile and select all orders then select your recent order.</string>\n    <string name=\"g_settings\">Settings</string>\n    <string name=\"g_edit_personal_details\">Edit personal details</string>\n    <string name=\"g_orders\">Courses</string>\n    <string name=\"g_order\">Order</string>\n    <string name=\"g_all_orders\">All Courses</string>\n    <string name=\"g__track_order\">Enrolled Courses</string>\n    <string name=\"g_notifications\">Notifications</string>\n    <string name=\"g_information\">Information</string>\n\n\n    <string name=\"g_admin\">Admin</string>\n    <string name=\"g_preference\">Preferences</string>\n    <string name=\"g_join_partnership\">Join Partnership</string>\n    <string name=\"g_logout\">Logout</string>\n    <string name=\"g_billing\">Billing And Addresses</string>\n    <string name=\"g_version\">Version</string>\n    <string name=\"error_occurred\">Oops error occurred</string>\n    <string name=\"g_edit_profile\">Edit Profile</string>\n    <string name=\"g_change_forgot_password\">Forgot/Change password</string>\n    <string name=\"g_cant_change_email_message\">You cannot change your email address, if you are looking to change it please contact with us</string>\n    <string name=\"select_profile_image\">Select profile image</string>\n    <string name=\"g_no_orders_to_show\">No courses to show</string>\n    <string name=\"g_reset_password\">Reset Password</string>\n    <string name=\"g_reset_password_message\">We will send you password reset link on your Email</string>\n    <string name=\"g_send\">Send</string>\n    <string name=\"g_password_reset\">We sent reset password link to your email</string>\n    <string name=\"g_order_placed\">Order Placed</string>\n    <string name=\"g_shipped\">Shipped</string>\n    <string name=\"g_delivered\">Delivered</string>\n    <string name=\"g_products\">Products</string>\n    <string name=\"g_coming_soon\">This feature is not available yet</string>\n    <string name=\"g_english\">English</string>\n    <string name=\"g_arabic\">عربي</string>\n    <string name=\"g_forgot_password\">Forgot Password</string>\n    <string name=\"g_check_your_email\">Check your Email</string>\n    <string name=\"street\">Street</string>\n    <string name=\"g_order_details\">Order Details</string>\n    <string name=\"product_added\">Product added to your cart</string>\n    <string name=\"switch_account\">Switch Account</string>\n    <string name=\"open_menu\">Open Menu</string>\n    <string name=\"close_menu\">Close Menu</string>\n    <string name=\"my_store\">My Store</string>\n    <string name=\"g_total_sales\">Total Sales</string>\n    <string name=\"today_sales\">Today Sales</string>\n    <string name=\"pending_orders\">Pending Orders</string>\n    <string name=\"help\">Help</string>\n    <string name=\"help_text\">Got a question? We\\'re here to answer!</string>\n\n    <!-- reward -->\n    <string name=\"titleVoucher\">Select Voucher</string>\n    <string name=\"okButton\">OK</string>\n    <string name=\"rewardName\">Reward Name</string>\n    <string name=\"rewardExpired\">Reward Expired Date</string>\n    <string name=\"labelVoucherExpiredDate\">Expired Date: </string>\n    <string name=\"voucherTermsCondition\">Terms and Conditions</string>\n    <string name=\"labelShippingVoucher\">Voucher(s) can be selected: </string>\n    <string name=\"voucherCodeHint\">Enter Voucher Code</string>\n    <string name=\"noVoucherMsg\">No voucher available!</string>\n    <string name=\"g_difficultyLevel\">Level : </string>\n    <string name=\"g_totalChapter\">Chapter : </string>\n    <string name=\"g_product_name_label\">Material Name</string>\n\n    <string name=\"voucherName\">Voucher</string>\n    <string name=\"voucherExpired\">Voucher Expired Date</string>\n\n\n\n    <!-- Card View  -->\n\n    <string name=\"string_productCategory\">Course Category</string>\n    <string name=\"string_productTitle\">Course Title</string>\n    <string name=\"string_productPrice\">Product Price</string>\n    <string name=\"string_productRate\">4.9</string>\n    <string name=\"string_rate\">Rate</string>\n    <string name=\"string_product_image\">Course Image</string>\n    <string name=\"string_fav\">Favourite</string>\n\n\n\n    <string name=\"string_sale_text\">Grab Some Course !! </string>\n    <string name=\"string_curve_image\">Curve Image</string>\n    <string name=\"string_75\">520%</string>\n\n\n    <!-- Difficulty Levels  -->\n    <string-array name=\"difficulty_levels\">\n        <item>Novice</item>\n        <item>Beginners</item>\n        <item>Intermediate</item>\n        <item>Proficient</item>\n        <item>Advanced</item>\n        <item>Expert</item>\n        <item>Master</item>\n    </string-array>\n\n</resources>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/res/values/strings.xml b/app/src/main/res/values/strings.xml
+--- a/app/src/main/res/values/strings.xml	(revision 92515cec441a647908e8034027ccf94c3bea201a)
++++ b/app/src/main/res/values/strings.xml	(date 1695284583746)
+@@ -168,6 +168,11 @@
+     <string name="string_curve_image">Curve Image</string>
+     <string name="string_75">520%</string>
+ 
++    <string name="string_status">Status</string>
++
++    <string name="string_rating">Rating</string>
++
++
+ 
+     <!-- Difficulty Levels  -->
+     <string-array name="difficulty_levels">
+Index: app/src/main/java/com/example/kleine/fragments/shopping/HomeFragment.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.example.kleine.fragments.shopping\n\nimport android.os.Bundle\nimport android.util.Log\nimport androidx.fragment.app.Fragment\nimport android.view.LayoutInflater\nimport android.view.View\nimport android.view.ViewGroup\nimport androidx.coordinatorlayout.widget.CoordinatorLayout\nimport androidx.navigation.fragment.findNavController\nimport androidx.navigation.fragment.navArgs\nimport androidx.recyclerview.widget.LinearLayoutManager\nimport com.example.kleine.R\nimport com.example.kleine.activities.ShoppingActivity\nimport com.example.kleine.adapters.recyclerview.MaterialAdapter\nimport com.example.kleine.adapters.viewpager.HomeViewpagerAdapter\nimport com.example.kleine.databinding.FragmentHomeBinding\nimport com.example.kleine.fragments.categories.*\nimport com.example.kleine.fragments.categories.HomeProductsFragment\nimport com.example.kleine.viewmodel.shopping.ShoppingViewModel\nimport com.google.android.material.bottomnavigation.BottomNavigationView\nimport com.google.android.material.snackbar.Snackbar\nimport com.google.android.material.tabs.TabLayoutMediator\nimport com.google.firebase.firestore.QuerySnapshot\nimport com.example.kleine.model.Material\nimport com.example.kleine.resource.Resource\n\n\n\nclass HomeFragment : Fragment() {\n    val TAG = \"HomeFragment\"\n    private lateinit var viewModel: ShoppingViewModel\n    private lateinit var binding: FragmentHomeBinding\n\n\n    private lateinit var materialList: List<Material>\n    private lateinit var materialAdapter: MaterialAdapter\n\n\n    override fun onCreate(savedInstanceState: Bundle?) {\n        super.onCreate(savedInstanceState)\n\n        viewModel = (activity as ShoppingActivity).viewModel\n    }\n    \n\n    override fun onCreateView(\n        inflater: LayoutInflater, container: ViewGroup?,\n        savedInstanceState: Bundle?\n    ): View {\n        binding = FragmentHomeBinding.inflate(layoutInflater, container, false)\n        return binding.root\n    }\n\n    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {\n        super.onViewCreated(view, savedInstanceState)\n\n\n        binding.frameAdd.setOnClickListener {\n//            findNavController().navigate(R.id.action_homeFragment_to_joinPartnerFragment)\n        }\n\n        binding.fragmeMicrohpone.setOnClickListener {\n            val snackBar = requireActivity().findViewById<CoordinatorLayout>(R.id.snackBar_coordinator)\n            Snackbar.make(snackBar,resources.getText(R.string.g_coming_soon),Snackbar.LENGTH_SHORT).show()\n        }\n\n\n\n        // Initialize RecyclerView and Adapter\n        materialAdapter = MaterialAdapter()  // No arguments here\n        binding.productListRecycler.adapter = materialAdapter\n        binding.productListRecycler.layoutManager = LinearLayoutManager(context)\n\n        // Fetch materials from ViewModel and observe LiveData\n        viewModel.getMaterials()  // This will update LiveData in ViewModel\n\n        viewModel.materialsLiveData.observe(viewLifecycleOwner) { resource ->\n            when (resource.status) {\n                Resource.Status.SUCCESS -> {\n                    Log.d(TAG, \"Fetched materials successfully. Item count: ${resource.data?.size}\")\n                    materialAdapter.differ.submitList(resource.data)\n                }\n\n                Resource.Status.ERROR -> {\n                    Log.e(TAG, \"Error fetching materials: ${resource.message}\")\n                }\n\n                Resource.Status.LOADING -> {\n                    Log.d(TAG, \"Loading materials\")\n                }\n            }\n        }\n\n    }\n\n\n\n\n\n    override fun onResume() {\n        super.onResume()\n        val bottomNavigation =\n            requireActivity().findViewById<BottomNavigationView>(R.id.bottom_navigation)\n        bottomNavigation.visibility = View.VISIBLE\n    }\n\n    override fun onDestroy() {\n        super.onDestroy()\n\n    }\n\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/example/kleine/fragments/shopping/HomeFragment.kt b/app/src/main/java/com/example/kleine/fragments/shopping/HomeFragment.kt
+--- a/app/src/main/java/com/example/kleine/fragments/shopping/HomeFragment.kt	(revision 92515cec441a647908e8034027ccf94c3bea201a)
++++ b/app/src/main/java/com/example/kleine/fragments/shopping/HomeFragment.kt	(date 1695303594255)
+@@ -15,8 +15,7 @@
+ import com.example.kleine.adapters.recyclerview.MaterialAdapter
+ import com.example.kleine.adapters.viewpager.HomeViewpagerAdapter
+ import com.example.kleine.databinding.FragmentHomeBinding
+-import com.example.kleine.fragments.categories.*
+-import com.example.kleine.fragments.categories.HomeProductsFragment
++
+ import com.example.kleine.viewmodel.shopping.ShoppingViewModel
+ import com.google.android.material.bottomnavigation.BottomNavigationView
+ import com.google.android.material.snackbar.Snackbar
+Index: app/src/main/java/com/example/kleine/fragments/shopping/MaterialPreviewFragment.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/example/kleine/fragments/shopping/MaterialPreviewFragment.kt b/app/src/main/java/com/example/kleine/fragments/shopping/MaterialPreviewFragment.kt
+new file mode 100644
+--- /dev/null	(date 1695311227593)
++++ b/app/src/main/java/com/example/kleine/fragments/shopping/MaterialPreviewFragment.kt	(date 1695311227593)
+@@ -0,0 +1,46 @@
++package com.example.kleine.fragments.shopping
++
++import android.os.Bundle
++import android.view.LayoutInflater
++import android.view.View
++import android.view.ViewGroup
++import androidx.fragment.app.Fragment
++import com.example.kleine.databinding.FragmentProductPreviewBinding
++import com.example.kleine.model.Material
++
++class MaterialPreviewFragment : Fragment() {
++    private var _binding: FragmentProductPreviewBinding? = null
++    private val binding get() = _binding!!
++    private var material: Material? = null
++
++    override fun onCreateView(
++        inflater: LayoutInflater, container: ViewGroup?,
++        savedInstanceState: Bundle?
++    ): View {
++        _binding = FragmentProductPreviewBinding.inflate(inflater, container, false)
++        return binding.root
++    }
++
++    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
++        super.onViewCreated(view, savedInstanceState)
++
++        // Retrieve the passed argument
++        material = arguments?.getParcelable("material")
++
++        // Check if the material is not null
++        if (material != null) {
++            // Bind the material data to the views using data binding
++            binding.productModel = material
++        } else {
++            // Handle the case where material is null
++            // For instance, you can show a message to the user or navigate back
++            fragmentManager?.popBackStack()
++
++        }
++    }
++
++    override fun onDestroyView() {
++        super.onDestroyView()
++        _binding = null
++    }
++}
+Index: app/src/main/java/com/example/kleine/fragments/shopping/CartFragment.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.example.kleine.fragments.shopping\n\nimport android.os.Bundle\nimport android.util.Log\nimport androidx.fragment.app.Fragment\nimport android.view.LayoutInflater\nimport android.view.View\nimport android.view.ViewGroup\nimport android.widget.Button\nimport android.widget.Toast\nimport androidx.appcompat.app.AlertDialog\nimport androidx.lifecycle.Observer\nimport androidx.lifecycle.ViewModelProviders\nimport androidx.navigation.fragment.findNavController\nimport androidx.recyclerview.widget.LinearLayoutManager\nimport com.example.kleine.R\nimport com.example.kleine.SpacingDecorator.VerticalSpacingItemDecorator\nimport com.example.kleine.adapters.recyclerview.CartRecyclerAdapter\nimport com.example.kleine.databinding.FragmentCartBinding\nimport com.example.kleine.model.CartProductsList\nimport com.example.kleine.resource.Resource\nimport com.example.kleine.util.Constants.Companion.SELECT_ADDRESS_FLAG\nimport com.example.kleine.viewmodel.shopping.cart.CartViewModel\nimport com.google.android.material.bottomnavigation.BottomNavigationView\n\nprivate const val TAG = \"CartFragment\"\nclass CartFragment : Fragment() {\n    private lateinit var binding: FragmentCartBinding\n    private lateinit var viewModel: CartViewModel\n    private lateinit var cartAdapter: CartRecyclerAdapter\n\n    override fun onCreate(savedInstanceState: Bundle?) {\n        super.onCreate(savedInstanceState)\n\n        viewModel = ViewModelProviders.of(this)[CartViewModel::class.java]\n    }\n\n    override fun onCreateView(\n        inflater: LayoutInflater, container: ViewGroup?,\n        savedInstanceState: Bundle?\n    ): View {\n        binding = FragmentCartBinding.inflate(inflater)\n        return binding.root\n    }\n\n    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {\n        super.onViewCreated(view, savedInstanceState)\n\n        onHomeClick()\n\n        setupRecyclerView()\n        observeCart()\n\n        onCloseImgClick()\n\n        onPlusClick()\n        onMinusClick()\n        onItemClick()\n\n        observeProductClickNavigation()\n\n        onCheckoutClick()\n\n    }\n\n    private fun onCheckoutClick() {\n        binding.btnCheckout.setOnClickListener {\n            val bundle = Bundle()\n            bundle.putString(\"price\", binding.tvTotalprice.text.toString())\n            bundle.putString(\"clickFlag\", SELECT_ADDRESS_FLAG)\n            bundle.putParcelable(\"products\", cartProducts)\n            findNavController().navigate(R.id.action_cartFragment_to_billingFragment, bundle)\n        }\n    }\n\n    private fun observeProductClickNavigation() {\n        viewModel.product.observe(viewLifecycleOwner, Observer { response ->\n\n            when (response) {\n                is Resource.Success -> {\n                    binding.apply {\n                        progressPlusMinus.visibility = View.INVISIBLE\n                        val product = response.data\n                        val bundle = Bundle()\n                        bundle.putParcelable(\"product\", product)\n                        findNavController().navigate(\n                            R.id.action_cartFragment_to_productPreviewFragment2,\n                            bundle\n                        )\n                        viewModel.product.postValue(null)\n                    }\n                    return@Observer\n                }\n\n                is Resource.Loading -> {\n                    binding.apply {\n                        progressPlusMinus.visibility = View.VISIBLE\n\n                    }\n                    return@Observer\n                }\n\n                is Resource.Error -> {\n                    binding.apply {\n                        progressPlusMinus.visibility = View.INVISIBLE\n                        Log.e(TAG, response.message.toString())\n                    }\n                    return@Observer\n                }\n            }\n        })\n    }\n\n    private fun observePlus() {\n        viewModel.plus.observe(viewLifecycleOwner, Observer { response ->\n\n            when (response) {\n                is Resource.Success -> {\n                    binding.apply {\n                        progressPlusMinus.visibility = View.INVISIBLE\n                    }\n                    return@Observer\n                }\n\n                is Resource.Loading -> {\n                    binding.apply {\n                        progressPlusMinus.visibility = View.VISIBLE\n\n                    }\n                    return@Observer\n                }\n\n                is Resource.Error -> {\n                    binding.apply {\n                        progressPlusMinus.visibility = View.INVISIBLE\n                        Log.e(TAG, response.message.toString())\n                    }\n                    return@Observer\n                }\n            }\n        })\n    }\n\n    private fun observeMinus() {\n        viewModel.minus.observe(viewLifecycleOwner, Observer { response ->\n\n            when (response) {\n                is Resource.Success -> {\n                    binding.apply {\n                        progressPlusMinus.visibility = View.INVISIBLE\n                    }\n                    return@Observer\n                }\n\n                is Resource.Loading -> {\n                    binding.apply {\n                        progressPlusMinus.visibility = View.VISIBLE\n\n                    }\n                    return@Observer\n                }\n\n                is Resource.Error -> {\n                    binding.apply {\n                        progressPlusMinus.visibility = View.INVISIBLE\n                        Log.e(TAG, response.message.toString())\n                    }\n                    return@Observer\n                }\n            }\n        })\n    }\n\n\n    private fun onItemClick() {\n        cartAdapter.onItemClick = { cartProduct ->\n            viewModel.getProductFromCartProduct(cartProduct)\n        }\n    }\n\n\n    private fun onMinusClick() {\n        cartAdapter.onMinusesClick = { cartProduct ->\n            if (cartProduct.quantity > 1) {\n                viewModel.decreaseQuantity(cartProduct)\n                observeMinus()\n            } else {\n                val alertDialog = AlertDialog.Builder(requireContext()).create()\n                alertDialog.setTitle(\"\")\n                val view =\n                    LayoutInflater.from(context).inflate(R.layout.delete_alert_dialog, null, false)\n                alertDialog.setView(view)\n\n                view.findViewById<Button>(R.id.btn_no).setOnClickListener {\n                    alertDialog.dismiss()\n                }\n\n                view.findViewById<Button>(R.id.btn_yes).setOnClickListener {\n                    viewModel.deleteProductFromCart(cartProduct)\n                    alertDialog.dismiss()\n                }\n\n                alertDialog.show()\n            }\n        }\n    }\n\n    private fun onPlusClick() {\n        cartAdapter.onPlusClick = { cartProduct ->\n            viewModel.increaseQuantity(cartProduct)\n            observePlus()\n        }\n    }\n\n    private fun onCloseImgClick() {\n        binding.imgCloseCart.setOnClickListener {\n            findNavController().navigateUp()\n        }\n    }\n\n    private fun setupRecyclerView() {\n        cartAdapter = CartRecyclerAdapter()\n        binding.apply {\n            rvCart.layoutManager = LinearLayoutManager(context)\n            rvCart.adapter = cartAdapter\n            rvCart.addItemDecoration(VerticalSpacingItemDecorator(50))\n        }\n    }\n\n    private var cartProducts: CartProductsList? = null\n    private fun observeCart() {\n        viewModel.cartProducts.observe(viewLifecycleOwner, Observer { response ->\n            when (response) {\n                is Resource.Loading -> {\n                    showLoading()\n                    return@Observer\n                }\n\n                is Resource.Success -> {\n                    hideLoading()\n\n                    //Handle empty cart case\n                    val products = response.data\n                    if (products!!.isNotEmpty()) { // cart is not empty\n                        cartProducts = CartProductsList(products)\n                        cartAdapter.differ.submitList(products)\n                        var totalPrice:Double = 0.0\n                        products.forEach {\n                            if (it.newPrice != null && it.newPrice.isNotEmpty() && it.newPrice != \"0\") {\n                                totalPrice += it.newPrice.toDouble() * it.quantity\n                            } else\n                                totalPrice += it.price.toDouble() * it.quantity\n\n\n                        }\n\n                        binding.tvTotalprice.text = \"$ $totalPrice\"\n\n                    } else { // cart is empty\n                        cartAdapter.differ.submitList(products)\n                        binding.apply {\n                            btnCheckout.visibility = View.INVISIBLE\n                            linear.visibility = View.INVISIBLE\n                            imgEmptyBox.visibility = View.VISIBLE\n                            imgEmptyBoxTexture.visibility = View.VISIBLE\n                            tvEmptyCart.visibility = View.VISIBLE\n                        }\n\n                    }\n                    return@Observer\n                }\n\n                is Resource.Error -> {\n                    hideLoading()\n                    Log.e(TAG, response.message.toString())\n                    Toast.makeText(activity, \"Oops error occurred\", Toast.LENGTH_SHORT).show()\n                    return@Observer\n                }\n            }\n        })\n    }\n\n    private fun hideLoading() {\n        binding.apply {\n            progressBar.visibility = View.GONE\n            linear.visibility = View.VISIBLE\n            btnCheckout.visibility = View.VISIBLE\n            imgEmptyBox.visibility = View.GONE\n            imgEmptyBoxTexture.visibility = View.GONE\n            tvEmptyCart.visibility = View.GONE\n        }\n    }\n\n    private fun showLoading() {\n        binding.apply {\n            progressBar.visibility = View.VISIBLE\n            linear.visibility = View.INVISIBLE\n            btnCheckout.visibility = View.INVISIBLE\n        }\n    }\n\n    private fun onHomeClick() {\n        val btm = activity?.findViewById<BottomNavigationView>(R.id.bottom_navigation)\n        btm?.menu?.getItem(0)?.setOnMenuItemClickListener {\n            activity?.onBackPressed()\n            true\n        }\n    }\n\n    override fun onResume() {\n        super.onResume()\n\n        val bottomNavigation = activity?.findViewById<BottomNavigationView>(R.id.bottom_navigation)\n        bottomNavigation?.visibility = View.VISIBLE\n    }\n\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/example/kleine/fragments/shopping/CartFragment.kt b/app/src/main/java/com/example/kleine/fragments/shopping/CartFragment.kt
+--- a/app/src/main/java/com/example/kleine/fragments/shopping/CartFragment.kt	(revision 92515cec441a647908e8034027ccf94c3bea201a)
++++ b/app/src/main/java/com/example/kleine/fragments/shopping/CartFragment.kt	(date 1695303022590)
+@@ -82,9 +82,9 @@
+                         progressPlusMinus.visibility = View.INVISIBLE
+                         val product = response.data
+                         val bundle = Bundle()
+-                        bundle.putParcelable("product", product)
++                        bundle.putParcelable("material", product)
+                         findNavController().navigate(
+-                            R.id.action_cartFragment_to_productPreviewFragment2,
++                            R.id.action_homeFragment_to_materialDetailsFragment,
+                             bundle
+                         )
+                         viewModel.product.postValue(null)
+Index: app/src/main/java/com/example/kleine/adapters/viewpager/ViewPager2Images.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.example.kleine.adapters.viewpager\n\nimport android.view.LayoutInflater\nimport android.view.ViewGroup\nimport androidx.recyclerview.widget.AsyncListDiffer\nimport androidx.recyclerview.widget.DiffUtil\nimport androidx.recyclerview.widget.RecyclerView\nimport com.bumptech.glide.Glide\nimport com.example.kleine.databinding.ViewpagerImageItemBinding\n\nclass ViewPager2Images : RecyclerView.Adapter<ViewPager2Images.ViewPager2ImagesViewHolder>() {\n    inner class ViewPager2ImagesViewHolder(val binding: ViewpagerImageItemBinding) : RecyclerView.ViewHolder(binding.root)\n\n    private val diffCallback = object : DiffUtil.ItemCallback<String>() {\n        override fun areItemsTheSame(oldItem: String, newItem: String): Boolean {\n            return oldItem == newItem\n        }\n\n        override fun areContentsTheSame(oldItem: String, newItem: String): Boolean {\n            return oldItem == newItem\n        }\n    }\n\n    val differ = AsyncListDiffer(this, diffCallback)\n\n    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewPager2ImagesViewHolder {\n        return ViewPager2ImagesViewHolder(\n            ViewpagerImageItemBinding.inflate(\n                LayoutInflater.from(parent.context),parent,false\n            )\n        )\n    }\n\n    override fun onBindViewHolder(holder: ViewPager2ImagesViewHolder, position: Int) {\n        Glide.with(holder.itemView).load(differ.currentList[position]).into(holder.binding.imgsProduct)\n    }\n\n    override fun getItemCount(): Int {\n        return differ.currentList.size\n    }\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/example/kleine/adapters/viewpager/ViewPager2Images.kt b/app/src/main/java/com/example/kleine/adapters/viewpager/ViewPager2Images.kt
+--- a/app/src/main/java/com/example/kleine/adapters/viewpager/ViewPager2Images.kt	(revision 92515cec441a647908e8034027ccf94c3bea201a)
++++ b/app/src/main/java/com/example/kleine/adapters/viewpager/ViewPager2Images.kt	(date 1695309391372)
+@@ -1,5 +1,6 @@
+ package com.example.kleine.adapters.viewpager
+ 
++import android.util.Log
+ import android.view.LayoutInflater
+ import android.view.ViewGroup
+ import androidx.recyclerview.widget.AsyncListDiffer
+@@ -32,8 +33,11 @@
+     }
+ 
+     override fun onBindViewHolder(holder: ViewPager2ImagesViewHolder, position: Int) {
+-        Glide.with(holder.itemView).load(differ.currentList[position]).into(holder.binding.imgsProduct)
++        val imageUrl = differ.currentList[position]
++        Log.d("ViewPager2Images", "Loading image at position $position: $imageUrl")
++        Glide.with(holder.itemView).load(imageUrl).into(holder.binding.imgsProduct)
+     }
++
+ 
+     override fun getItemCount(): Int {
+         return differ.currentList.size
