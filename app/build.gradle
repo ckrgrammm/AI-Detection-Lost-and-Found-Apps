@@ -111,6 +111,9 @@ dependencies {
     //Android Ktx
     implementation "androidx.fragment:fragment-ktx:1.4.1"
 
+    //pdf viewer
+    implementation 'com.github.barteksc:android-pdf-viewer:2.8.2'
+
 
     //Dagger hilt
     implementation "com.google.dagger:hilt-android:2.38.1"

@@ -1,68 +1,125 @@
 package com.example.kleine.fragments.admin
 
-import android.content.Intent
 import android.os.Bundle
-import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
-import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.example.kleine.BuildConfig
 import com.example.kleine.R
-import com.example.kleine.activities.LunchActivity
-import com.example.kleine.activities.ShoppingActivity
-import com.example.kleine.databinding.FragmentAdminDashboardBinding
 import com.example.kleine.databinding.FragmentAdminViewPartnershipBinding
-import com.example.kleine.databinding.FragmentJoinPartnerBinding
-import com.example.kleine.databinding.FragmentProfileBinding
-import com.example.kleine.databinding.FragmentReplyCommentBinding
-import com.example.kleine.databinding.FragmentViewPartnershipBinding
-import com.example.kleine.model.User
-import com.example.kleine.resource.Resource
-import com.example.kleine.util.Constants.Companion.UPDATE_ADDRESS_FLAG
-import com.example.kleine.viewmodel.shopping.ShoppingViewModel
-import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.google.android.material.snackbar.Snackbar
-import com.google.firebase.auth.FirebaseAuth
+import com.example.kleine.databinding.RecyclerViewAdminViewPartnershipBinding
+import com.example.kleine.model.Partnership
+import com.example.kleine.viewmodel.partnership.PartnershipViewModel
 
-
-class AdminViewPartnershipFragment : Fragment() {
-    val TAG = "AdminViewPartnershipFragment"
+interface OnPdfClickListener {
+    fun onPdfClick(pdfUrl: String)
+}
+class AdminViewPartnershipFragment : Fragment(), OnPdfClickListener {
     private lateinit var binding: FragmentAdminViewPartnershipBinding
-    private lateinit var viewModel: ShoppingViewModel
+    private val partnershipViewModel: PartnershipViewModel by viewModels()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        viewModel = (activity as ShoppingActivity).viewModel
-        viewModel.getUser()
-    }
-
-    override fun onCreateView (
-        inflater: LayoutInflater, container: ViewGroup?,
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentAdminViewPartnershipBinding.inflate(inflater, container, false)
 
+        val partnershipAdapter = PartnershipAdapter(listOf(), this)
+        binding.partnershipData.adapter = partnershipAdapter
+
+        partnershipViewModel.partnershipsList.observe(viewLifecycleOwner, Observer { partnerships ->
+            partnershipAdapter.partnershipsList = partnerships
+            partnershipAdapter.notifyDataSetChanged()
+        })
+
+        partnershipViewModel.fetchApprovedPartnerships()
+
+        binding.closePdfButton.setOnClickListener {
+            binding.pdfView.visibility = View.GONE
+            it.visibility = View.GONE  // Hide the close button
+        }
+
+        binding.viewRequest.setOnClickListener {  // viewRequest is from XML
+            findNavController().navigate(R.id.action_adminViewPartnershipFragment_to_adminViewPartnershipRequestFragment)
+        }
+
         return binding.root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    inner class PartnershipAdapter(var partnershipsList: List<Partnership>, private val pdfClickListener: OnPdfClickListener) : RecyclerView.Adapter<PartnershipViewHolder>() {
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PartnershipViewHolder {
+            val inflater = LayoutInflater.from(parent.context)
+            val itemBinding = RecyclerViewAdminViewPartnershipBinding.inflate(inflater, parent, false)
+            return PartnershipViewHolder(itemBinding, pdfClickListener)
+        }
 
-        onViewRequestClick()
+        override fun onBindViewHolder(holder: PartnershipViewHolder, position: Int) {
+            holder.bind(partnershipsList[position])
+        }
+
+        override fun getItemCount(): Int {
+            return partnershipsList.size
+        }
 
     }
 
-    private fun onViewRequestClick() {
-        binding.viewRequest.setOnClickListener {
-            findNavController().navigate(R.id.action_adminViewPartnershipFragment_to_adminViewPartnershipRequestFragment)
+    inner class PartnershipViewHolder(private val itemBinding: RecyclerViewAdminViewPartnershipBinding, private val pdfClickListener: OnPdfClickListener) : RecyclerView.ViewHolder(itemBinding.root) {
+        fun bind(partnership: Partnership) {
+            itemBinding.instiNameType.text = partnership.instiName + "\n" + partnership.instiType
+            itemBinding.location.text = partnership.location
+            itemBinding.contactNum.text = partnership.contactNum
+            itemBinding.reason.text = partnership.reason
+            val documentation = partnership.documentation
+            val documentationName = partnership.documentationName
+            val pdfFilesName = documentationName.split("|") // Split the field using the "|" delimiter
+            val pdfFiles = documentation.split("|")
+            if (pdfFilesName.isNotEmpty()) {
+                itemBinding.pdfFile1.text = pdfFilesName[0]
+                itemBinding.pdfFile1.setOnClickListener {
+                    pdfClickListener.onPdfClick(pdfFiles[0])  // Using pdfClickListener
+                }
+            }
+
+            if (pdfFilesName.size >= 2) {
+                itemBinding.pdfFile2.text = pdfFilesName[1]
+                itemBinding.pdfFile2.setOnClickListener {
+                    pdfClickListener.onPdfClick(pdfFiles[0])
+                }
+            } else {
+                itemBinding.pdfFile2.visibility = View.GONE
+            }
+
+            partnershipViewModel.fetchUserName(partnership.userId) { userName ->
+                if (userName != null) {
+                    itemBinding.nameText.text = userName
+                }
+            }
+
+            partnershipViewModel.fetchUserImage(partnership.userId) { userImage ->
+                if (userImage != null) {
+                    Glide.with(itemBinding.root.context)
+                         .load(userImage)
+                         .into(itemBinding.userImg)
+                }
+            }
+
         }
     }
+    override fun onPdfClick(pdfUrl: String) {
+        partnershipViewModel.loadPdfIntoView(
+            pdfUrl,
+            binding.pdfView,
+            binding.closePdfButton
+        )
+    }
+
+
 
 
 

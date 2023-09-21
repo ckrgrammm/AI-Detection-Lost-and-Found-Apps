@@ -39,6 +39,7 @@ class JoinPartnerFragment : Fragment() {
     private val db = FirebaseFirestore.getInstance()
     private val storage = FirebaseStorage.getInstance()
     private val uploadedPDFLinks = ArrayList<String>()
+    private var uploadedPDFNames = mutableListOf<String>()
     private val userId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
     override fun onCreateView (
         inflater: LayoutInflater, container: ViewGroup?,
@@ -170,6 +171,17 @@ class JoinPartnerFragment : Fragment() {
                         } else if (status == "rejected") {
                             binding.rejectText.visibility = View.VISIBLE
                             binding.rejectText.text = "Reject Reason: $rejectReason"
+                            val instiName = document.getString("instiName") ?: ""
+                            val instiType = document.getString("instiType") ?: ""
+                            val location = document.getString("location") ?: ""
+                            val contactNum = document.getString("contactNum") ?: ""
+                            val reason = document.getString("reason") ?: ""
+                            // Set the data back into your UI elements
+                            binding.instiName.setText(instiName)
+                            binding.instiType.setText(instiType)
+                            binding.location.setText(location)
+                            binding.contactNo.setText(contactNum)
+                            binding.reason.setText(reason)
                         }
                     }
                 }
@@ -194,6 +206,7 @@ class JoinPartnerFragment : Fragment() {
 
     private fun uploadDataToFirestoreAndStorage() {
         uploadedPDFLinks.clear()
+        uploadedPDFNames.clear()
 
         db.collection("Partnerships")
             .whereEqualTo("userId", userId)
@@ -219,17 +232,18 @@ class JoinPartnerFragment : Fragment() {
 
                 var uploadedCount = 0
                 for (uri in selectedPDFs) {
-                    val randomFileName = "${System.currentTimeMillis()}-${java.util.UUID.randomUUID()}.pdf"
+                    val randomFileName = "${System.currentTimeMillis()}-${uri.lastPathSegment?.split("/")?.last()}"
                     val storageReference: StorageReference = storage.reference.child("partnershipPDF/$randomFileName")
                     storageReference.putFile(uri)
                         .addOnSuccessListener { _ ->
                             storageReference.downloadUrl.addOnSuccessListener { downloadUri ->
                                 uploadedPDFLinks.add(downloadUri.toString())
+                                uploadedPDFNames.add("${uri.lastPathSegment?.split("/")?.last()}")
                                 uploadedCount++
 
                                 if (uploadedCount == selectedPDFs.size) {
                                     data["documentation"] = uploadedPDFLinks.joinToString("|")
-
+                                    data["documentationName"] = uploadedPDFNames.joinToString("|")
                                     if (querySnapshot.isEmpty) {
                                         // No existing rejected request, create a new document
                                         db.collection("Partnerships").add(data)

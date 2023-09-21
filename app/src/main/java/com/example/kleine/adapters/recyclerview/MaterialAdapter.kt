@@ -21,7 +21,7 @@ class MaterialAdapter : RecyclerView.Adapter<MaterialAdapter.MaterialViewHolder>
 
     private val diffCallback = object : DiffUtil.ItemCallback<Material>() {
         override fun areItemsTheSame(oldItem: Material, newItem: Material): Boolean {
-            return oldItem.id == newItem.id
+            return oldItem == newItem
         }
 
         override fun areContentsTheSame(oldItem: Material, newItem: Material): Boolean {

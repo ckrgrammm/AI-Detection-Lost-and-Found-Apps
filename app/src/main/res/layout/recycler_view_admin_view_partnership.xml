@@ -16,19 +16,19 @@
             android:layout_width="80dp"
             android:layout_height="80dp"
             android:src="@mipmap/ic_launcher"
-            android:id="@+id/img1"
+            android:id="@+id/user_img"
             app:civ_border_width="2dp"
             app:civ_border_color="#FF000000"/>
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/nametext"
+            android:id="@+id/nameText"
             android:text="Chin Khai Ray"
             android:textStyle="bold"
             android:textSize="25sp"
             android:textColor="#000"
-            android:layout_toRightOf="@+id/img1"
+            android:layout_toRightOf="@+id/user_img"
             android:layout_marginLeft="10dp"
             />
 
@@ -36,8 +36,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/instiText"
-            android:layout_toRightOf="@+id/img1"
-            android:layout_below="@+id/nametext"
+            android:layout_toRightOf="@+id/user_img"
+            android:layout_below="@+id/nameText"
             android:layout_marginLeft="10dp"
             android:orientation="horizontal">
             <TextView
@@ -50,19 +50,19 @@
                 />
 
             <TextView
+                android:id="@+id/instiNameType"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Code Mastery \nIT Field"
-                android:textSize="25sp"
                 android:textColor="#000"
-                />
+                android:textSize="25sp" />
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/locationText"
-            android:layout_toRightOf="@+id/img1"
+            android:layout_toRightOf="@+id/user_img"
             android:layout_below="@+id/instiText"
             android:layout_marginLeft="10dp"
             android:orientation="horizontal">
@@ -76,6 +76,7 @@
                 />
 
             <TextView
+                android:id="@+id/location"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="ABC Jalan Besar, Kuala Lumpur"
@@ -88,7 +89,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/contactText"
-            android:layout_toRightOf="@+id/img1"
+            android:layout_toRightOf="@+id/user_img"
             android:layout_below="@+id/locationText"
             android:layout_marginLeft="10dp"
             android:orientation="horizontal">
@@ -102,9 +103,10 @@
                 />
 
             <TextView
+                android:id="@+id/contactNum"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Lim Er Hao\n01234567890"
+                android:text="01234567890"
                 android:textSize="25sp"
                 android:textColor="#000"
                 />
@@ -114,7 +116,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/reasonText"
-            android:layout_toRightOf="@+id/img1"
+            android:layout_toRightOf="@+id/user_img"
             android:layout_below="@+id/contactText"
             android:layout_marginLeft="10dp"
             android:orientation="horizontal">
@@ -128,6 +130,7 @@
                 />
 
             <TextView
+                android:id="@id/reason"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="i want to be partner"
@@ -140,7 +143,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/documentText"
-            android:layout_toRightOf="@+id/img1"
+            android:layout_toRightOf="@+id/user_img"
             android:layout_below="@+id/reasonText"
             android:layout_marginLeft="10dp"
             android:orientation="horizontal">
@@ -153,13 +156,32 @@
                 android:textStyle="bold"
                 />
 
-            <TextView
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="123.pdf"
-                android:textSize="25sp"
-                android:textColor="#000"
-                />
+                android:orientation="vertical">
+                <TextView
+                    android:id="@+id/pdfFile1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="123.pdf"
+                    android:textSize="25sp"
+                    android:textColor="#000"
+                    android:clickable="true"
+                    android:onClick="openPdfFile1"
+                    />
+                <TextView
+                    android:id="@+id/pdfFile2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="456.pdf"
+                    android:textSize="25sp"
+                    android:textColor="#000"
+                    android:clickable="true"
+                    android:onClick="openPdfFile2"
+                    />
+            </LinearLayout>
+
         </LinearLayout>
     </RelativeLayout>
 

@@ -62,6 +62,7 @@ class ProfileFragment : Fragment() {
                             binding.adminOrders.visibility = View.GONE
                             binding.linearAdmin.visibility = View.GONE
                             binding.linearJoinPartnership.visibility = View.GONE
+                            binding.linearViewPartnership.visibility = View.VISIBLE
                         }else{
                             binding.linearJoinPartnership.visibility = View.VISIBLE
                             binding.linearViewPartnership.visibility = View.GONE
