@@ -15,6 +15,7 @@
         android:textColor="#FFF"/>
 
     <TextView
+        android:id="@+id/reqInstiNameText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
@@ -30,10 +31,10 @@
         android:layout_marginRight="10dp"
         android:background="@drawable/rounded"
         android:gravity="center"
-        android:text="Code Mastery"
-        android:id="@+id/instiName"/>
+        android:id="@+id/reqInstiName"/>
 
     <TextView
+        android:id="@+id/reqInstiTypeText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
@@ -49,10 +50,10 @@
         android:layout_marginRight="10dp"
         android:background="@drawable/rounded"
         android:gravity="center"
-        android:text="IT"
-        android:id="@+id/instiType"/>
+        android:id="@+id/reqInstiType"/>
 
     <TextView
+        android:id="@+id/reqLocText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
@@ -68,36 +69,17 @@
         android:layout_marginRight="10dp"
         android:background="@drawable/rounded"
         android:gravity="center"
-        android:text="ABC Jalan Besar"
-        android:id="@+id/location"/>
+        android:id="@+id/reqLocation"/>
 
     <TextView
+        android:id="@+id/reqContactNoText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:textSize="20sp"
         android:layout_marginTop="5dp"
         android:layout_marginBottom="5dp"
-        android:text="Contact Number"/>
-
-    <EditText
-        android:id="@+id/contactNo"
-        android:layout_width="match_parent"
-        android:layout_height="35dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:background="@drawable/rounded"
-        android:text="01234567890"
-        android:gravity="center" />
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
         android:gravity="center"
-        android:textSize="20sp"
-        android:layout_marginTop="5dp"
-        android:layout_marginBottom="5dp"
-        android:text="Reason To Be Partner"/>
+        android:text="Contact Number"
+        android:textSize="20sp" />
 
     <EditText
         android:layout_width="match_parent"
@@ -106,30 +88,10 @@
         android:layout_marginRight="10dp"
         android:background="@drawable/rounded"
         android:gravity="center"
-        android:text="I want to be partner"
-        android:id="@+id/reason"/>
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:textSize="20sp"
-        android:layout_marginTop="5dp"
-        android:layout_marginBottom="5dp"
-        android:text="Documentation"/>
-
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="35dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:background="@drawable/rounded"
-        android:gravity="center"
-        android:text="123.pdf"
-        android:id="@+id/document"/>
+        android:id="@+id/reqContactNo"/>
 
     <Button
-        android:id="@+id/btnRequest"
+        android:id="@+id/reqBtnRequest"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="25dp"

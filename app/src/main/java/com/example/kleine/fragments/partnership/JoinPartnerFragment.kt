@@ -21,6 +21,9 @@ import androidx.navigation.fragment.findNavController
 import com.example.kleine.R
 import com.example.kleine.activities.ShoppingActivity
 import com.example.kleine.databinding.FragmentJoinPartnerBinding
+import com.example.kleine.model.Partnership
+import com.example.kleine.model.PartnershipStatus
+import com.example.kleine.model.Status
 import com.example.kleine.viewmodel.shopping.ShoppingViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -81,6 +84,29 @@ class JoinPartnerFragment : Fragment() {
             getContent.launch("application/pdf")
         }
 
+        binding.btnJoin.setOnClickListener{
+            if (userId != null) {
+                val db = FirebaseFirestore.getInstance()
+                db.collection("Partnerships")
+                    .whereEqualTo("userId", userId)
+                    .get()
+                    .addOnSuccessListener { querySnapshot ->
+                        if (!querySnapshot.isEmpty) {
+                            val documentRef = querySnapshot.documents[0].reference
+                            documentRef.update("status", PartnershipStatus.approved)
+                                .addOnSuccessListener {
+                                    val partnershipRef = db.collection("users").document(userId)
+                                    partnershipRef.update("status", Status.PARTNERS)
+                                    Log.d(TAG, "Partnership status successfully updated to approved")
+                                    Toast.makeText(requireContext(), "You had join to partnership", Toast.LENGTH_SHORT).show()
+                                    findNavController().popBackStack()
+                                }
+                        }
+                    }
+            }
+        }
+
+
         binding.btnRequest.setOnClickListener {
             it.isEnabled = false
             (it as Button).text = "Wait for a while"
@@ -113,7 +139,7 @@ class JoinPartnerFragment : Fragment() {
             }
 
             val contact = binding.contactNo.text.toString()
-            val contactPattern = "^\\d{3}-\\d{7,8}$"
+            val contactPattern = "^0\\d{2}-\\d{7,8}$"
             if (contact.isEmpty()) {
                 errors.append("• Contact number is empty.\n")
             } else if (!contact.matches(contactPattern.toRegex())) {
@@ -182,6 +208,23 @@ class JoinPartnerFragment : Fragment() {
                             binding.location.setText(location)
                             binding.contactNo.setText(contactNum)
                             binding.reason.setText(reason)
+                        } else if (status == "quit") {
+                            binding.requestedText.visibility = View.VISIBLE
+                            binding.requestedText.text = "You Quit The Partners"
+                            binding.instiName.visibility = View.GONE
+                            binding.instiType.visibility = View.GONE
+                            binding.location.visibility = View.GONE
+                            binding.contactNo.visibility = View.GONE
+                            binding.reason.visibility = View.GONE
+                            binding.documentUploadBtn.visibility = View.GONE
+                            binding.instiNameText.visibility = View.GONE
+                            binding.instiTypeText.visibility = View.GONE
+                            binding.locText.visibility = View.GONE
+                            binding.contactNoText.visibility = View.GONE
+                            binding.reasonText.visibility = View.GONE
+                            binding.docText.visibility = View.GONE
+                            binding.btnRequest.visibility = View.GONE
+                            binding.btnJoin.visibility = View.VISIBLE
                         }
                     }
                 }

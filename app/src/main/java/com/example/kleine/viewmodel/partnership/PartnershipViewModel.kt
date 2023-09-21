@@ -1,32 +1,48 @@
 package com.example.kleine.viewmodel.partnership
 
-import android.net.Uri
 import android.util.Log
 import android.view.View
-import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.navigation.fragment.findNavController
-import com.example.kleine.model.MaterialEngageData
 import com.example.kleine.model.Partnership
 import com.example.kleine.model.PartnershipStatus
-import com.firebase.ui.auth.AuthUI.TAG
 import com.github.barteksc.pdfviewer.PDFView
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.storage.FirebaseStorage
-import com.google.firebase.storage.StorageReference
 
 class PartnershipViewModel : ViewModel() {
     private val db = FirebaseFirestore.getInstance()
     private val _partnershipsList = MutableLiveData<List<Partnership>>()
     val partnershipsList: LiveData<List<Partnership>> = _partnershipsList
-    private val _uploadStatus = MutableLiveData<String>()
-    val uploadStatus: LiveData<String> get() = _uploadStatus
-    private val storage = FirebaseStorage.getInstance()
     private var partnershipListenerRegistration: ListenerRegistration? = null
 
+    val isDataUpdated = MutableLiveData<Boolean>()
+
+
+    fun updateRequestDataToFirestore(userId: String, name: String, type: String, loc: String, contact: String) {
+        val data: Map<String, Any> = hashMapOf(
+            "instiName" to name,
+            "instiType" to type,
+            "location" to loc,
+            "contactNum" to contact
+        )
+
+
+        db.collection("Partnerships")
+            .whereEqualTo("userId", userId)
+            .get()
+            .addOnSuccessListener { querySnapshot ->
+                if (querySnapshot.documents.isNotEmpty()) {
+                    val docId = querySnapshot.documents[0].id
+                    db.collection("Partnerships").document(docId).update(data)
+                        .addOnSuccessListener {
+                            isDataUpdated.value = true
+                        }
+                }
+            }
+    }
     fun fetchApprovedPartnerships() {
         partnershipListenerRegistration?.remove()
 
@@ -120,9 +136,6 @@ class PartnershipViewModel : ViewModel() {
         }
     }
 
-    fun removeSnapshotListener() {
-        partnershipListenerRegistration?.remove()
-    }
 
 
 }

@@ -20,6 +20,7 @@ import com.example.kleine.databinding.FragmentAdminViewPartnershipRequestBinding
 import com.example.kleine.databinding.RecyclerViewAdminViewPartnershipRequestBinding
 import com.example.kleine.model.Partnership
 import com.example.kleine.model.PartnershipStatus
+import com.example.kleine.model.Status
 import com.example.kleine.viewmodel.partnership.PartnershipViewModel
 import com.example.kleine.viewmodel.shopping.ShoppingViewModel
 import com.google.firebase.firestore.FirebaseFirestore
@@ -214,7 +215,7 @@ class AdminViewPartnershipRequestFragment : Fragment(), OnRequestPdfClickListene
             .addOnSuccessListener {
                 // Now, update the user's status
                 val userRef = firestore.collection("users").document(userId)
-                userRef.update("status", "PARTNERS")
+                userRef.update("status", Status.PARTNERS)
                     .addOnSuccessListener {
                         Toast.makeText(context, "Partner approved successfully!", Toast.LENGTH_SHORT).show()
                     }

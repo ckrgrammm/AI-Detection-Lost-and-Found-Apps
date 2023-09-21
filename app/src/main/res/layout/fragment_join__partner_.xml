@@ -4,7 +4,6 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     >
-
     <TextView
         android:layout_width="match_parent"
         android:layout_height="50dp"
@@ -13,7 +12,17 @@
         android:textSize="25dp"
         android:gravity="center"
         android:textColor="#FFF"/>
-
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:layout_gravity="center"
+        android:textSize="@dimen/_40sdp"
+        android:text="Waiting For Response"
+        android:textStyle="bold"
+        android:visibility="gone"
+        android:id="@+id/requestedText"
+        />
     <TextView
         android:id="@+id/instiNameText"
         android:layout_width="match_parent"
@@ -119,6 +128,7 @@
         android:text="Documentation"
         android:textSize="20sp" />
 
+
     <Button
         android:layout_width="match_parent"
         android:layout_height="35dp"
@@ -128,6 +138,7 @@
         android:text="upload pdf file"
         android:gravity="center"
         android:id="@+id/documentUploadBtn"/>
+
 
     <Button
         android:id="@+id/btnRequest"
@@ -142,17 +153,20 @@
         android:textAllCaps="false"
         android:textSize="21dp" />
 
-    <TextView
+    <Button
+        android:id="@+id/btnJoin"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:layout_gravity="center"
-        android:textSize="@dimen/_40sdp"
-        android:text="Waiting For Response"
-        android:textStyle="bold"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="25dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginRight="25dp"
+        android:backgroundTint="@color/black"
+        android:gravity="center"
+        android:text="Join Again"
+        android:textAllCaps="false"
         android:visibility="gone"
-        android:id="@+id/requestedText"
-        />
+        android:textSize="21dp" />
+
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

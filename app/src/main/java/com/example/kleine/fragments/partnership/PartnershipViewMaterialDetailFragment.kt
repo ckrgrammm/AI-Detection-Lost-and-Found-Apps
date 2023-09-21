@@ -50,12 +50,14 @@ class PartnershipViewMaterialDetailFragment : Fragment(), OnCommentClickListener
             binding.enrollNum.text = materialEngageData?.enroll.toString()
             binding.graduateNum.text = materialEngageData?.graduate.toString()
 
-            val storageReference =
-                FirebaseStorage.getInstance().getReferenceFromUrl(materialEngageData?.imageUrl.toString())
-            storageReference.downloadUrl.addOnSuccessListener { uri ->
-                Glide.with(binding.root.context)
-                    .load(uri.toString())
-                    .into(binding.viewHeaderBackground) // Replace with the actual ID of your ImageView
+            if (materialEngageData?.imageUrl?.isNotEmpty() == true) {
+                val storageReference = FirebaseStorage.getInstance()
+                    .getReferenceFromUrl(materialEngageData?.imageUrl.toString())
+                storageReference.downloadUrl.addOnSuccessListener { uri ->
+                    Glide.with(binding.root.context)
+                        .load(uri.toString())
+                        .into(binding.viewHeaderBackground)
+                }
             }
         }
 

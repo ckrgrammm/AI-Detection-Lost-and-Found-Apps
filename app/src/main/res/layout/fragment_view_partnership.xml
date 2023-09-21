@@ -8,7 +8,19 @@
     android:orientation="vertical"
     android:background="#F4F4F4">
 
-
+    <com.github.barteksc.pdfviewer.PDFView
+        android:id="@+id/pdfView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"/>
+    <Button
+        android:id="@+id/closePdfButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Close"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -34,6 +46,7 @@
                         android:layout_height="360dp"
                         android:background="@drawable/top_background"
                         app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="1.0"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent">
 
@@ -171,7 +184,8 @@
                                 android:layout_width="0dp"
                                 android:layout_height="match_parent"
                                 android:layout_weight="0.3333"
-                                android:orientation="vertical">
+                                android:orientation="vertical"
+                                android:onClick="quitPartnership">
 
                                 <androidx.constraintlayout.widget.ConstraintLayout
                                     android:layout_width="60dp"
@@ -183,24 +197,24 @@
                                     <ImageView
                                         android:layout_width="35dp"
                                         android:layout_height="35dp"
+                                        android:background="@drawable/ic_logout"
+                                        android:backgroundTint="@color/white"
                                         app:layout_constraintBottom_toBottomOf="parent"
                                         app:layout_constraintEnd_toEndOf="parent"
                                         app:layout_constraintStart_toStartOf="parent"
-                                        app:layout_constraintTop_toTopOf="parent"
-                                        android:backgroundTint="@color/white"
-                                        android:background="@drawable/ic_logout"/>
+                                        app:layout_constraintTop_toTopOf="parent" />
 
                                 </androidx.constraintlayout.widget.ConstraintLayout>
 
                                 <TextView
-                                    android:textColor="@color/black"
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
                                     android:layout_margin="8dp"
                                     android:layout_weight="1"
                                     android:text="Quit Partnership"
-                                    android:textStyle="bold"
-                                    android:textAlignment="center"  />
+                                    android:textAlignment="center"
+                                    android:textColor="@color/black"
+                                    android:textStyle="bold" />
                             </LinearLayout>
 
                         </LinearLayout>
@@ -227,6 +241,7 @@
                                         android:textStyle="bold" />
 
                                     <TextView
+                                        android:id="@+id/institutionNameText"
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:layout_weight="1"
@@ -261,6 +276,7 @@
                                         android:textStyle="bold" />
 
                                     <TextView
+                                        android:id="@+id/institutionTypeText"
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:layout_weight="1"
@@ -293,6 +309,7 @@
                                         android:textStyle="bold" />
 
                                     <TextView
+                                        android:id="@+id/locationText"
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:layout_weight="1"
@@ -325,10 +342,11 @@
                                         android:textStyle="bold" />
 
                                     <TextView
+                                        android:id="@+id/contactNumText"
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:layout_weight="1"
-                                        android:text="01234567890"
+                                        android:text="012-34567890"
                                         android:textAlignment="viewEnd"
                                         android:textSize="16sp" />
 
@@ -342,37 +360,6 @@
                                     android:layout_marginEnd="10dp"
                                     android:layout_marginStart="10dp"/>
 
-                                <LinearLayout
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:layout_margin="10dp"
-                                    android:orientation="horizontal">
-
-                                    <TextView
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:layout_weight="0.1"
-                                        android:text="Reason"
-                                        android:textSize="18sp"
-                                        android:textStyle="bold" />
-
-                                    <TextView
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:layout_weight="1"
-                                        android:text="partner"
-                                        android:textAlignment="viewEnd"
-                                        android:textSize="16sp" />
-
-
-                                </LinearLayout>
-                                <View
-                                    android:layout_width="match_parent"
-                                    android:layout_height="1dp"
-                                    android:layout_margin="6dp"
-                                    android:background="#D9D9D9"
-                                    android:layout_marginEnd="10dp"
-                                    android:layout_marginStart="10dp"/>
 
                                 <LinearLayout
                                     android:layout_width="match_parent"
@@ -389,11 +376,25 @@
                                         android:textStyle="bold" />
 
                                     <TextView
+                                        android:id="@+id/documentText2"
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:layout_weight="1"
                                         android:text="123.pdf"
                                         android:textAlignment="viewEnd"
+                                        android:clickable="true"
+                                        android:onClick="openPdfFile2"
+                                        android:textSize="16sp" />
+                                    <TextView
+                                        android:id="@+id/documentText1"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_weight="1"
+                                        android:text="123.pdf"
+                                        android:clickable="true"
+                                        android:onClick="openPdfFile1"
+                                        android:textAlignment="viewEnd"
+
                                         android:textSize="16sp" />
                                 </LinearLayout>
                             </LinearLayout>

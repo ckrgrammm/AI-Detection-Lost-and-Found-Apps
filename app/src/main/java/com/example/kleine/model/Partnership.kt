@@ -4,7 +4,7 @@ import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
 enum class PartnershipStatus {
-    pending, approved, rejected
+    pending, approved, rejected, quit
 }
 @Parcelize
 data class Partnership(
@@ -22,4 +22,3 @@ data class Partnership(
 ): Parcelable {
     constructor() : this("","", "", "", "", "", "", PartnershipStatus.pending, "", "", "")
 }
-
