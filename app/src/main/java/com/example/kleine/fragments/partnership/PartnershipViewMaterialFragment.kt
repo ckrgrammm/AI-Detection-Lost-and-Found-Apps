@@ -51,11 +51,13 @@ class PartnershipViewMaterialFragment : Fragment() {
             itemBinding.materialRequirement.text = "Requirement: ${material.requirement}"
             itemBinding.ratingBar.rating = material.rating.toFloat()
 
-            val storageReference = FirebaseStorage.getInstance().getReferenceFromUrl(material.imageUrl)
-            storageReference.downloadUrl.addOnSuccessListener { uri ->
-                Glide.with(itemBinding.root.context)
-                    .load(uri.toString())
-                    .into(itemBinding.image)
+            if (material.imageUrl.isNotEmpty()) {
+                val storageReference = FirebaseStorage.getInstance().getReferenceFromUrl(material.imageUrl)
+                storageReference.downloadUrl.addOnSuccessListener { uri ->
+                    Glide.with(itemBinding.root.context)
+                        .load(uri.toString())
+                        .into(itemBinding.image)
+                }
             }
 
             onViewMaterialClick(itemBinding, material.id)

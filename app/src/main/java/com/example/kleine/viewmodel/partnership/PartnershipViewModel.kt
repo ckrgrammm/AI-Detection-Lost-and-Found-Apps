@@ -11,8 +11,10 @@ import androidx.navigation.fragment.findNavController
 import com.example.kleine.model.MaterialEngageData
 import com.example.kleine.model.Partnership
 import com.example.kleine.model.PartnershipStatus
+import com.firebase.ui.auth.AuthUI.TAG
 import com.github.barteksc.pdfviewer.PDFView
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 
@@ -23,10 +25,13 @@ class PartnershipViewModel : ViewModel() {
     private val _uploadStatus = MutableLiveData<String>()
     val uploadStatus: LiveData<String> get() = _uploadStatus
     private val storage = FirebaseStorage.getInstance()
+    private var partnershipListenerRegistration: ListenerRegistration? = null
 
     fun fetchApprovedPartnerships() {
+        partnershipListenerRegistration?.remove()
+
         db.collection("Partnerships")
-            .whereEqualTo("status", PartnershipStatus.accepted.name) // Filter by status
+            .whereEqualTo("status", PartnershipStatus.approved.name) // Filter by status
             .get()
             .addOnSuccessListener { result ->
                 val partnershipList = mutableListOf<Partnership>()
@@ -34,10 +39,37 @@ class PartnershipViewModel : ViewModel() {
                     val partnership = document.toObject(Partnership::class.java)
                     partnershipList.add(partnership)
                 }
+
+                _partnershipsList.value = partnershipList
+
+            }
+    }
+    fun fetchPendingPartnerships() {
+        partnershipListenerRegistration?.remove()
+
+        partnershipListenerRegistration = db.collection("Partnerships")
+            .whereEqualTo("status", PartnershipStatus.pending.name)
+            .addSnapshotListener { value, error ->
+                if (error != null) {
+                    return@addSnapshotListener
+                }
+
+                val partnershipList = mutableListOf<Partnership>()
+                for (document in value!!) {
+                    val partnership = document.toObject(Partnership::class.java)
+                    partnership.id = document.id
+                    partnershipList.add(partnership)
+                }
                 _partnershipsList.value = partnershipList
             }
     }
+
     fun fetchUserName(userId: String, callback: (String?) -> Unit) {
+        if (userId.isBlank()) {
+            callback(null)
+            return
+        }
+
         val db = FirebaseFirestore.getInstance()
         db.collection("users").document(userId)
             .get()
@@ -53,6 +85,7 @@ class PartnershipViewModel : ViewModel() {
                 callback(null)
             }
     }
+
 
     fun fetchUserImage(userId: String, callback: (String?) -> Unit) {
         val db = FirebaseFirestore.getInstance()
@@ -86,5 +119,10 @@ class PartnershipViewModel : ViewModel() {
             Log.e("PDF_VIEW", "Error downloading PDF", e)
         }
     }
+
+    fun removeSnapshotListener() {
+        partnershipListenerRegistration?.remove()
+    }
+
 
 }

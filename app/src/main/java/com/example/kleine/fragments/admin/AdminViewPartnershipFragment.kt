@@ -118,7 +118,10 @@ class AdminViewPartnershipFragment : Fragment(), OnPdfClickListener {
             binding.closePdfButton
         )
     }
-
+    override fun onResume() {
+        super.onResume()
+        partnershipViewModel.fetchApprovedPartnerships()
+    }
 
 
 

@@ -148,6 +148,7 @@
             android:layout_marginLeft="10dp"
             android:orientation="horizontal">
             <TextView
+                android:paddingTop="@dimen/_6sdp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Document:"
@@ -161,6 +162,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
                 <TextView
+                    android:padding="@dimen/_6sdp"
                     android:id="@+id/pdfFile1"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -171,6 +173,7 @@
                     android:onClick="openPdfFile1"
                     />
                 <TextView
+                    android:padding="@dimen/_6sdp"
                     android:id="@+id/pdfFile2"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
