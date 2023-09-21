@@ -33,7 +33,7 @@ import io.github.vejei.viewpagerindicator.indicator.CircleIndicator
 
 class ProductPreviewFragment : Fragment() {
 
-    val args by navArgs<ProductPreviewFragmentArgs>()
+    val args by navArgs<MaterialPreviewFragmentArgs>()
     val TAG = "ProductPreviewFragment"
 
     private lateinit var binding: FragmentProductPreviewBinding
@@ -66,11 +66,10 @@ class ProductPreviewFragment : Fragment() {
             requireActivity().findViewById<BottomNavigationView>(R.id.bottom_navigation)
         bottomNavigation.visibility = View.GONE
 
-        val product = args.product
+        val product = args.material
 
         setupViewpager()
-        setupColorsRecyclerview()
-        setupSizesRecyclerview()
+
 
 
 //        setProductInformation(product)
@@ -144,35 +143,21 @@ class ProductPreviewFragment : Fragment() {
     private fun onBtnAddToCartClick() {
         binding.btnAddToCart.apply {
             setOnClickListener {
-
                 if (selectedColor.isEmpty()) {
                     binding.tvColorError.visibility = View.VISIBLE
                     return@setOnClickListener
                 }
-
                 if (selectedSize.isEmpty()) {
                     binding.tvSizeError.visibility = View.VISIBLE
                     return@setOnClickListener
                 }
 
-                val product = args.product
-                val image = (product.images?.get(IMAGES) as List<String>)[0]
-                val cartProduct = CartProduct(
-                    product.id,
-                    product.description!!,
-                    product.seller!!,
-                    image,
-                    product.productPrice!!,
-                    product.newPrice,
-                    1,
-                    selectedColor,
-                    selectedSize
-                )
-                viewModel.addProductToCart(cartProduct)
+
                 setBackgroundResource(R.color.g_black)
             }
         }
     }
+
 
     private fun onImageCloseClick() {
         binding.imgClose.setOnClickListener {
@@ -212,27 +197,16 @@ class ProductPreviewFragment : Fragment() {
 //        }
 //    }
 
-    private fun setupSizesRecyclerview() {
-        binding.rvSizes.apply {
-            adapter = sizesAdapter
-            layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-            addItemDecoration(HorizantalSpacingItemDecorator(45))
-        }
-    }
 
-    private fun setupColorsRecyclerview() {
-        binding.rvColors.apply {
-            adapter = colorsAdapter
-            layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-            addItemDecoration(HorizantalSpacingItemDecorator(45))
-        }
-    }
+
+
 
     private fun setupViewpager() {
         binding.viewpager2Images.adapter = viewPagerAdapter
         binding.circleIndicator.setWithViewPager2(binding.viewpager2Images)
-        binding.circleIndicator.itemCount = (args.product.images?.get(IMAGES) as List<String>).size
+        binding.circleIndicator.itemCount = 1 // Only one image
         binding.circleIndicator.setAnimationMode(CircleIndicator.AnimationMode.SLIDE)
     }
+
 
 }

@@ -3,6 +3,8 @@ package com.example.kleine.adapters.recyclerview
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.navigation.NavDirections
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
@@ -16,8 +18,15 @@ class MaterialAdapter : RecyclerView.Adapter<MaterialAdapter.MaterialViewHolder>
 
     var onItemClick: ((Material) -> Unit)? = null
 
-    inner class MaterialViewHolder(val binding: ProductLayoutRowBinding) :
-        RecyclerView.ViewHolder(binding.root)
+    inner class MaterialViewHolder(val binding: ProductLayoutRowBinding) : RecyclerView.ViewHolder(binding.root) {
+        init {
+            itemView.setOnClickListener {
+                val material = differ.currentList[adapterPosition]
+                val actionId = R.id.action_homeFragment_to_materialDetailsFragment
+                it.findNavController().navigate(actionId)
+            }
+        }
+    }
 
     private val diffCallback = object : DiffUtil.ItemCallback<Material>() {
         override fun areItemsTheSame(oldItem: Material, newItem: Material): Boolean {
@@ -48,46 +57,30 @@ class MaterialAdapter : RecyclerView.Adapter<MaterialAdapter.MaterialViewHolder>
 
         val material = differ.currentList[position]
         holder.binding.apply {
-            productModel = material  // This binds your XML views to your data model
+            productModel = material
 
             val storage = FirebaseStorage.getInstance()
             val storageRef = storage.reference
 
-            // Check if imageUrl is not empty
             if (material.imageUrl.isNotEmpty()) {
-                // Construct the dynamic path based on the material's image URL
                 val pathToImage = "materialImages/${material.imageUrl}"
-
-                // Log the dynamic path and material image URL for debugging
                 Log.d("MaterialAdapter", "Dynamic Path to image: $pathToImage")
                 Log.d("MaterialAdapter", "Material image URL: ${material.imageUrl}")
 
-                // Use the dynamic path to reference the image in Firebase Storage
                 val pathReference = storageRef.child(pathToImage)
 
-                // Attempt to download the image using the dynamic path
                 pathReference.downloadUrl.addOnSuccessListener { uri ->
                     Log.d("MaterialAdapter", "Successfully fetched URI: $uri")
                     Glide.with(holder.itemView).load(uri).into(imageView)
                 }.addOnFailureListener { exception ->
                     Log.e("MaterialAdapter", "Failed to load image", exception)
-                    imageView.setImageResource(R.drawable.default_book_logo)  // Set a default image
+                    imageView.setImageResource(R.drawable.default_book_logo)
                 }
             } else {
-                imageView.setImageResource(R.drawable.default_book_logo)  // Set a default image
+                imageView.setImageResource(R.drawable.default_book_logo)
             }
         }
-
-        // Set an onClick listener for the item
-        holder.itemView.setOnClickListener {
-            onItemClick?.invoke(differ.currentList[position])
-        }
     }
-
-
-
-
-
 
 
 

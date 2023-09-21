@@ -82,9 +82,9 @@ class CartFragment : Fragment() {
                         progressPlusMinus.visibility = View.INVISIBLE
                         val product = response.data
                         val bundle = Bundle()
-                        bundle.putParcelable("product", product)
+                        bundle.putParcelable("material", product)
                         findNavController().navigate(
-                            R.id.action_cartFragment_to_productPreviewFragment2,
+                            R.id.action_homeFragment_to_materialDetailsFragment,
                             bundle
                         )
                         viewModel.product.postValue(null)
