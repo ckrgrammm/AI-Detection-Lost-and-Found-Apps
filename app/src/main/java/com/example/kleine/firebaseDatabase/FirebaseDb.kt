@@ -22,12 +22,16 @@ import com.example.kleine.util.Constants.Companion.SIZE
 import com.example.kleine.util.Constants.Companion.STORES_COLLECTION
 import com.example.kleine.util.Constants.Companion.TITLE
 import com.example.kleine.util.Constants.Companion.USERS_COLLECTION
+
+
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.Transaction
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -44,6 +48,8 @@ class FirebaseDb {
     private val productsCollection = Firebase.firestore.collection(PRODUCTS_COLLECTION)
     private val categoriesCollection = Firebase.firestore.collection(CATEGORIES_COLLECTION)
     private val storesCollection = Firebase.firestore.collection(STORES_COLLECTION)
+
+
     private val firebaseStorage = Firebase.storage.reference
 
     val userUid = FirebaseAuth.getInstance().currentUser?.uid
@@ -138,6 +144,12 @@ class FirebaseDb {
         }
 
     }
+
+    fun getMaterials(page: Long): Task<QuerySnapshot> {
+        return FirebaseFirestore.getInstance().collection("Materials").limit(page).get()
+    }
+
+
 
     fun deleteProductFromCart(documentId: String) =
         userCartCollection!!.document(documentId).delete()

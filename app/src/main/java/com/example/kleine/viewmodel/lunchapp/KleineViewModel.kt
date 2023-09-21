@@ -18,8 +18,6 @@ import com.google.firebase.firestore.DocumentSnapshot
 
 class KleineViewModel(
     private val firebaseDatabase: FirebaseDb
-
-
 ) : ViewModel() {
 
 
@@ -140,24 +138,7 @@ class KleineViewModel(
         return usersCollectionRef.document(userId).get()
     }
 
-    fun fetchCurrentUser(userId: String) {
-        getUser(userId).addOnSuccessListener { document ->
-            if (document != null) {
-                val user = document.toObject(User::class.java)
-                if (user != null) {
-                    _currentUser.postValue(user)
-                } else {
-                    // Handle the case where the document couldn't be converted to a User
-                    // You could post a null value, an error message, or any other appropriate action
-                    _currentUser.postValue(null)
-                }
-            } else {
-                // Handle the case where the document is null
-                // You could post a null value, an error message, or any other appropriate action
-                _currentUser.postValue(null)
-            }
-        }
-    }
+
 
 
 

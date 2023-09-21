@@ -164,6 +164,10 @@
 
 
 
+    <string name="string_sale_text">Grab Some Course !! </string>
+    <string name="string_curve_image">Curve Image</string>
+    <string name="string_75">520%</string>
+
 
     <!-- Difficulty Levels  -->
     <string-array name="difficulty_levels">

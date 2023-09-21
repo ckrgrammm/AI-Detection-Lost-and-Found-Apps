@@ -1,0 +1,113 @@
+Index: app/src/main/java/com/example/kleine/fragments/applunch/LoginFragment.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.example.kleine.fragments.applunch\n\nimport android.content.Intent\nimport android.os.Bundle\nimport android.util.Log\nimport androidx.fragment.app.Fragment\nimport android.view.LayoutInflater\nimport android.view.View\nimport android.view.ViewGroup\nimport android.widget.Button\nimport android.widget.EditText\nimport android.widget.Toast\nimport androidx.lifecycle.Observer\nimport androidx.navigation.fragment.findNavController\nimport br.com.simplepass.loadingbutton.customViews.CircularProgressButton\nimport com.example.kleine.activities.LunchActivity\nimport com.example.kleine.R\nimport com.example.kleine.activities.ShoppingActivity\nimport com.example.kleine.databinding.FragmentLoginBinding\nimport com.example.kleine.resource.Resource\nimport com.example.kleine.viewmodel.lunchapp.KleineViewModel\nimport com.google.android.gms.auth.api.signin.GoogleSignIn\nimport com.google.android.gms.auth.api.signin.GoogleSignInOptions\nimport com.google.android.gms.common.api.ApiException\nimport com.google.android.material.bottomsheet.BottomSheetBehavior\nimport com.google.android.material.bottomsheet.BottomSheetDialog\nimport com.google.android.material.snackbar.Snackbar\n\n\nclass LoginFragment : Fragment() {\n    val TAG: String = \"LoginFragment\"\n    val GOOGLE_REQ_CODE = 13\n    private lateinit var binding: FragmentLoginBinding\n    private lateinit var btnLogin: CircularProgressButton\n    private lateinit var viewModel: KleineViewModel\n\n    override fun onCreate(savedInstanceState: Bundle?) {\n        super.onCreate(savedInstanceState)\n\n        viewModel = (activity as LunchActivity).viewModel\n\n    }\n\n    override fun onCreateView(\n        inflater: LayoutInflater, container: ViewGroup?,\n        savedInstanceState: Bundle?\n    ): View {\n        binding = FragmentLoginBinding.inflate(layoutInflater)\n        return binding.root\n    }\n\n    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {\n        super.onViewCreated(view, savedInstanceState)\n        btnLogin = view.findViewById(R.id.btn_login_fragment)\n\n        onLoginClick()\n        observerLogin()\n        observerLoginError()\n        onDontHaveAccountClick()\n        onForgotPasswordClick()\n        observeResetPassword()\n\n        observeSaveUserInformation()\n        binding.btnLoginFragment.apply {\n            btnLogin.spinningBarColor = resources.getColor(R.color.white)\n            btnLogin.spinningBarWidth = resources.getDimension(R.dimen._3sdp)\n        }\n    }\n\n\n\n    private fun observeResetPassword() {\n        viewModel.resetPassword.observe(viewLifecycleOwner, Observer { response ->\n            when (response) {\n                is Resource.Loading -> {\n\n                    return@Observer\n                }\n\n                is Resource.Success -> {\n                    showSnackBar()\n                    viewModel.resetPassword.postValue(null)\n                    return@Observer\n                }\n\n                is Resource.Error -> {\n                    Toast.makeText(\n                        activity,\n                        resources.getText(R.string.error_occurred),\n                        Toast.LENGTH_SHORT\n                    ).show()\n                    Log.e(TAG, response.message.toString())\n\n                    return@Observer\n                }\n            }\n        })\n    }\n\n    private fun showSnackBar() {\n        Snackbar.make(requireView(),resources.getText(R.string.g_password_reset),Snackbar.LENGTH_LONG).show()\n    }\n\n    private fun onForgotPasswordClick() {\n        binding.tvForgotPassword.setOnClickListener {\n            setupBottomSheetDialog()\n        }\n    }\n\n    private fun setupBottomSheetDialog() {\n        val dialog = BottomSheetDialog(requireContext(), R.style.DialogStyle)\n        val view = layoutInflater.inflate(R.layout.forgot_password_dialog, null)\n        dialog.setContentView(view)\n        dialog.behavior.state = BottomSheetBehavior.STATE_EXPANDED\n        dialog.show()\n\n        val edEmail = view.findViewById<EditText>(R.id.edEmail)\n        val btnSend = view.findViewById<Button>(R.id.btn_send)\n        val btnCancel = view.findViewById<Button>(R.id.btn_cancel)\n\n        btnSend.setOnClickListener {\n            val email = edEmail.text.toString().trim()\n            if (email.isNotEmpty() && android.util.Patterns.EMAIL_ADDRESS.matcher(email)\n                    .matches()\n            ) {\n                viewModel.resetPassword(email)\n                dialog.dismiss()\n            } else {\n                edEmail.requestFocus()\n                edEmail.error = resources.getText(R.string.g_check_your_email)\n            }\n        }\n\n        btnCancel.setOnClickListener {\n            dialog.dismiss()\n        }\n    }\n\n    private fun onDontHaveAccountClick() {\n        binding.tvDontHaveAnAccount.setOnClickListener {\n            findNavController().navigate(R.id.action_loginFragment_to_registerFragment)\n        }\n    }\n\n    private fun observerLoginError() {\n        viewModel.loginError.observe(viewLifecycleOwner, Observer { error ->\n            Log.e(TAG, error)\n            Toast.makeText(activity, \"Please check your information\", Toast.LENGTH_LONG).show()\n            btnLogin.revertAnimation()\n\n        })\n\n\n    }\n\n    private fun observerLogin() {\n        viewModel.login.observe(viewLifecycleOwner, Observer {\n            if (it == true) {\n                btnLogin.revertAnimation()\n                val intent = Intent(activity, ShoppingActivity::class.java)\n                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)\n                startActivity(intent)\n            }\n        })\n    }\n\n    private fun onLoginClick() {\n        btnLogin.setOnClickListener {\n            btnLogin.spinningBarColor = resources.getColor(R.color.white)\n            btnLogin.spinningBarWidth = resources.getDimension(R.dimen._3sdp)\n\n            val email = getEmail()?.trim()\n            val password = getPassword()\n            email?.let {\n                password?.let {\n                    btnLogin.startAnimation()\n                    viewModel.loginUser(email, password)\n                }\n            }\n        }\n    }\n\n    private fun getPassword(): String? {\n        val password = binding.edPasswordLogin.text.toString()\n\n        if (password.isEmpty()) {\n            binding.edPasswordLogin.apply {\n                error = resources.getString(R.string.password_cant_be_empty)\n                requestFocus()\n            }\n            return null\n        }\n\n        if (password.length < 6) {\n            binding.edPasswordLogin.apply {\n                error = resources.getString(R.string.password_at_least_six)\n                requestFocus()\n            }\n            return null\n        }\n        return password\n    }\n\n    private fun getEmail(): String? {\n        val email = binding.edEmailLogin.text.toString().trim()\n\n        if (email.isEmpty()) {\n            binding.edEmailLogin.apply {\n                error = resources.getString(R.string.email_cant_be_empty)\n                requestFocus()\n            }\n            return null\n        }\n\n\n        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {\n            binding.edEmailLogin.apply {\n                error = resources.getString(R.string.valid_email)\n                requestFocus()\n            }\n            return null\n        }\n\n\n        return email\n\n    }\n\n    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {\n        super.onActivityResult(requestCode, resultCode, data)\n\n        // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);\n        if (requestCode == GOOGLE_REQ_CODE) {\n            val task = GoogleSignIn.getSignedInAccountFromIntent(data)\n            try {\n                // Google Sign In was successful, authenticate with Firebase\n                val account = task.getResult(ApiException::class.java)!!\n                Log.d(\"test,\",account.email.toString())\n                Log.d(TAG, \"firebaseAuthWithGoogle:\" + account.id)\n                viewModel.signInWithGoogle(account.idToken!!)\n            } catch (e: ApiException) {\n                // Google Sign In failed, update UI appropriately\n                Log.e(TAG, \"Google sign in failed\", e)\n            }\n        }\n\n\n    }\n\n    private fun observeSaveUserInformation(){\n        viewModel.saveUserInformationGoogleSignIn.observe(viewLifecycleOwner, Observer { response->\n            when(response){\n                is Resource.Loading -> {\n                    Log.d(TAG,\"GoogleSignIn:Loading\")\n                    binding.btnLoginFragment.startAnimation()\n                    return@Observer\n                }\n\n                is Resource.Success -> {\n                    Log.d(TAG,\"GoogleSignIn:Successful\")\n                    binding.btnLoginFragment.stopAnimation()\n                    val intent = Intent(activity,ShoppingActivity::class.java)\n                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)\n                    startActivity(intent)\n                    return@Observer\n                }\n\n                is Resource.Error ->{\n                    Log.e(TAG,\"GoogleSignIn:Error ${response.message.toString()}\")\n                    Toast.makeText(activity, resources.getText(R.string.error_occurred), Toast.LENGTH_LONG).show()\n                    return@Observer\n                }\n            }\n\n        })\n    }\n\n\n\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/example/kleine/fragments/applunch/LoginFragment.kt b/app/src/main/java/com/example/kleine/fragments/applunch/LoginFragment.kt
+--- a/app/src/main/java/com/example/kleine/fragments/applunch/LoginFragment.kt	
++++ b/app/src/main/java/com/example/kleine/fragments/applunch/LoginFragment.kt	
+@@ -156,7 +156,13 @@
+     private fun observerLogin() {
+         viewModel.login.observe(viewLifecycleOwner, Observer {
+             if (it == true) {
+-                btnLogin.revertAnimation()
++                // Fetch user details from Room Database after successful login
++                val email = getEmail()
++                val user = viewModel.findUserByEmailInLocalDb(email!!)
++                // Do something with the user object
++                // ...
++
++                // Navigate to next activity
+                 val intent = Intent(activity, ShoppingActivity::class.java)
+                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
+                 startActivity(intent)
+@@ -164,6 +170,7 @@
+         })
+     }
+ 
++
+     private fun onLoginClick() {
+         btnLogin.setOnClickListener {
+             btnLogin.spinningBarColor = resources.getColor(R.color.white)
+@@ -226,26 +233,7 @@
+ 
+     }
+ 
+-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+-        super.onActivityResult(requestCode, resultCode, data)
+-
+-        // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
+-        if (requestCode == GOOGLE_REQ_CODE) {
+-            val task = GoogleSignIn.getSignedInAccountFromIntent(data)
+-            try {
+-                // Google Sign In was successful, authenticate with Firebase
+-                val account = task.getResult(ApiException::class.java)!!
+-                Log.d("test,",account.email.toString())
+-                Log.d(TAG, "firebaseAuthWithGoogle:" + account.id)
+-                viewModel.signInWithGoogle(account.idToken!!)
+-            } catch (e: ApiException) {
+-                // Google Sign In failed, update UI appropriately
+-                Log.e(TAG, "Google sign in failed", e)
+-            }
+-        }
+ 
+-
+-    }
+ 
+     private fun observeSaveUserInformation(){
+         viewModel.saveUserInformationGoogleSignIn.observe(viewLifecycleOwner, Observer { response->
+Index: app/src/main/java/com/example/kleine/fragments/applunch/RegisterFragment.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.example.kleine.fragments.applunch\n\nimport android.os.Bundle\nimport android.util.Log\nimport androidx.fragment.app.Fragment\nimport android.view.LayoutInflater\nimport android.view.View\nimport android.view.ViewGroup\nimport android.widget.Toast\nimport androidx.lifecycle.Observer\nimport androidx.navigation.fragment.findNavController\nimport br.com.simplepass.loadingbutton.customViews.CircularProgressButton\nimport com.example.kleine.activities.LunchActivity\nimport com.example.kleine.R\nimport com.example.kleine.databinding.FragmentRegisterBinding\nimport com.example.kleine.model.User\nimport com.example.kleine.resource.Resource\nimport com.example.kleine.viewmodel.lunchapp.KleineViewModel\n\nprivate const val TAG = \"RegisterFragment\"\n\nclass RegisterFragment : Fragment() {\n\n    private lateinit var binding: FragmentRegisterBinding\n    lateinit var viewModel: KleineViewModel\n    lateinit var btnRegister: CircularProgressButton\n    override fun onCreate(savedInstanceState: Bundle?) {\n        super.onCreate(savedInstanceState)\n\n        viewModel = (activity as LunchActivity).viewModel\n    }\n\n    override fun onCreateView(\n        inflater: LayoutInflater, container: ViewGroup?,\n        savedInstanceState: Bundle?\n    ): View? {\n        binding = FragmentRegisterBinding.inflate(layoutInflater)\n        return binding.root\n    }\n\n    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {\n        super.onViewCreated(view, savedInstanceState)\n\n        btnRegister = view.findViewById(R.id.btn_login)\n\n        onRegisterBtnClick()\n        observeSaveUserInformation()\n        onLoginClick()\n    }\n\n    private fun onLoginClick() {\n        binding.tvDontHaveAnAccount.setOnClickListener {\n            findNavController().navigate(R.id.action_registerFragment_to_loginFragment)\n        }\n    }\n\n\n    private fun onRegisterBtnClick() {\n        btnRegister.setOnClickListener {\n            btnRegister.spinningBarColor = resources.getColor(R.color.white)\n            btnRegister.spinningBarWidth = resources.getDimension(R.dimen._3sdp)\n            val user = getUser()\n            val password = getPassword()\n            user?.let { user ->\n                password?.let { password ->\n                    viewModel.registerNewUser(user, password)\n                    btnRegister.startAnimation()\n                }\n            }\n        }\n    }\n\n    private fun observeSaveUserInformation() {\n        viewModel.register.observe(viewLifecycleOwner, Observer { response ->\n            when (response) {\n                is Resource.Loading -> {\n                    Log.d(TAG, \"EmailRegister:Loading\")\n                    btnRegister.startAnimation()\n                    return@Observer\n                }\n\n                is Resource.Success -> {\n                    Log.d(TAG, \"EmailRegister:Successful\")\n                    btnRegister.stopAnimation()\n                    Toast.makeText(\n                        activity,\n                        resources.getText(R.string.signed_up_successfully),\n                        Toast.LENGTH_SHORT\n                    ).show()\n                    viewModel.logOut()\n                    findNavController().navigate(R.id.action_registerFragment_to_loginFragment)\n                    viewModel.register.postValue(null)\n                }\n\n                is Resource.Error -> {\n                    Log.e(TAG, \"EmailRegister:Error ${response.message.toString()}\")\n                    Toast.makeText(\n                        activity,\n                        resources.getText(R.string.error_occurred),\n                        Toast.LENGTH_LONG\n                    ).show()\n                    return@Observer\n                }\n            }\n        })\n    }\n\n\n    private fun getUser(): User? {\n        val firstName = binding.edFirstName.text.toString().trim()\n        val lastName = binding.edLastName.text.toString().trim()\n        val email = binding.edEmail.text.toString().trim()\n\n        if (firstName.isEmpty()) {\n            binding.edFirstName.apply {\n                error = resources.getString(R.string.first_name_cant_be_empty)\n                requestFocus()\n            }\n            return null\n        }\n\n        if (lastName.isEmpty()) {\n            binding.edLastName.apply {\n                error = resources.getString(R.string.last_name_cant_be_empty)\n                requestFocus()\n            }\n            return null\n        }\n\n        if (email.isEmpty()) {\n            binding.edEmail.apply {\n                error = resources.getString(R.string.email_cant_be_empty)\n                requestFocus()\n            }\n            return null\n        }\n\n        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {\n            binding.edEmail.apply {\n                error = resources.getString(R.string.valid_email)\n                requestFocus()\n            }\n            return null\n        }\n\n        // Status is set to USERS by default in User constructor\n        return User(firstName, lastName, email)\n    }\n\n\n    private fun getPassword(): String? {\n        val password = binding.edPassword.text.toString().trim()\n        if (password.isEmpty()) {\n            binding.edPassword.apply {\n                error = resources.getString(R.string.password_cant_be_empty)\n                requestFocus()\n            }\n            return null\n        }\n\n        if (password.length < 6) {\n            binding.edPassword.apply {\n                error = resources.getString(R.string.password_at_least_six)\n                requestFocus()\n            }\n            return null\n        }\n        return password\n    }\n\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/example/kleine/fragments/applunch/RegisterFragment.kt b/app/src/main/java/com/example/kleine/fragments/applunch/RegisterFragment.kt
+--- a/app/src/main/java/com/example/kleine/fragments/applunch/RegisterFragment.kt	
++++ b/app/src/main/java/com/example/kleine/fragments/applunch/RegisterFragment.kt	
+@@ -13,6 +13,7 @@
+ import com.example.kleine.activities.LunchActivity
+ import com.example.kleine.R
+ import com.example.kleine.databinding.FragmentRegisterBinding
++import com.example.kleine.model.Status
+ import com.example.kleine.model.User
+ import com.example.kleine.resource.Resource
+ import com.example.kleine.viewmodel.lunchapp.KleineViewModel
+@@ -57,18 +58,19 @@
+ 
+     private fun onRegisterBtnClick() {
+         btnRegister.setOnClickListener {
+-            btnRegister.spinningBarColor = resources.getColor(R.color.white)
+-            btnRegister.spinningBarWidth = resources.getDimension(R.dimen._3sdp)
+             val user = getUser()
+             val password = getPassword()
+             user?.let { user ->
+                 password?.let { password ->
++                    // Register new user in Firebase
+                     viewModel.registerNewUser(user, password)
+-                    btnRegister.startAnimation()
++                    // Register new user in Local Database
++                    viewModel.registerNewUserInLocalDb(user)
+                 }
+             }
+         }
+     }
++
+ 
+     private fun observeSaveUserInformation() {
+         viewModel.register.observe(viewLifecycleOwner, Observer { response ->
+@@ -144,8 +146,10 @@
+         }
+ 
+         // Status is set to USERS by default in User constructor
+-        return User(firstName, lastName, email)
++        return User( firstName = firstName, lastName = lastName, email = email, password = "", imagePath = "", status = Status.USERS)
++
+     }
++
+ 
+ 
+     private fun getPassword(): String? {

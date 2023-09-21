@@ -1,6 +1,7 @@
 package com.example.kleine.viewmodel.shopping
 
 import android.util.Log
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.kleine.firebaseDatabase.FirebaseDb
@@ -19,6 +20,17 @@ private const val TAG = "ShoppingViewModel"
 class ShoppingViewModel(
     private val firebaseDatabase: FirebaseDb
 ) : ViewModel() {
+
+
+    private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
+//    val materialsLiveData: MutableLiveData<Resource<List<Material>>> = MutableLiveData()
+    val materials: MutableLiveData<Resource<List<Material>>> = MutableLiveData()
+
+    private val _materialsLiveData = MutableLiveData<Resource<List<Material>>>()
+    val materialsLiveData: LiveData<Resource<List<Material>>> get() = _materialsLiveData
+
+
+//    val materials = MutableLiveData<Resource<List<Material>>>()
 
     val clothes = MutableLiveData<List<Product>>()
     val emptyClothes = MutableLiveData<Boolean>()
@@ -89,6 +101,23 @@ class ShoppingViewModel(
         getBestDealsProduct()
         getHomeProduct()
     }
+
+
+    // Fetch Materials from Firebase
+    fun getMaterials() {
+        _materialsLiveData.postValue(Resource.Loading())
+
+        firebaseDatabase.getMaterials(10)
+            .addOnSuccessListener { documents ->
+                val materials = documents.toObjects(Material::class.java)
+                _materialsLiveData.postValue(Resource.Success(materials))
+            }
+            .addOnFailureListener { exception ->
+                _materialsLiveData.postValue(Resource.Error(exception.message ?: "An unknown error occurred"))
+            }
+    }
+
+
 
     private var furnitureProducts: List<Product>? = null
     fun getFurniture(size: Int = 0) {
