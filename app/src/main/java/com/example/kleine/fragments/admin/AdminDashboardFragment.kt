@@ -60,12 +60,19 @@ class AdminDashboardFragment() : Fragment(), Parcelable {
         super.onViewCreated(view, savedInstanceState)
 
         onViewPartnershipDataClick()
+        onViewRewardDataClick()
 
     }
 
     private fun onViewPartnershipDataClick() {
         binding.viewPartnershipData.setOnClickListener {
             findNavController().navigate(R.id.action_adminDashboardFragment_to_adminViewPartnershipFragment)
+        }
+    }
+
+    private fun onViewRewardDataClick() {
+        binding.viewRewardData.setOnClickListener {
+            findNavController().navigate(R.id.action_adminDashboardFragment_to_adminViewRewardFragment)
         }
     }
 

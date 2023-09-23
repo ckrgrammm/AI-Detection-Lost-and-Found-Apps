@@ -1,0 +1,97 @@
+Index: app/src/main/java/com/example/kleine/resource/Resource.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.example.kleine.resource\r\n\r\nsealed class Resource<T>(\r\n    val data :T?=null,\r\n    val message:String?=null\r\n) {\r\n\r\n    class Success<T>(data: T?) : Resource<T>(data)\r\n    class Error<T>(message: String?) : Resource<T>(null,message)\r\n    class Loading<T> : Resource<T>()\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/example/kleine/resource/Resource.kt b/app/src/main/java/com/example/kleine/resource/Resource.kt
+--- a/app/src/main/java/com/example/kleine/resource/Resource.kt	(revision be3a8805b63bb2c02179dbb2306c5875e4cd2751)
++++ b/app/src/main/java/com/example/kleine/resource/Resource.kt	(date 1695273446350)
+@@ -1,11 +1,17 @@
+ package com.example.kleine.resource
+ 
+ sealed class Resource<T>(
+-    val data :T?=null,
+-    val message:String?=null
++    val data: T? = null,
++    val message: String? = null,
++    val status: Status
+ ) {
++    enum class Status {
++        SUCCESS,
++        ERROR,
++        LOADING
++    }
+ 
+-    class Success<T>(data: T?) : Resource<T>(data)
+-    class Error<T>(message: String?) : Resource<T>(null,message)
+-    class Loading<T> : Resource<T>()
++    class Success<T>(data: T?) : Resource<T>(data, null, Status.SUCCESS)
++    class Error<T>(message: String?) : Resource<T>(null, message, Status.ERROR)
++    class Loading<T> : Resource<T>(null, null, Status.LOADING)
+ }
+\ No newline at end of file
+Index: build.gradle
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>// Top-level build file where you can add configuration options common to all sub-projects/modules.\r\nbuildscript {\r\n    repositories {\r\n        google()\r\n        mavenCentral()\r\n        maven { url 'https://jitpack.io' }\r\n\r\n    }\r\n    dependencies {\r\n        classpath \"com.android.tools.build:gradle:7.0.3\"\r\n        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.6.10'\r\n        classpath 'com.google.gms:google-services:4.3.10'\r\n        //safe args\r\n        def nav_version = \"2.4.1\"\r\n        classpath \"androidx.navigation:navigation-safe-args-gradle-plugin:$nav_version\"\r\n        classpath 'com.google.dagger:hilt-android-gradle-plugin:2.38.1'\r\n\r\n        // NOTE: Do not place your application dependencies here; they belong\r\n        // in the individual module build.gradle files\r\n    }\r\n}\r\n\r\ntask clean(type: Delete) {\r\n    delete rootProject.buildDir\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/build.gradle b/build.gradle
+--- a/build.gradle	(revision be3a8805b63bb2c02179dbb2306c5875e4cd2751)
++++ b/build.gradle	(date 1695272602306)
+@@ -7,13 +7,13 @@
+ 
+     }
+     dependencies {
+-        classpath "com.android.tools.build:gradle:7.0.3"
+-        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.6.10'
++        classpath 'com.android.tools.build:gradle:7.4.2'
++        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.6.21'
+         classpath 'com.google.gms:google-services:4.3.10'
+         //safe args
+         def nav_version = "2.4.1"
+         classpath "androidx.navigation:navigation-safe-args-gradle-plugin:$nav_version"
+-        classpath 'com.google.dagger:hilt-android-gradle-plugin:2.38.1'
++        classpath 'com.google.dagger:hilt-android-gradle-plugin:2.40.1'
+ 
+         // NOTE: Do not place your application dependencies here; they belong
+         // in the individual module build.gradle files
+Index: gradle/wrapper/gradle-wrapper.properties
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>distributionBase=GRADLE_USER_HOME\r\ndistributionPath=wrapper/dists\r\ndistributionUrl=https\\://services.gradle.org/distributions/gradle-7.2-bin.zip\r\nzipStoreBase=GRADLE_USER_HOME\r\nzipStorePath=wrapper/dists\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>ISO-8859-1
+===================================================================
+diff --git a/gradle/wrapper/gradle-wrapper.properties b/gradle/wrapper/gradle-wrapper.properties
+--- a/gradle/wrapper/gradle-wrapper.properties	(revision be3a8805b63bb2c02179dbb2306c5875e4cd2751)
++++ b/gradle/wrapper/gradle-wrapper.properties	(date 1695272602326)
+@@ -1,5 +1,5 @@
+ distributionBase=GRADLE_USER_HOME
+ distributionPath=wrapper/dists
+-distributionUrl=https\://services.gradle.org/distributions/gradle-7.2-bin.zip
++distributionUrl=https\://services.gradle.org/distributions/gradle-7.5-bin.zip
+ zipStoreBase=GRADLE_USER_HOME
+ zipStorePath=wrapper/dists
+Index: .idea/kotlinc.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"KotlinJpsPluginSettings\">\r\n    <option name=\"version\" value=\"1.6.10\" />\r\n  </component>\r\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/kotlinc.xml b/.idea/kotlinc.xml
+--- a/.idea/kotlinc.xml	(revision be3a8805b63bb2c02179dbb2306c5875e4cd2751)
++++ b/.idea/kotlinc.xml	(date 1695272602349)
+@@ -1,6 +1,6 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+ <project version="4">
+   <component name="KotlinJpsPluginSettings">
+-    <option name="version" value="1.6.10" />
++    <option name="version" value="1.6.21" />
+   </component>
+ </project>
+\ No newline at end of file

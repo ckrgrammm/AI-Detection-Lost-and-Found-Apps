@@ -220,7 +220,7 @@
                         android:layout_width="64dp"
                         android:layout_height="64dp"
                         android:background="@drawable/circle_news"
-                        android:src="@drawable/ic_baseline_autorenew_24"
+                        android:src="@drawable/baseline_card_giftcard_24"
                         android:padding="15dp"/>
                     <View
                         android:layout_width="match_parent"
@@ -231,7 +231,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Upload News"
+                        android:text="Rewards"
                         android:fontFamily="@font/aclonica"
                         android:textStyle="bold"
                         android:padding="5dp"

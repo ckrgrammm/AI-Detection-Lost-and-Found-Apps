@@ -61,6 +61,7 @@ class PartnershipViewMaterialFragment : Fragment() {
             }
 
             onViewMaterialClick(itemBinding, material.id)
+            onViewQuizClick(itemBinding, material.id)
             setupPopupMenu(itemBinding.threeDotsImage)
         }
     }
@@ -86,6 +87,14 @@ class PartnershipViewMaterialFragment : Fragment() {
             val bundle = Bundle()
             bundle.putString("documentId", id)
             findNavController().navigate(R.id.action_partnershipViewMaterialFragment_to_partnershipViewMaterialDetailFragment, bundle)
+        }
+    }
+
+    private fun onViewQuizClick(itemBinding: RecyclerViewMaterialDataBinding, id: String) {
+        itemBinding.materialViewQuiz.setOnClickListener {
+            val bundle = Bundle()
+            bundle.putString("materialDocId", id)
+            findNavController().navigate(R.id.action_partnershipViewMaterialFragment_to_setsFragment, bundle)
         }
     }
 

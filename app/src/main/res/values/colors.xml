@@ -37,6 +37,7 @@
     <!--    quiz-->
     <color name="primary_color">#565cce</color>
     <color name="second_color">#8d92fa</color>
+    <color name="lightpink">#FFA0B1</color>
 
     <!--admin dashboard-->
     <color name="red">#FF055A</color>
@@ -49,6 +50,7 @@
     <color name="blue">#72b6e7</color>
     <color name="lightGray">#c1c1c1</color>
     <color name="textColor">#121212</color>
+    <color name="lavender">#8692f7</color>
 
 
 </resources>

@@ -270,6 +270,9 @@
                 app:argType="string"
                 app:nullable="false" />
         </action>
+        <action
+            android:id="@+id/action_partnershipViewMaterialFragment_to_setsFragment"
+            app:destination="@id/setsFragment" />
     </fragment>
     <fragment
         android:id="@+id/partnershipViewMaterialDetailFragment"
@@ -306,6 +309,9 @@
             app:exitAnim="@anim/nav_default_exit_anim"
             app:popEnterAnim="@anim/nav_default_pop_enter_anim"
             app:popExitAnim="@anim/nav_default_pop_exit_anim"/>
+        <action
+            android:id="@+id/action_adminDashboardFragment_to_adminViewRewardFragment"
+            app:destination="@id/adminViewRewardFragment" />
     </fragment>
     <fragment
         android:id="@+id/adminViewPartnershipFragment"
@@ -328,4 +334,89 @@
         android:name="com.example.kleine.fragments.partnership.UpdatePartnershipFragment"
         android:label="UpdatePartnershipFragment"
         tools:layout="@layout/fragment_update_partnership"/>
+
+<!--    quiz-->
+    <fragment
+        android:id="@+id/setsFragment"
+        android:name="com.example.kleine.fragments.quiz.SetsFragment"
+        android:label="SetsFragment"
+        tools:layout="@layout/fragment_sets" >
+        <action
+            android:id="@+id/action_setsFragment_to_questionFragment"
+            app:destination="@id/questionFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/questionFragment"
+        android:name="com.example.kleine.fragments.quiz.QuestionFragment"
+        android:label="QuestionFragment"
+        tools:layout="@layout/fragment_question" >
+        <action
+            android:id="@+id/action_questionFragment_to_addUpdateQuestionFragment"
+            app:destination="@id/addUpdateQuestionFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/addUpdateQuestionFragment"
+        android:name="com.example.kleine.fragments.quiz.AddUpdateQuestionFragment"
+        android:label="AddUpdateQuestionFragment"
+        tools:layout="@layout/fragment_add_update_question" />
+    <fragment
+        android:id="@+id/quizFragment"
+        android:name="com.example.kleine.fragments.quiz.QuizFragment"
+        android:label="QuizFragment"
+        tools:layout="@layout/fragment_quiz" >
+        <action
+            android:id="@+id/action_quizFragment_to_playFragment"
+            app:destination="@id/playFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/playFragment"
+        android:name="com.example.kleine.fragments.quiz.PlayFragment"
+        android:label="PlayFragment"
+        tools:layout="@layout/fragment_play" >
+        <action
+            android:id="@+id/action_playFragment_to_resultFragment"
+            app:destination="@id/resultFragment" />
+        <action
+            android:id="@+id/action_playFragment_to_quizFragment"
+            app:destination="@id/quizFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/resultFragment"
+        android:name="com.example.kleine.fragments.quiz.ResultFragment"
+        android:label="ResultFragment"
+        tools:layout="@layout/fragment_result" >
+        <action
+            android:id="@+id/action_resultFragment_to_quizFragment"
+            app:destination="@id/quizFragment" />
+    </fragment>
+    <!--    end quiz-->
+
+<!--    reward-->
+    <fragment
+        android:id="@+id/adminViewRewardFragment"
+        android:name="com.example.kleine.fragments.admin.AdminViewRewardFragment"
+        android:label="AdminViewRewardFragment"
+        tools:layout="@layout/fragment_admin_view_reward">
+        <action
+            android:id="@+id/action_adminViewRewardFragment_to_adminAddRewardFragment"
+            app:destination="@id/adminAddRewardFragment" />
+        <action
+            android:id="@+id/action_adminViewRewardFragment_to_adminUpdateRewardFragment"
+            app:destination="@id/adminUpdateRewardFragment" >
+            <argument
+            android:name="documentId"
+            app:argType="string" />
+        </action>
+    </fragment>
+    <fragment
+        android:id="@+id/adminAddRewardFragment"
+        android:name="com.example.kleine.fragments.admin.AdminAddRewardFragment"
+        android:label="AdminAddRewardFragment"
+        tools:layout="@layout/fragment_admin_add_reward"/>
+    <fragment
+        android:id="@+id/adminUpdateRewardFragment"
+        android:name="com.example.kleine.fragments.admin.AdminUpdateRewardFragment"
+        android:label="AdminUpdateRewardFragment"
+        tools:layout="@layout/fragment_admin_update_reward"/>
+<!--    end reward-->
 </navigation>
