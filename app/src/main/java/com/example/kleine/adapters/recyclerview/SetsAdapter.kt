@@ -41,6 +41,11 @@ class SetsAdapter(
             itemClickListener.onItemClick(item.first)
         }
 
+        view.setOnLongClickListener {
+            itemClickListener.onItemLongClick(item.first)
+            true
+        }
+
         return view
     }
 
@@ -62,6 +67,7 @@ class SetsAdapter(
 
     interface SetItemClickListener {
         fun onItemClick(setDocumentId: String)
+        fun onItemLongClick(setDocumentId: String)
     }
 
 }

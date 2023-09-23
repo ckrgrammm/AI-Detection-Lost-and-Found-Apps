@@ -46,13 +46,36 @@ class AdminAddRewardFragment : Fragment() {
 
         // Handle the Save button click
         binding.btnAdd.setOnClickListener {
-            val rewardName = binding.txtRewardName.text.toString()
-            val rewardDescription = binding.txtRewardDescription.text.toString()
-            val rewardPoints = binding.txtRewardPoints.text.toString().toIntOrNull() ?: 0
-            val redeemLimit = binding.txtRedeemLimit.text.toString().toIntOrNull() ?: 0
+            val rewardName = binding.txtRewardName.text.toString().trim()
+            val rewardDescription = binding.txtRewardDescription.text.toString().trim()
+            val rewardPoints = binding.txtRewardPoints.text.toString().toIntOrNull()
+            val redeemLimit = binding.txtRedeemLimit.text.toString().toIntOrNull()
 
-            // Assuming you're storing the URI in a variable called selectedImageUri
-            viewModel.saveReward(selectedImageUri, rewardName, rewardDescription, rewardPoints, redeemLimit)
+            when {
+                selectedImageUri == null -> {
+                    Toast.makeText(context, "Please select an image!", Toast.LENGTH_SHORT).show()
+                }
+                rewardName.isEmpty() -> {
+                    Toast.makeText(context, "Reward name cannot be empty!", Toast.LENGTH_SHORT).show()
+                    binding.txtRewardName.requestFocus()
+                }
+                rewardDescription.isEmpty() -> {
+                    Toast.makeText(context, "Reward description cannot be empty!", Toast.LENGTH_SHORT).show()
+                    binding.txtRewardDescription.requestFocus()
+                }
+                rewardPoints == null || rewardPoints <= 0 -> {
+                    Toast.makeText(context, "Reward points must be greater than zero!", Toast.LENGTH_SHORT).show()
+                    binding.txtRewardPoints.requestFocus()
+                }
+                redeemLimit == null || redeemLimit <= 0 -> {
+                    Toast.makeText(context, "Redeem limit must be greater than zero!", Toast.LENGTH_SHORT).show()
+                    binding.txtRedeemLimit.requestFocus()
+                }
+                else -> {
+                    viewModel.saveReward(selectedImageUri, rewardName, rewardDescription, rewardPoints, redeemLimit)
+                }
+            }
+
         }
 
         // Observe upload success and show a message or navigate

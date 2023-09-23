@@ -73,4 +73,64 @@ class SetsViewModel(materialId: String) : ViewModel() {
             }
     }
 
+    // Add a method to delete the set and its questions
+    fun deleteSet(materialId: String, setDocumentId: String) {
+        val setDocRef = db.collection("Materials")
+            .document(materialId)
+            .collection("Sets")
+            .document(setDocumentId)
+
+        // First, delete all questions inside the set
+        setDocRef.collection("Questions")
+            .get()
+            .addOnSuccessListener { querySnapshot ->
+                for (document in querySnapshot) {
+                    document.reference.delete()
+                }
+                // After deleting all questions, delete the set itself
+                setDocRef.delete()
+                    .addOnSuccessListener {
+                        Log.d("Firestore", "Set deleted successfully")
+                        renameSets(materialId)  //rename all the set
+                    }
+                    .addOnFailureListener { e ->
+                        Log.w("Firestore", "Error deleting set", e)
+                    }
+            }
+            .addOnFailureListener { e ->
+                Log.w("Firestore", "Error fetching questions for deletion", e)
+            }
+    }
+
+    private fun renameSets(materialId: String) {
+        // Fetch all sets in the Sets sub-collection
+        db.collection("Materials")
+            .document(materialId)
+            .collection("Sets")
+            .get()
+            .addOnSuccessListener { querySnapshot ->
+                val sets = querySnapshot.documents
+                // Loop through each document and update the setName
+                sets.forEachIndexed { index, documentSnapshot ->
+                    val newSetName = "SET - ${index + 1}"
+                    db.collection("Materials")
+                        .document(materialId)
+                        .collection("Sets")
+                        .document(documentSnapshot.id)
+                        .update("setName", newSetName)
+                        .addOnSuccessListener {
+                            Log.d("Firestore", "Successfully updated setName for ${documentSnapshot.id}")
+                        }
+                        .addOnFailureListener { e ->
+                            Log.w("Firestore", "Error updating setName for ${documentSnapshot.id}", e)
+                        }
+                }
+                // Refresh the list after renaming
+                fetchSets(materialId)
+            }
+            .addOnFailureListener { e ->
+                Log.w("Firestore", "Error fetching sets for renaming", e)
+            }
+    }
+
 }

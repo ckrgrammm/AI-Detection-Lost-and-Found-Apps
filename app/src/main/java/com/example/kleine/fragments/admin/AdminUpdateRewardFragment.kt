@@ -59,7 +59,47 @@ class AdminUpdateRewardFragment : Fragment() {
         }
 
         binding.btnUpdate.setOnClickListener {
-            viewModel.updateRewardDetailsWithImage(documentId, selectedImageUri)
+            val rewardName = binding.txtRewardName.text.toString().trim()
+            val rewardDescription = binding.txtRewardDescription.text.toString().trim()
+            val rewardPoints = binding.txtRewardPoints.text.toString().toIntOrNull()
+            val redeemLimit = binding.txtRedeemLimit.text.toString().toIntOrNull()
+
+            when {
+                selectedImageUri == null && viewModel.imageUrl.value.isNullOrEmpty() -> {
+                    Toast.makeText(context, "Please select an image!", Toast.LENGTH_SHORT).show()
+                    // Preventing submission by returning early
+                    return@setOnClickListener
+                }
+                rewardName.isEmpty() -> {
+                    Toast.makeText(context, "Reward name cannot be empty!", Toast.LENGTH_SHORT).show()
+                    binding.txtRewardName.requestFocus()
+                    // Preventing submission by returning early
+                    return@setOnClickListener
+                }
+                rewardDescription.isEmpty() -> {
+                    Toast.makeText(context, "Reward description cannot be empty!", Toast.LENGTH_SHORT).show()
+                    binding.txtRewardDescription.requestFocus()
+                    // Preventing submission by returning early
+                    return@setOnClickListener
+                }
+                rewardPoints == null || rewardPoints <= 0 -> {
+                    Toast.makeText(context, "Reward points must be greater than zero!", Toast.LENGTH_SHORT).show()
+                    binding.txtRewardPoints.requestFocus()
+                    // Preventing submission by returning early
+                    return@setOnClickListener
+                }
+                redeemLimit == null || redeemLimit <= 0 -> {
+                    Toast.makeText(context, "Redeem limit must be greater than zero!", Toast.LENGTH_SHORT).show()
+                    binding.txtRedeemLimit.requestFocus()
+                    // Preventing submission by returning early
+                    return@setOnClickListener
+                }
+                else -> {
+                    // All validations passed, proceeding with the submission
+                    viewModel.updateRewardDetailsWithImage(documentId, selectedImageUri)
+                }
+            }
+
         }
 
         viewModel.updateResult.observe(viewLifecycleOwner, Observer { result ->

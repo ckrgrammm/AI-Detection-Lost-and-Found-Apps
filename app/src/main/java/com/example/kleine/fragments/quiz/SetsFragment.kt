@@ -85,4 +85,16 @@ class SetsFragment : Fragment(), SetsAdapter.SetItemClickListener {
         findNavController().navigate(R.id.action_setsFragment_to_questionFragment, bundle)
     }
 
+    override fun onItemLongClick(setDocumentId: String) {
+        val materialDocId = arguments?.getString("materialDocId") ?: return
+        AlertDialog.Builder(requireContext())
+            .setTitle("Delete Set")
+            .setMessage("Are you sure you want to delete this set?")
+            .setPositiveButton("Yes") { _, _ ->
+                viewModel.deleteSet(materialDocId, setDocumentId)
+            }
+            .setNegativeButton("No", null)
+            .show()
+    }
+
 }

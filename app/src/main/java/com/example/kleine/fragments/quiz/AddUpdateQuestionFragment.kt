@@ -57,6 +57,32 @@ class AddUpdateQuestionFragment : Fragment() {
             val answerC = binding.editTextText4.text.toString()
             val answerD = binding.editTextText5.text.toString()
 
+            // Validate inputs
+            if (questionText.isBlank()) {
+                binding.inputQuestion.requestFocus()
+                return@setOnClickListener
+            }
+
+            if (answerA.isBlank()) {
+                binding.editTextText2.requestFocus()
+                return@setOnClickListener
+            }
+
+            if (answerB.isBlank()) {
+                binding.editTextText3.requestFocus()
+                return@setOnClickListener
+            }
+
+            if (answerC.isBlank()) {
+                binding.editTextText4.requestFocus()
+                return@setOnClickListener
+            }
+
+            if (answerD.isBlank()) {
+                binding.editTextText5.requestFocus()
+                return@setOnClickListener
+            }
+
             // Get selected RadioButton
             val selectedRadioButtonId = binding.optionContainer.checkedRadioButtonId
             val correctOption = when (selectedRadioButtonId) {
@@ -97,6 +123,9 @@ class AddUpdateQuestionFragment : Fragment() {
                 viewModel.resetShowToastMsg()
             } else if (status == "UpdateFailure") {
                 Toast.makeText(context, "Failed to update question!", Toast.LENGTH_SHORT).show()
+                viewModel.resetShowToastMsg()
+            } else if (status == "DuplicateQuestion") {
+                Toast.makeText(context, "The question already exists in this set!", Toast.LENGTH_SHORT).show()
                 viewModel.resetShowToastMsg()
             }
         })
