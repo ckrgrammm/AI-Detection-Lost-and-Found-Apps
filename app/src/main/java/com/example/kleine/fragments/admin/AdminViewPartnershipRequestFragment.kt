@@ -23,7 +23,9 @@ import com.example.kleine.model.PartnershipStatus
 import com.example.kleine.model.Status
 import com.example.kleine.viewmodel.partnership.PartnershipViewModel
 import com.example.kleine.viewmodel.shopping.ShoppingViewModel
+import com.example.kleine.viewmodel.user.UserViewModel
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
 
 interface OnRequestPdfClickListener {
     fun onPdfClick(pdfUrl: String)
@@ -33,6 +35,7 @@ class AdminViewPartnershipRequestFragment : Fragment(), OnRequestPdfClickListene
     private lateinit var binding: FragmentAdminViewPartnershipRequestBinding
     private lateinit var viewModel: ShoppingViewModel
     private val partnershipViewModel: PartnershipViewModel by viewModels()
+    private val userViewModel: UserViewModel by viewModels()
     private var partnershipAdapter = PartnershipAdapter(listOf(), this)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -106,17 +109,21 @@ class AdminViewPartnershipRequestFragment : Fragment(), OnRequestPdfClickListene
                 itemBinding.pdfFile2.visibility = View.GONE
             }
 
-            partnershipViewModel.fetchUserName(partnership.userId) { userName ->
+            userViewModel.fetchUserName(partnership.userId) { userName ->
                 if (userName != null) {
                     itemBinding.nameText.text = userName
                 }
             }
 
-            partnershipViewModel.fetchUserImage(partnership.userId) { userImage ->
+            userViewModel.fetchUserImage(partnership.userId) { userImage ->
                 if (userImage != null) {
-                    Glide.with(itemBinding.root.context)
-                        .load(userImage)
-                        .into(itemBinding.userImg)
+                    val storageReference =
+                        FirebaseStorage.getInstance().getReferenceFromUrl(userImage)
+                    storageReference.downloadUrl.addOnSuccessListener { uri ->
+                        Glide.with(itemBinding.root.context)
+                            .load(uri.toString())
+                            .into(itemBinding.userImg)
+                    }
                 }
             }
 

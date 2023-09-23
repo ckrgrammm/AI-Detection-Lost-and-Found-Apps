@@ -94,6 +94,16 @@ class ProfileFragment : Fragment() {
         binding.tvVersionCode.text =
             "${resources.getText(R.string.g_version)} ${BuildConfig.VERSION_NAME}"
 
+
+        onTempCommentClick()
+    }
+
+    private fun onTempCommentClick() {
+        binding.linearComment.setOnClickListener {
+            val bundle = Bundle()
+            bundle.putString("documentId", "5VlLkBQaULeJlawqN8Rq")
+            findNavController().navigate(R.id.action_profileFragment_to_tempCommentFragment, bundle)
+        }
     }
 
     private fun onHelpClick() {

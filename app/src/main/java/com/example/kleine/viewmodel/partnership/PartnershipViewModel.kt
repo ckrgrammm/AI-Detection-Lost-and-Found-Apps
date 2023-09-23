@@ -80,45 +80,6 @@ class PartnershipViewModel : ViewModel() {
             }
     }
 
-    fun fetchUserName(userId: String, callback: (String?) -> Unit) {
-        if (userId.isBlank()) {
-            callback(null)
-            return
-        }
-
-        val db = FirebaseFirestore.getInstance()
-        db.collection("users").document(userId)
-            .get()
-            .addOnSuccessListener { document ->
-                if (document != null) {
-                    val userName = document.getString("firstName") + " " + document.getString("lastName")
-                    callback(userName)
-                } else {
-                    callback(null)
-                }
-            }
-            .addOnFailureListener {
-                callback(null)
-            }
-    }
-
-
-    fun fetchUserImage(userId: String, callback: (String?) -> Unit) {
-        val db = FirebaseFirestore.getInstance()
-        db.collection("users").document(userId)
-            .get()
-            .addOnSuccessListener { document ->
-                if (document != null) {
-                    val userImage = document.getString("imageUrl")
-                    callback(userImage)
-                } else {
-                    callback(null)
-                }
-            }
-            .addOnFailureListener {
-                callback(null)
-            }
-    }
 
     fun loadPdfIntoView(pdfUrl: String, pdfView: PDFView, closePdfButton: View) {
         val storageReference = FirebaseStorage.getInstance().getReferenceFromUrl(pdfUrl)

@@ -15,6 +15,8 @@ import com.example.kleine.databinding.FragmentAdminViewPartnershipBinding
 import com.example.kleine.databinding.RecyclerViewAdminViewPartnershipBinding
 import com.example.kleine.model.Partnership
 import com.example.kleine.viewmodel.partnership.PartnershipViewModel
+import com.example.kleine.viewmodel.user.UserViewModel
+import com.google.firebase.storage.FirebaseStorage
 
 interface OnPdfClickListener {
     fun onPdfClick(pdfUrl: String)
@@ -22,7 +24,7 @@ interface OnPdfClickListener {
 class AdminViewPartnershipFragment : Fragment(), OnPdfClickListener {
     private lateinit var binding: FragmentAdminViewPartnershipBinding
     private val partnershipViewModel: PartnershipViewModel by viewModels()
-
+    private val userViewModel: UserViewModel by viewModels()
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -95,17 +97,20 @@ class AdminViewPartnershipFragment : Fragment(), OnPdfClickListener {
                 itemBinding.pdfFile2.visibility = View.GONE
             }
 
-            partnershipViewModel.fetchUserName(partnership.userId) { userName ->
+            userViewModel.fetchUserName(partnership.userId) { userName ->
                 if (userName != null) {
                     itemBinding.nameText.text = userName
                 }
             }
 
-            partnershipViewModel.fetchUserImage(partnership.userId) { userImage ->
+            userViewModel.fetchUserImage(partnership.userId) { userImage ->
                 if (userImage != null) {
-                    Glide.with(itemBinding.root.context)
-                         .load(userImage)
-                         .into(itemBinding.userImg)
+                    val storageReference = FirebaseStorage.getInstance().getReferenceFromUrl(userImage)
+                    storageReference.downloadUrl.addOnSuccessListener { uri ->
+                        Glide.with(itemBinding.root.context)
+                            .load(uri.toString())
+                            .into(itemBinding.userImg)
+                    }
                 }
             }
 

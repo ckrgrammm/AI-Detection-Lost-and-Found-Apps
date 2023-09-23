@@ -19,3 +19,8 @@ data class User(
     constructor() : this("","","","")
 }
 
+data class UserDetails(
+    val userName: String,
+    val userImage: String?
+)
+

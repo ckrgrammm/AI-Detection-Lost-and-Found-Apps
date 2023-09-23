@@ -115,6 +115,15 @@
             app:exitAnim="@anim/nav_default_exit_anim"
             app:popEnterAnim="@anim/nav_default_pop_enter_anim"
             app:popExitAnim="@anim/nav_default_pop_exit_anim"/>
+        <action
+            android:id="@+id/action_profileFragment_to_tempCommentFragment"
+            app:destination="@id/tempCommentFragment">
+            <argument
+                android:name="documentId"
+                app:argType="string"
+                app:nullable="false" />
+        </action>
+
     </fragment>
     <fragment
         android:id="@+id/cartFragment"
@@ -419,4 +428,9 @@
         android:label="AdminUpdateRewardFragment"
         tools:layout="@layout/fragment_admin_update_reward"/>
 <!--    end reward-->
+    <fragment
+        android:id="@+id/tempCommentFragment"
+        android:name="com.example.kleine.fragments.TempCommentFragment"
+        android:label="fragment_temp_comment"
+        tools:layout="@layout/fragment_temp_comment"/>
 </navigation>
