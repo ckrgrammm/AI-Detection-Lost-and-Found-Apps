@@ -47,16 +47,17 @@
 
             <TextView
                 android:id="@+id/userComment"
-                android:layout_width="185dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
+                android:layout_marginEnd="12dp"
+                android:layout_marginStart="@dimen/_12sdp"
                 android:text="very nice math"
                 android:textColor="@color/primary_text"
                 android:textSize="12sp"
-                app:layout_constraintLeft_toRightOf="@+id/commentUserDate"
+                app:layout_constraintStart_toEndOf="@+id/commentUserDate"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/commentReply"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"/>
 
             <TextView
                 android:layout_width="0dp"

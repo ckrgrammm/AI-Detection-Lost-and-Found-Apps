@@ -123,6 +123,14 @@
                 app:argType="string"
                 app:nullable="false" />
         </action>
+        <action
+            android:id="@+id/action_profileFragment_to_tempRatingFragment"
+            app:destination="@id/tempRatingFragment" >
+            <argument
+                android:name="documentId"
+                app:argType="string"
+                app:nullable="false" />
+        </action>
 
     </fragment>
     <fragment
@@ -294,7 +302,12 @@
             app:enterAnim="@anim/nav_default_enter_anim"
             app:exitAnim="@anim/nav_default_exit_anim"
             app:popEnterAnim="@anim/nav_default_pop_enter_anim"
-            app:popExitAnim="@anim/nav_default_pop_exit_anim"/>
+            app:popExitAnim="@anim/nav_default_pop_exit_anim">
+            <argument
+                android:name="documentId"
+                app:argType="string"
+                app:nullable="false" />
+        </action>
     </fragment>
     <fragment
         android:id="@+id/replyCommentFragment"
@@ -433,4 +446,9 @@
         android:name="com.example.kleine.fragments.TempCommentFragment"
         android:label="fragment_temp_comment"
         tools:layout="@layout/fragment_temp_comment"/>
+    <fragment
+        android:id="@+id/tempRatingFragment"
+        android:name="com.example.kleine.fragments.TempRatingFragment"
+        android:label="fragment_temp_rating"
+        tools:layout="@layout/fragment_temp_rating" />
 </navigation>

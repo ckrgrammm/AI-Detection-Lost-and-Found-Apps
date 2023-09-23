@@ -48,4 +48,19 @@ class MaterialViewModel : ViewModel() {
             }
     }
 
+    fun fetchMaterialForComment(documentId: String, onComplete: (name: String, imageUrl: String) -> Unit) {
+        val db = FirebaseFirestore.getInstance()
+        db.collection("Materials").document(documentId)
+            .get()
+            .addOnSuccessListener { document ->
+                if (document != null) {
+                    val name = document.getString("name") ?: ""
+                    val imageUrl = document.getString("imageUrl") ?: ""
+                    onComplete(name, imageUrl)
+                }
+            }
+    }
+
+
+
 }

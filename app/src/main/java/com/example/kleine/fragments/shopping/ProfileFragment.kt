@@ -96,6 +96,7 @@ class ProfileFragment : Fragment() {
 
 
         onTempCommentClick()
+        onTempRatingClick()
     }
 
     private fun onTempCommentClick() {
@@ -105,7 +106,13 @@ class ProfileFragment : Fragment() {
             findNavController().navigate(R.id.action_profileFragment_to_tempCommentFragment, bundle)
         }
     }
-
+    private fun onTempRatingClick() {
+        binding.linearRating.setOnClickListener {
+            val bundle = Bundle()
+            bundle.putString("documentId", "5VlLkBQaULeJlawqN8Rq")
+            findNavController().navigate(R.id.action_profileFragment_to_tempRatingFragment, bundle)
+        }
+    }
     private fun onHelpClick() {
         binding.linearHelp.setOnClickListener {
             findNavController().navigate(R.id.action_profileFragment_to_helpFragment)

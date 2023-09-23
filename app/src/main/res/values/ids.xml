@@ -6,4 +6,5 @@
     <item name="view_material" type="id" />
     <item name="viewpager_home" type="id" />
     <item name="quizData" type="id" />
+    <item name="totalComment" type="id" />
 </resources>

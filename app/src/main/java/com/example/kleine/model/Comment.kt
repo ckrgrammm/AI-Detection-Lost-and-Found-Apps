@@ -1,6 +1,7 @@
 package com.example.kleine.model
 
 data class Comment(
+    var id: String = "",
     val comment: String ="",
     val commentDate: String="",
     val materialId: String="",

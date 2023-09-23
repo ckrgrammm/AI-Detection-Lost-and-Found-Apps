@@ -151,7 +151,6 @@
     <string name="rewardDescription">Your reward description here</string>
 
 
-
     <!-- Card View  -->
 
     <string name="string_productCategory">Course Category</string>
@@ -163,7 +162,6 @@
     <string name="string_fav">Favourite</string>
 
 
-
     <string name="string_sale_text">Grab Some Course !! </string>
     <string name="string_curve_image">Curve Image</string>
     <string name="string_75">520%</string>
@@ -171,7 +169,6 @@
     <string name="string_status">Status</string>
 
     <string name="string_rating">Rating</string>
-
 
 
     <!-- Difficulty Levels  -->
@@ -184,5 +181,6 @@
         <item>Expert</item>
         <item>Master</item>
     </string-array>
+
 
 </resources>

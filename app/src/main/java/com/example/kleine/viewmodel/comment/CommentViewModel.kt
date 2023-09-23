@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.kleine.model.Comment
 import com.example.kleine.model.CommentWithUserDetails
 import com.example.kleine.viewmodel.user.UserViewModel
+import com.firebase.ui.auth.AuthUI.TAG
 import com.google.firebase.firestore.FirebaseFirestore
 
 class CommentViewModel(private val userViewModel: UserViewModel) : ViewModel() {
@@ -35,7 +36,7 @@ class CommentViewModel(private val userViewModel: UserViewModel) : ViewModel() {
                 val commentsList = mutableListOf<CommentWithUserDetails>()
                 value?.forEach { document ->
                     val comment = document.toObject(Comment::class.java)
-
+                    comment.id = document.id
                     userViewModel.fetchUserName(comment.userId) { userName ->
                         userViewModel.fetchUserImage(comment.userId) { userImage ->
                             var partnerName: String? = null
@@ -70,6 +71,31 @@ class CommentViewModel(private val userViewModel: UserViewModel) : ViewModel() {
                                 _commentsWithUserDetails.postValue(commentsList)
                             }
                         }
+                    }
+                }
+            }
+    }
+
+    fun fetchCommentToReply(commentId: String, callback: (CommentWithUserDetails) -> Unit) {
+        if (commentId.isBlank()) {
+            Log.e(TAG, "Error: Invalid commentId")
+            return
+        }
+
+        db.collection("Comments").document(commentId)
+            .get()
+            .addOnSuccessListener { documentSnapshot ->
+                val comment = documentSnapshot.toObject(Comment::class.java) ?: return@addOnSuccessListener
+                userViewModel.fetchUserName(comment.userId) { userName ->
+                    userViewModel.fetchUserImage(comment.userId) { userImage ->
+                        val commentWithUserDetails = CommentWithUserDetails(
+                            comment,
+                            userName,
+                            userImage,
+                            null,
+                            null
+                        )
+                        callback(commentWithUserDetails)
                     }
                 }
             }
