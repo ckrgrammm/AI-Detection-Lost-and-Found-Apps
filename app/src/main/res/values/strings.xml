@@ -140,7 +140,7 @@
     <string name="rewardExpired">Reward Expired Date</string>
     <string name="labelVoucherExpiredDate">Expired Date: </string>
     <string name="voucherTermsCondition">Terms and Conditions</string>
-    <string name="labelShippingVoucher">Voucher(s) can be selected: </string>
+    <string name="labelShippingVoucher">Reward(s) can be selected: </string>
     <string name="voucherCodeHint">Enter Voucher Code</string>
     <string name="noVoucherMsg">No voucher available!</string>
     <string name="g_difficultyLevel">Level : </string>
@@ -149,6 +149,8 @@
 
     <string name="voucherName">Voucher</string>
     <string name="rewardDescription">Your reward description here</string>
+    <string name="total_points">Total Points: %d</string>
+
 
 
     <!-- Card View  -->

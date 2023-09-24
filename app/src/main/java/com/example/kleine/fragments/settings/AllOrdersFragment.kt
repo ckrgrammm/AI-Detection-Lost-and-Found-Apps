@@ -127,7 +127,7 @@ class AllOrdersFragment : Fragment() {
     private fun onItemClick() {
         allOrdersAdapter.onItemClick = { material ->
             val bundle = Bundle()
-            bundle.putString("documentId", material.id)
+            bundle.putString("materialDocId", material.id)
             findNavController().navigate(R.id.action_allOrdersFragment_to_orderDetails, bundle)
         }
 

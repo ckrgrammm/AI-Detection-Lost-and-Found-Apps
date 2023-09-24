@@ -93,6 +93,7 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <Button
+            style="@style/Widget.Kleine.Button"
             android:id="@+id/btn_next"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -119,6 +120,7 @@
             app:layout_constraintTop_toBottomOf="@+id/constraintLayout">
 
             <Button
+                style="@style/Widget.Kleine.Button"
                 android:id="@+id/btn_choose1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -130,6 +132,7 @@
                 android:textSize="16sp" />
 
             <Button
+                style="@style/Widget.Kleine.Button"
                 android:id="@+id/btn_choose2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -142,6 +145,7 @@
                 android:textSize="16sp" />
 
             <Button
+                style="@style/Widget.Kleine.Button"
                 android:id="@+id/btn_choose3"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -154,6 +158,7 @@
                 android:textSize="16sp" />
 
             <Button
+                style="@style/Widget.Kleine.Button"
                 android:id="@+id/btn_choose4"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

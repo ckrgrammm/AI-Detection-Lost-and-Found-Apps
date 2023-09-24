@@ -28,6 +28,7 @@
             app:layout_constraintVertical_bias="0.3" />
 
         <Button
+            style="@style/Widget.Kleine.Button"
             android:id="@+id/btn_restart"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

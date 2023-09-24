@@ -109,6 +109,8 @@ class ProfileFragment : Fragment() {
 
         onTempCommentClick()
         onTempRatingClick()
+        onPassedQuizzesClick()
+        onRewardClick()
     }
 
     private fun onTempCommentClick() {
@@ -118,6 +120,19 @@ class ProfileFragment : Fragment() {
             findNavController().navigate(R.id.action_profileFragment_to_tempCommentFragment, bundle)
         }
     }
+
+    private fun onPassedQuizzesClick() {
+        binding.linearPassedQuizzes.setOnClickListener {
+            findNavController().navigate(R.id.action_profileFragment_to_passedQuizzesFragment)
+        }
+    }
+
+    private fun onRewardClick() {
+        binding.linearReward.setOnClickListener {
+            findNavController().navigate(R.id.action_profileFragment_to_rewardFragment)
+        }
+    }
+
     private fun onTempRatingClick() {
         binding.linearRating.setOnClickListener {
             val bundle = Bundle()

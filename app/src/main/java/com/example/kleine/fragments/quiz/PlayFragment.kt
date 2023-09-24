@@ -16,11 +16,20 @@ import androidx.navigation.fragment.findNavController
 import com.example.kleine.R
 import com.example.kleine.databinding.FragmentPlayBinding
 import com.example.kleine.viewmodel.quiz.PlayViewModel
+import com.example.kleine.viewmodel.quiz.PlayViewModelFactory
+import androidx.activity.OnBackPressedCallback
+
 
 class PlayFragment : Fragment() {
 
     private lateinit var binding: FragmentPlayBinding
     private lateinit var viewModel: PlayViewModel
+
+    private val backPressCallback = object : OnBackPressedCallback(true) {
+        override fun handleOnBackPressed() {
+            // Do nothing, thus disabling the back button
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -28,7 +37,9 @@ class PlayFragment : Fragment() {
     ): View {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_play, container, false)
 
-        viewModel = ViewModelProvider(this).get(PlayViewModel::class.java)
+        val materialID = arguments?.getString("materialDocId")
+        val setID = arguments?.getString("randomSetId")
+        viewModel = ViewModelProvider(this, PlayViewModelFactory(materialID, setID)).get(PlayViewModel::class.java)
 
         // Set the viewModel for data binding - this allows the bound layout access
         // to all the data in the VieWModel
@@ -38,10 +49,12 @@ class PlayFragment : Fragment() {
         // This is used so that the binding can observe LiveData updates
         binding.lifecycleOwner = viewLifecycleOwner
 
-        binding.imageBack.setOnClickListener {
-            // handle back click
-            findNavController().navigateUp()
-        }
+//        binding.imageBack.setOnClickListener {
+//            // handle back click
+//            findNavController().navigateUp()
+//        }
+
+        binding.imageBack.visibility = View.GONE
 
         // Observe LiveData and set button backgrounds
         viewModel.btnBackground.observe(viewLifecycleOwner, Observer { resId ->
@@ -83,12 +96,25 @@ class PlayFragment : Fragment() {
                 // Create a Bundle and put the score inside
                 val bundle = Bundle().apply {
                     putInt("Result", viewModel.scorePlayer.value!!)
+                    putInt("TotalQuestions", viewModel.questionList.size)
+                    putString("materialDocId", materialID)
+                    putString("setID", setID)
                 }
                 findNavController().navigate(R.id.action_playFragment_to_resultFragment, bundle)
             }
         })
 
+        // Add OnBackPressedCallback
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, backPressCallback)
+
         return binding.root
     }
+
+    override fun onDestroyView() {
+        // Disable the OnBackPressedCallback
+        backPressCallback.isEnabled = false
+        super.onDestroyView()
+    }
+
 
 }

@@ -66,7 +66,7 @@ class OrderDetails : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val materialId = arguments?.getString("documentId") ?: ""
+        val materialId = arguments?.getString("materialDocId") ?: ""
         val userId = FirebaseAuth.getInstance().currentUser?.uid
         // Reference to the Firestore database
         val firestore = FirebaseFirestore.getInstance()
@@ -113,6 +113,12 @@ class OrderDetails : Fragment() {
         val showReviewDialogButton: Button = binding.ratingBtn
         showReviewDialogButton.setOnClickListener {
             showReviewDialog(materialId)
+        }
+
+        binding.btnStartQuiz.setOnClickListener {
+            val action = OrderDetailsDirections.actionOrderDetailsToQuizFragment(materialId)
+            Log.d(TAG, "Navigating to QuizFragment with Material ID: ${materialId}") // Log the navigation
+            findNavController().navigate(action)
         }
     }
 

@@ -142,7 +142,12 @@
                 app:argType="string"
                 app:nullable="false" />
         </action>
-
+        <action
+            android:id="@+id/action_profileFragment_to_passedQuizzesFragment"
+            app:destination="@id/passedQuizzesFragment" />
+        <action
+            android:id="@+id/action_profileFragment_to_rewardFragment"
+            app:destination="@id/rewardFragment" />
     </fragment>
     <fragment
         android:id="@+id/cartFragment"
@@ -273,6 +278,13 @@
         <argument
             android:name="courseDocument"
             app:argType="com.example.kleine.model.CourseDocument" />
+        <action
+            android:id="@+id/action_orderDetails_to_quizFragment"
+            app:destination="@id/quizFragment" >
+            <argument
+                android:name="materialDocId"
+                app:argType="string" />
+        </action>
 
     </fragment>
     <fragment
@@ -423,7 +435,19 @@
         tools:layout="@layout/fragment_quiz" >
         <action
             android:id="@+id/action_quizFragment_to_playFragment"
-            app:destination="@id/playFragment" />
+            app:destination="@id/playFragment" >
+            <argument
+                android:name="materialDocId"
+                app:argType="string"
+                app:nullable="false" />
+            <argument
+                android:name="randomSetId"
+                app:argType="string"
+                app:nullable="false" />
+        </action>
+        <action
+            android:id="@+id/action_quizFragment_to_orderDetails"
+            app:destination="@id/orderDetails" />
     </fragment>
     <fragment
         android:id="@+id/playFragment"
@@ -436,6 +460,9 @@
         <action
             android:id="@+id/action_playFragment_to_quizFragment"
             app:destination="@id/quizFragment" />
+        <argument
+            android:name="materialDocId"
+            app:argType="string"/>
     </fragment>
     <fragment
         android:id="@+id/resultFragment"
@@ -444,8 +471,21 @@
         tools:layout="@layout/fragment_result" >
         <action
             android:id="@+id/action_resultFragment_to_quizFragment"
-            app:destination="@id/quizFragment" />
+            app:destination="@id/quizFragment">
+            <argument
+                android:name="materialDocId"
+                app:argType="string"
+                app:nullable="true" />
+        </action>
+        <action
+            android:id="@+id/action_resultFragment_to_orderDetails"
+            app:destination="@id/orderDetails" />
     </fragment>
+    <fragment
+        android:id="@+id/passedQuizzesFragment"
+        android:name="com.example.kleine.fragments.quiz.PassedQuizzesFragment"
+        android:label="PassedQuizzesFragment"
+        tools:layout="@layout/fragment_passed_quizzes" />
     <!--    end quiz-->
 
 <!--    reward-->
@@ -475,6 +515,11 @@
         android:name="com.example.kleine.fragments.admin.AdminUpdateRewardFragment"
         android:label="AdminUpdateRewardFragment"
         tools:layout="@layout/fragment_admin_update_reward"/>
+    <fragment
+        android:id="@+id/rewardFragment"
+        android:name="com.example.kleine.fragments.reward.RewardFragment"
+        android:label="RewardFragment"
+        tools:layout="@layout/fragment_reward"/>
 <!--    end reward-->
     <fragment
         android:id="@+id/tempCommentFragment"

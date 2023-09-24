@@ -143,10 +143,10 @@
                 app:layout_constraintEnd_toStartOf="@+id/guideline_center"/>
 
             <Button
-                android:id="@+id/btn_buttonB"
+                android:id="@+id/btnStartQuiz"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="Quizz"
+                android:text="Start Quiz"
                 android:textSize="@dimen/_16ssp"
                 android:textColor="@color/white"
                 android:fontFamily="@font/sf_pro_display"
@@ -194,18 +194,17 @@
             app:drawableLeftCompat="@drawable/ic_cart"
             android:drawablePadding="5dp"/>
 
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_products"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            app:layout_constraintStart_toStartOf="@id/line1"
-            app:layout_constraintEnd_toEndOf="@id/guideline2"
-            app:layout_constraintTop_toBottomOf="@id/tv_products"
             android:layout_marginTop="10dp"
-            tools:listitem="@layout/cart_item"
-            />
-
-
+            app:layout_constraintEnd_toEndOf="@id/guideline2"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toStartOf="@id/line1"
+            app:layout_constraintTop_toBottomOf="@id/tv_products"
+            tools:listitem="@layout/cart_item" />
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline1"

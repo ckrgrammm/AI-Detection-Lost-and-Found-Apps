@@ -10,9 +10,9 @@ import androidx.lifecycle.ViewModel
 import com.example.kleine.R
 import com.google.firebase.firestore.FirebaseFirestore
 
-class PlayViewModel : ViewModel() {
+class PlayViewModel(private val materialDocID: String?, private val setID: String?) : ViewModel() {
 
-    private var questionList = mutableListOf<String>()
+    var questionList = mutableListOf<String>()
     private var chooseList = mutableListOf<String>()
     private var correctList = mutableListOf<String>()
 
@@ -78,7 +78,10 @@ class PlayViewModel : ViewModel() {
 
     init {
         _scorePlayer.value = 0
-        fetchQuestions("MYuSpYyoeoUmZPGMCH9w", "I6lEledYlHpZD588NcZk")
+        // Check if materialDocID and setID are not null before fetching questions
+        if(materialDocID != null && setID != null) {
+            fetchQuestions(materialDocID, setID)
+        }
     }
 
     private fun fetchQuestions(materialID: String, setID: String) {
@@ -123,7 +126,7 @@ class PlayViewModel : ViewModel() {
     }
 
     private fun startTimer() {
-        timer = object : CountDownTimer(30000, 1000) {
+        timer = object : CountDownTimer(10000, 1000) {
             override fun onTick(millisUntilFinished: Long) {
                 _remainingTime.value = (millisUntilFinished / 1000).toString()
             }
@@ -149,7 +152,7 @@ class PlayViewModel : ViewModel() {
             timer.cancel()
 
             if (valueChoose != correctList[currentQuestion]) {
-                _toastMessage.value = "error"
+                _toastMessage.value = "wrong"
                 btnClick.setBackgroundResource(R.drawable.background_btn_erreur)
             } else {
                 _toastMessage.value = "correct"
@@ -170,7 +173,7 @@ class PlayViewModel : ViewModel() {
                 }
             }, 2000)
         } else {
-            _toastMessage.value = "Vous devez en choisir un"
+            _toastMessage.value = "Please select your answer"
         }
     }
 
