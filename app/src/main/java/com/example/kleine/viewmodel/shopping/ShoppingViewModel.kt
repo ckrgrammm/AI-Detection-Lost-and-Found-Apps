@@ -102,20 +102,20 @@ class ShoppingViewModel(
         getHomeProduct()
     }
 
-
     // Fetch Materials from Firebase
     fun getMaterials() {
         _materialsLiveData.postValue(Resource.Loading())
 
         firebaseDatabase.getMaterials(10)
-            .addOnSuccessListener { documents ->
-                val materials = documents.toObjects(Material::class.java)
+            .addOnSuccessListener { materials ->
+                // materials is already a List<Material>
                 _materialsLiveData.postValue(Resource.Success(materials))
             }
             .addOnFailureListener { exception ->
                 _materialsLiveData.postValue(Resource.Error(exception.message ?: "An unknown error occurred"))
             }
     }
+
 
 
 

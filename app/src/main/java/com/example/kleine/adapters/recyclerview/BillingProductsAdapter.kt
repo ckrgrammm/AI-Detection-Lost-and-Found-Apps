@@ -50,25 +50,6 @@ class BillingProductsAdapter(): RecyclerView.Adapter<BillingProductsAdapter.Bill
     @SuppressLint("ResourceAsColor", "SetTextI18n")
     override fun onBindViewHolder(holder: BillingProductsAdapterViewHolder, position: Int) {
         val product = differ.currentList[position]
-        holder.binding.apply {
-            imgPlus.visibility = View.GONE
-            imgMinus.visibility = View.GONE
-            imgColor.visibility = View.GONE
-            imgSize.visibility = View.GONE
-            line.visibility = View.GONE
-            tvQuantity.visibility = View.GONE
-//            cardView.setCardBackgroundColor(R.color.g_white)
-            imgCartProduct.scaleType = ImageView.ScaleType.FIT_CENTER
-            Glide.with(holder.itemView).load(product.image).into(imgCartProduct)
-            tvCartProductName.text = product.name
-            tvProductCartPrice.text = "$ ${product.price}"
-
-            if (product.newPrice != null && product.newPrice.isNotEmpty()) {
-                tvProductCartPrice.text = "$${product.newPrice}"
-            } else
-                tvProductCartPrice.text = "$${product.price}"
-        }
-
 
     }
 

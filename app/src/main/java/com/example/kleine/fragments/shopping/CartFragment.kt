@@ -61,6 +61,8 @@ class CartFragment : Fragment() {
 
         onCheckoutClick()
 
+
+
     }
 
     private fun onCheckoutClick() {
@@ -72,6 +74,9 @@ class CartFragment : Fragment() {
             findNavController().navigate(R.id.action_cartFragment_to_billingFragment, bundle)
         }
     }
+
+
+
 
     private fun observeProductClickNavigation() {
         viewModel.product.observe(viewLifecycleOwner, Observer { response ->
@@ -279,6 +284,9 @@ class CartFragment : Fragment() {
             }
         })
     }
+
+
+
 
     private fun hideLoading() {
         binding.apply {

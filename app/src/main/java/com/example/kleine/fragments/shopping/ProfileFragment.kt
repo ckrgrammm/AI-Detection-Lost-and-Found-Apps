@@ -10,12 +10,17 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.example.kleine.BuildConfig
 import com.example.kleine.R
 import com.example.kleine.activities.LunchActivity
 import com.example.kleine.activities.ShoppingActivity
+import com.example.kleine.adapters.recyclerview.AllOrdersAdapter
+import com.example.kleine.adapters.recyclerview.MaterialAdapter
 import com.example.kleine.databinding.FragmentProfileBinding
+import com.example.kleine.model.Enrollment
+import com.example.kleine.model.Material
 import com.example.kleine.model.User
 import com.example.kleine.resource.Resource
 import com.example.kleine.util.Constants.Companion.UPDATE_ADDRESS_FLAG
@@ -30,6 +35,11 @@ class ProfileFragment : Fragment() {
     val TAG = "ProfileFragment"
     private lateinit var binding: FragmentProfileBinding
     private lateinit var viewModel: ShoppingViewModel
+    private lateinit var materialAdapter: MaterialAdapter
+
+    private lateinit var enrolledMaterials: List<Material>
+
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -78,6 +88,8 @@ class ProfileFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        materialAdapter = MaterialAdapter()
 
         onHomeClick()
         onLogoutClick()
@@ -144,11 +156,77 @@ class ProfileFragment : Fragment() {
         }
     }
 
+
+
     private fun onAllOrderClick() {
         binding.allOrders.setOnClickListener {
+            fetchUserEnrollments()
             findNavController().navigate(R.id.action_profileFragment_to_allOrdersFragment)
         }
     }
+
+
+
+    private fun fetchUserEnrollments() {
+        val userId = FirebaseAuth.getInstance().currentUser?.uid
+        if (userId != null) {
+            val firestore = FirebaseFirestore.getInstance()
+            firestore.collection("enrollments")
+                .whereEqualTo("userId", userId)
+                .get()
+                .addOnSuccessListener { querySnapshot ->
+                    val enrollments = querySnapshot.documents.mapNotNull { document ->
+                        document.toObject(Enrollment::class.java)
+                    }
+                    val materialIds = enrollments.map { it.materialId }
+                    fetchMaterialsInBatches(materialIds)
+                }
+                .addOnFailureListener { exception ->
+                    Log.e(TAG, "Error fetching user enrollments", exception)
+                    // Handle the error appropriately
+                }
+        } else {
+            // Handle the case where the user is not logged in
+        }
+    }
+
+    private fun fetchMaterialsInBatches(materialIds: List<String>) {
+        val batchLimit = 10
+        val batches = (materialIds.size + batchLimit - 1) / batchLimit
+        val firestore = FirebaseFirestore.getInstance()
+
+        for (i in 0 until batches) {
+            val startIndex = i * batchLimit
+            val endIndex = minOf((i + 1) * batchLimit, materialIds.size)
+            val batchIds = materialIds.subList(startIndex, endIndex)
+
+            firestore.collection("Materials")
+                .whereIn("id", batchIds)
+                .get()
+                .addOnSuccessListener { querySnapshot ->
+                    val materials = querySnapshot.documents.mapNotNull { document ->
+                        document.toObject(Material::class.java)
+                    }
+                    displayMaterials(materials)
+                }
+                .addOnFailureListener { exception ->
+                    Log.e(TAG, "Error fetching materials", exception)
+                    // Handle the error appropriately
+                }
+        }
+    }
+
+
+
+
+    private fun displayMaterials(materials: List<Material>) {
+        // Update your UI with the fetched materials
+        // For example, update the RecyclerView Adapter with the materials
+        materialAdapter.differ.submitList(materials)
+    }
+
+
+
 
     private fun onProfileClick() {
         binding.constraintProfile.setOnClickListener {

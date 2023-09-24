@@ -115,31 +115,10 @@
             android:orientation="vertical"
             app:layout_constraintStart_toStartOf="@id/guideline1"
             app:layout_constraintEnd_toEndOf="@id/guideline2"
-            app:layout_constraintTop_toBottomOf="@id/tv_shopping_addresses">
+            app:layout_constraintTop_toBottomOf="@id/tv_shopping_addresses"/>
 
 
-                <TextView
-                    android:id="@+id/tv_full_name"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/g_full_name"
-                    android:textSize="@dimen/_13ssp" />
 
-            <TextView
-                android:id="@+id/tv_address"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/g_address"
-                android:textSize="@dimen/_13ssp" />
-
-            <TextView
-                android:id="@+id/tv_phone_number"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/g_phone"
-                android:textSize="@dimen/_13ssp" />
-
-        </LinearLayout>
 
         <View
             android:id="@+id/line1"
@@ -157,7 +136,7 @@
             android:id="@+id/tv_products"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/g_products"
+            android:text="Courses Material"
             android:fontFamily="@font/poppins_thin"
             app:layout_constraintStart_toStartOf="@id/guideline1"
             android:textColor="@color/black"

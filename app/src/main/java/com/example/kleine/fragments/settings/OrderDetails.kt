@@ -1,11 +1,15 @@
 package com.example.kleine.fragments.settings
 
+import android.app.DownloadManager
+import android.content.Context
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.lifecycle.Observer
@@ -18,6 +22,9 @@ import com.example.kleine.activities.ShoppingActivity
 import com.example.kleine.adapters.recyclerview.CartRecyclerAdapter
 import com.example.kleine.databinding.FragmentOrderDetailsBinding
 import com.example.kleine.model.Address
+import com.example.kleine.model.CourseDocument
+import com.example.kleine.model.Material
+import com.example.kleine.model.Order
 import com.example.kleine.resource.Resource
 import com.example.kleine.util.Constants.Companion.ORDER_CONFIRM_STATE
 import com.example.kleine.util.Constants.Companion.ORDER_Delivered_STATE
@@ -31,12 +38,14 @@ class OrderDetails : Fragment() {
     private lateinit var binding: FragmentOrderDetailsBinding
     private lateinit var viewModel: ShoppingViewModel
     private lateinit var productsAdapter: CartRecyclerAdapter
+    private lateinit var courseDocument: CourseDocument
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         viewModel = (activity as ShoppingActivity).viewModel
-        viewModel.getOrderAddressAndProducts(args.order)
+//        viewModel.getOrderAddressAndProducts(args.order)
     }
 
     override fun onCreateView(
@@ -49,15 +58,38 @@ class OrderDetails : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.tvOrderId.text = resources.getText(R.string.g_order)
-            .toString().plus("# ${args.order.id}")
-        setupRecyclerview()
-        observeOrderAddress()
 
-        observeProducts()
-        onCloseImageClick()
-        setupStepView()
+        // Retrieve the Order object if passed
+        val order = arguments?.getParcelable<Order>("order")
+        // Use the order object as needed...
 
+
+
+
+        // Retrieve the CourseDocument object if passed
+        val courseDocument = arguments?.getParcelable<CourseDocument>("courseDocument")
+
+        // Setup Download Click Listener
+        val downloadImageView: ImageView = view.findViewById(R.id.tv_quantity)
+        downloadImageView.setOnClickListener {
+            // Check if courseDocument is not null before accessing its properties
+            if (courseDocument != null) {
+                downloadDocument(courseDocument.documentUrl)
+            } else {
+                // Handle the case where courseDocument is null
+                Toast.makeText(context, "Document URL is not available", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+
+    }
+
+    private fun downloadDocument(documentUrl: String) {
+        val uri = Uri.parse(documentUrl)
+        val request = DownloadManager.Request(uri)
+        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+        val downloadManager = context?.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+        downloadManager.enqueue(request)
     }
 
     private fun onCloseImageClick() {
@@ -66,36 +98,6 @@ class OrderDetails : Fragment() {
         }
     }
 
-    private fun observeProducts() {
-        viewModel.orderProducts.observe(viewLifecycleOwner, Observer { response ->
-            when (response) {
-
-                is Resource.Loading -> {
-                    showProductsLoading()
-                    return@Observer
-                }
-
-                is Resource.Success -> {
-                    hideProductsLoading()
-                    productsAdapter.differ.submitList(response.data)
-                    binding.tvTotalprice.text = args.order.totalPrice
-                    return@Observer
-                }
-
-                is Resource.Error -> {
-                    hideAddressLoading()
-                    Toast.makeText(
-                        activity,
-                        resources.getText(R.string.error_occurred),
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    Log.e(TAG, response.message.toString())
-                    return@Observer
-                }
-            }
-
-        })
-    }
 
     private fun hideProductsLoading() {
         binding.apply {
@@ -126,43 +128,7 @@ class OrderDetails : Fragment() {
         }
     }
 
-    private fun observeOrderAddress() {
-        viewModel.orderAddress.observe(viewLifecycleOwner, Observer { response ->
-            when (response) {
 
-                is Resource.Loading -> {
-                    showAddressLoading()
-                    return@Observer
-                }
-
-                is Resource.Success -> {
-                    hideAddressLoading()
-                    val address = response.data
-                    binding.apply {
-                        tvFullName.text = address?.fullName
-                        tvAddress.text = address?.street
-                            .plus(", ${address?.city}")
-                            .plus(", ${address?.state}")
-                        tvPhoneNumber.text = address?.phone
-                    }
-
-                    return@Observer
-                }
-
-                is Resource.Error -> {
-                    hideAddressLoading()
-                    Toast.makeText(
-                        activity,
-                        resources.getText(R.string.error_occurred),
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    Log.e(TAG, response.message.toString())
-                    return@Observer
-                }
-            }
-
-        })
-    }
 
     private fun hideAddressLoading() {
         binding.apply {
@@ -184,37 +150,5 @@ class OrderDetails : Fragment() {
         }
     }
 
-    private fun setupStepView() {
-        val state = when (args.order.state) {
-            ORDER_PLACED_STATE -> 1
-            ORDER_CONFIRM_STATE -> 2
-            ORDER_SHIPPED_STATE -> 3
-            ORDER_Delivered_STATE -> 4
-            else -> {
-                2
-            }
-        }
 
-        Log.d("test2", args.order.state)
-        Log.d("test2", state.toString())
-        val steps = arrayOf<String>(
-            resources.getText(R.string.g_order_placed).toString(),
-            resources.getText(R.string.g_confirm).toString(),
-            resources.getText(R.string.g_shipped).toString(),
-            resources.getText(R.string.g_delivered).toString()
-        )
-
-        binding.stepView.apply {
-            getState().stepsNumber(4)
-                .steps(steps.toMutableList())
-                .commit()
-            if (state == 4) {
-                go(3,false)
-                done(true)
-            }else{
-                go(state, false)
-            }
-
-        }
-    }
 }

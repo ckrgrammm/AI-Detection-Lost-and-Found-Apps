@@ -30,9 +30,6 @@ class HomeFragment : Fragment() {
     val TAG = "HomeFragment"
     private lateinit var viewModel: ShoppingViewModel
     private lateinit var binding: FragmentHomeBinding
-
-
-    private lateinit var materialList: List<Material>
     private lateinit var materialAdapter: MaterialAdapter
 
 
@@ -56,15 +53,13 @@ class HomeFragment : Fragment() {
 
 
         binding.frameAdd.setOnClickListener {
-//            findNavController().navigate(R.id.action_homeFragment_to_joinPartnerFragment)
+            findNavController().navigate(R.id.action_homeFragment_to_addMaterialFragment)
         }
 
         binding.fragmeMicrohpone.setOnClickListener {
             val snackBar = requireActivity().findViewById<CoordinatorLayout>(R.id.snackBar_coordinator)
             Snackbar.make(snackBar,resources.getText(R.string.g_coming_soon),Snackbar.LENGTH_SHORT).show()
         }
-
-
 
         // Initialize RecyclerView and Adapter
         materialAdapter = MaterialAdapter()  // No arguments here
@@ -92,8 +87,17 @@ class HomeFragment : Fragment() {
         }
 
     }
-
-
+    private fun onItemClick() {
+        materialAdapter.onItemClick = { material ->
+            if (material != null) {
+                val bundle = Bundle()
+                bundle.putParcelable("material", material)
+                findNavController().navigate(R.id.action_allOrdersFragment_to_materialDetailsFragment, bundle)
+            } else {
+                Log.e(TAG, "Material object is null")
+            }
+        }
+    }
 
 
 

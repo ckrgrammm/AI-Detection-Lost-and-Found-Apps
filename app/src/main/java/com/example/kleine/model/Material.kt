@@ -8,19 +8,21 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 @Entity(tableName = "material")
 data class Material(
-    @PrimaryKey(autoGenerate = true) // ID as auto increment
+//    @PrimaryKey(autoGenerate = true) // ID as auto increment
+    var id: String = "",
     val desc: String = "",
     val name: String = "", // Course name
     val pass: Int = 0, // Number of students who passed this course/subject
     val rating: Float = 0f, // Rating (1 - 5)
     val requirement: String = "", // Requirement (e.g., Free)
     val status: String = "", // Status (Available/Unavailable)
-    val view: Int = 0, // Number of students who viewed this course/subject
-    val imageUrl: String = "", // URL for the course banner
-    val enroll: Int = 0, // Number of students enrolled in this course/subject
-    val partnershipsID: String? = null  // partnership ID
+    var view: Long = 0,
+    var enroll: Long = 0,
+    var imageUrl: String = "", // URL for the course banner
+    val partnershipsID: String = ""  // User's document ID
 
 ): Parcelable
+
 
 @Parcelize
 data class MaterialData(
@@ -44,3 +46,8 @@ data class MaterialEngageData(
 ): Parcelable {
     constructor() : this("", 0,0,0,"")
 }
+
+@Parcelize
+data class CourseDocument(
+    val documentUrl: String=""
+):Parcelable

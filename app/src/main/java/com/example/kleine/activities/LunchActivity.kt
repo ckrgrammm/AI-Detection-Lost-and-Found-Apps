@@ -52,71 +52,8 @@ class LunchActivity : AppCompatActivity() {
 
 //        val random = Random.nextInt(from = 10000, until = 99999)
 
-//        saveNewProduct()
     }
 
-    private fun saveNewProduct() {
 
-        val title = "Bedside tables"
-        val description = "Your bedroom is a sanctuary where you unwind and create your own personal space." +
-                " You deserve to have this space ornamented to help you stay organized, relaxed, and comfortable." +
-                " Bedroom furniture creates utility and helps you be your functional best"
-
-        val category = FURNITURE_CATEGORY
-        val price = "300"
-        val newPrice = "229"
-        val seller = "ps mart"
-        val orders = 3
-
-        val images = HashMap<String,Any>()
-        val imagesList = listOf(
-            "https://wakefit-co.s3.ap-south-1.amazonaws.com/img/product-thumbnails/elara-double-drawer-bedside-table-lifestyle-rectangle-new.webp",
-            "https://wakefit-co.s3.ap-south-1.amazonaws.com/img/product-thumbnails/elara-double-drawer-bedside-table-lifestyle-rectangle-new.webp",
-            "https://wakefit-co.s3.ap-south-1.amazonaws.com/img/product-thumbnails/elara-double-drawer-bedside-table-lifestyle-rectangle-new.webp"
-
-        )
-
-
-        val productPrice: Float? = price.toFloatOrNull()  // Renamed from price to productPrice
-        val productRate: Float? = null  // You might want to get the actual rate here
-
-
-        images.put(IMAGES,imagesList.toList())
-
-        val colors = HashMap<String,Any>()
-        val colorsList = listOf<String>(
-            "#8D4E38"
-        )
-
-        colors.put(COLORS, colorsList.toList())
-
-        val sizes = HashMap<String,Any>()
-        val sizeUnit = "Space"
-        val sizesList = listOf(
-            "1*2",
-        )
-
-        sizes.put(SIZES,sizesList.toList())
-
-        val product = Product(
-            id = 1208025,
-            productName = title,
-            description = description,
-            productCategory = category,
-            newPrice = newPrice,
-            productPrice = productPrice.toString(),
-            productRate = productRate,
-            seller = seller,
-            images = images,
-            colors = colors,
-            sizes = sizes,
-            orders = orders,
-            offerTime = null,
-            sizeUnit = sizeUnit
-        )
-        Firebase.firestore.collection(PRODUCTS_COLLECTION)
-            .document()
-            .set(product)
-    }
 
 }

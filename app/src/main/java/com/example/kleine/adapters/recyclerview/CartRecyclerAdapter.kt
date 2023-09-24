@@ -51,52 +51,7 @@ class CartRecyclerAdapter(
     @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: CartRecyclerAdapterViewHolder, position: Int) {
         val product = differ.currentList[position]
-        holder.binding.apply {
-            if (product.color.isNotEmpty()) {
-                val color = Color.parseColor(product.color)
-                val imageDrawable = ColorDrawable(color)
-                imgColor.setImageDrawable(imageDrawable)
-            } else
-                imgColor.visibility = View.GONE
 
-            if (product.size.isNotEmpty())
-                tvCartSize.text = product.size
-            else {
-                imgSize.visibility = View.GONE
-                tvCartSize.visibility = View.GONE
-            }
-
-            Glide.with(holder.itemView).load(product.image).into(imgCartProduct)
-            tvCartProductName.text = product.name
-            tvQuantity.text = product.quantity.toString()
-
-            if (product.newPrice != null && product.newPrice.isNotEmpty() && product.newPrice != "0") {
-                tvProductCartPrice.text = "$${product.newPrice}"
-            } else
-                tvProductCartPrice.text = "$${product.price}"
-
-            if (itemFlag != CART_FLAG)
-                holder.binding.apply {
-                    imgPlus.visibility = View.INVISIBLE
-                    imgMinus.visibility = View.INVISIBLE
-                    tvQuantity.text = product.quantity.toString()
-                }
-            else {
-
-                imgPlus.setOnClickListener {
-                    onPlusClick!!.invoke(product)
-                }
-
-                imgMinus.setOnClickListener {
-                    onMinusesClick!!.invoke(product)
-                }
-
-
-                holder.itemView.setOnClickListener {
-                    onItemClick!!.invoke(product)
-                }
-            }
-        }
     }
 
     override fun getItemCount(): Int {

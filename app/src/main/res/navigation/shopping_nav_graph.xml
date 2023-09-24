@@ -6,10 +6,23 @@
     app:startDestination="@id/homeFragment">
 
     <fragment
+        android:id="@+id/addMaterialFragment"
+        android:name="com.example.kleine.fragments.shopping.AddMaterialFragment"
+        android:label="Add Material">
+    </fragment>
+
+
+
+    <fragment
         android:id="@+id/homeFragment"
         android:name="com.example.kleine.fragments.shopping.HomeFragment"
         android:label="fragment_home"
         tools:layout="@layout/fragment_home">
+
+        <action
+            android:id="@+id/action_homeFragment_to_addMaterialFragment"
+            app:destination="@id/addMaterialFragment" />
+
         <action
             android:id="@+id/action_homeFragment_to_searchFragment"
             app:destination="@id/searchFragment"
@@ -18,29 +31,25 @@
             android:name="position"
             app:argType="integer"
             android:defaultValue="0" />
-    </fragment>
 
-    <action
-        android:id="@+id/action_homeFragment_to_materialDetailsFragment"
-        app:destination="@id/materialDetailsFragment"
-        app:enterAnim="@anim/nav_default_enter_anim"
-        app:exitAnim="@anim/nav_default_exit_anim"
-        app:popEnterAnim="@anim/nav_default_pop_enter_anim"
-        app:popExitAnim="@anim/nav_default_pop_exit_anim"/>
+        <action
+            android:id="@+id/action_homeFragment_to_materialDetailsFragment"
+            app:destination="@id/materialDetailsFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim"/>
+    </fragment>
 
 
     <fragment
         android:id="@+id/materialDetailsFragment"
         android:name="com.example.kleine.fragments.shopping.MaterialPreviewFragment"
-        android:label="Material Details">
-
+        tools:layout="@layout/fragment_product_preview">
         <argument
             android:name="material"
             app:argType="com.example.kleine.model.Material"
-            android:defaultValue="@null"
             app:nullable="true" />
-
-
     </fragment>
 
 
@@ -59,6 +68,8 @@
         android:name="com.example.kleine.fragments.shopping.ProfileFragment"
         android:label="fragment_profile"
         tools:layout="@layout/fragment_profile">
+
+
         <action
             android:id="@+id/action_profileFragment_to_billingFragment"
             app:destination="@id/billingFragment"
@@ -223,6 +234,7 @@
         android:name="com.example.kleine.fragments.settings.AllOrdersFragment"
         android:label="fragment_all_orders"
         tools:layout="@layout/fragment_all_orders" >
+
         <action
             android:id="@+id/action_allOrdersFragment_to_orderDetails"
             app:destination="@id/orderDetails"
@@ -230,15 +242,34 @@
             app:exitAnim="@anim/to_left"
             app:popEnterAnim="@anim/from_left"
             app:popExitAnim="@anim/to_right"/>
+
+        <action
+            android:id="@+id/action_allOrdersFragment_to_materialDetailsFragment"
+            app:destination="@id/materialDetailsFragment"
+            app:enterAnim="@anim/from_right"
+            app:exitAnim="@anim/to_left"
+            app:popEnterAnim="@anim/from_left"
+            app:popExitAnim="@anim/to_right" />
+
+
     </fragment>
     <fragment
         android:id="@+id/orderDetails"
         android:name="com.example.kleine.fragments.settings.OrderDetails"
         android:label="fragment_order_details"
         tools:layout="@layout/fragment_order_details" >
+<!--        <argument-->
+<!--            android:name="order"-->
+<!--            app:argType="com.example.kleine.model.Order" />-->
+
         <argument
-            android:name="order"
-            app:argType="com.example.kleine.model.Order" />
+            android:name="material"
+            app:argType="com.example.kleine.model.Material" />
+
+        <argument
+            android:name="courseDocument"
+            app:argType="com.example.kleine.model.CourseDocument" />
+
     </fragment>
     <fragment
         android:id="@+id/languageFragment"

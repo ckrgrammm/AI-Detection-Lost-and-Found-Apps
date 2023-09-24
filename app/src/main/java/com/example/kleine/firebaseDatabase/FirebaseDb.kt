@@ -25,6 +25,7 @@ import com.example.kleine.util.Constants.Companion.USERS_COLLECTION
 
 
 import com.google.android.gms.tasks.Task
+import com.google.android.gms.tasks.TaskCompletionSource
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
@@ -145,9 +146,28 @@ class FirebaseDb {
 
     }
 
-    fun getMaterials(page: Long): Task<QuerySnapshot> {
-        return FirebaseFirestore.getInstance().collection("Materials").limit(page).get()
+    fun getMaterials(page: Long): Task<List<Material>> {
+        val taskCompletionSource = TaskCompletionSource<List<Material>>()
+
+        FirebaseFirestore.getInstance().collection("Materials").limit(page).get()
+            .addOnSuccessListener { querySnapshot ->
+                val materials = querySnapshot.documents.mapNotNull { document ->
+                    val material = document.toObject(Material::class.java)
+                    material?.id = document.id // Set the id of the Material object
+                    material
+                }
+                // Set the result to the TaskCompletionSource
+                taskCompletionSource.setResult(materials)
+            }
+            .addOnFailureListener { exception ->
+                // Set the exception to the TaskCompletionSource
+                taskCompletionSource.setException(exception)
+            }
+
+        return taskCompletionSource.task
     }
+
+
 
 
 
