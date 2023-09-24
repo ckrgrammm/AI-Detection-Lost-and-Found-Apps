@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.kleine.databinding.CartItemBinding
 import com.example.kleine.model.CartProduct
+import com.example.kleine.model.CourseDocument
 import com.example.kleine.util.Constants.Companion.CART_FLAG
 
 class CartRecyclerAdapter(
@@ -21,6 +22,8 @@ class CartRecyclerAdapter(
     var onPlusClick: ((CartProduct) -> Unit)? = null
     var onMinusesClick: ((CartProduct) -> Unit)? = null
     var onItemClick: ((CartProduct) -> Unit)? = null
+    var onDocumentDownloadClick: ((String) -> Unit)? = null // Add this line for document download click
+    private val courseDocuments = mutableListOf<CourseDocument>()
 
     inner class CartRecyclerAdapterViewHolder(val binding: CartItemBinding) :
         RecyclerView.ViewHolder(binding.root)
@@ -37,6 +40,12 @@ class CartRecyclerAdapter(
 
     val differ = AsyncListDiffer(this, diffCallBack)
 
+    // Add this function to update the list of CourseDocument
+    fun submitList(list: List<CourseDocument>) {
+        courseDocuments.clear()
+        courseDocuments.addAll(list)
+        notifyDataSetChanged()
+    }
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int
@@ -48,10 +57,23 @@ class CartRecyclerAdapter(
         )
     }
 
+
     @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: CartRecyclerAdapterViewHolder, position: Int) {
         val product = differ.currentList[position]
+        val courseDocument = courseDocuments.getOrNull(position)
 
+        // Set CourseDocument to the item's binding
+        holder.binding.courseDocument = courseDocument
+
+        // Set the click listener for tvQuantity
+        holder.binding.tvQuantity.setOnClickListener {
+            courseDocument?.let {
+                onDocumentDownloadClick?.invoke(it.documentUrl)
+            }
+        }
+
+        // ... other binding code ...
     }
 
     override fun getItemCount(): Int {

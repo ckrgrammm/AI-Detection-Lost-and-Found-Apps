@@ -252,15 +252,14 @@
             app:popExitAnim="@anim/to_right" />
 
 
+
+
     </fragment>
     <fragment
         android:id="@+id/orderDetails"
         android:name="com.example.kleine.fragments.settings.OrderDetails"
         android:label="fragment_order_details"
         tools:layout="@layout/fragment_order_details" >
-<!--        <argument-->
-<!--            android:name="order"-->
-<!--            app:argType="com.example.kleine.model.Order" />-->
 
         <argument
             android:name="material"

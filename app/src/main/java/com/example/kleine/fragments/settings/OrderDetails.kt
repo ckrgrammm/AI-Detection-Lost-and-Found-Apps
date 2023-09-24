@@ -31,6 +31,7 @@ import com.example.kleine.util.Constants.Companion.ORDER_Delivered_STATE
 import com.example.kleine.util.Constants.Companion.ORDER_PLACED_STATE
 import com.example.kleine.util.Constants.Companion.ORDER_SHIPPED_STATE
 import com.example.kleine.viewmodel.shopping.ShoppingViewModel
+import com.google.firebase.firestore.FirebaseFirestore
 
 class OrderDetails : Fragment() {
     val TAG = "OrderDetails"
@@ -38,7 +39,6 @@ class OrderDetails : Fragment() {
     private lateinit var binding: FragmentOrderDetailsBinding
     private lateinit var viewModel: ShoppingViewModel
     private lateinit var productsAdapter: CartRecyclerAdapter
-    private lateinit var courseDocument: CourseDocument
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,33 +56,39 @@ class OrderDetails : Fragment() {
         return binding.root
     }
 
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Retrieve the Order object if passed
-        val order = arguments?.getParcelable<Order>("order")
-        // Use the order object as needed...
+        // Retrieve materialId from arguments or elsewhere
+        val materialId: String = arguments?.getString("materialId") ?: return
 
+        // Reference to the Firestore database
+        val firestore = FirebaseFirestore.getInstance()
 
+        // Reference to the specific Material document
+        val materialRef = firestore.collection("Materials").document(materialId)
 
+        // Initialize the RecyclerView
+        setupRecyclerview()
 
-        // Retrieve the CourseDocument object if passed
-        val courseDocument = arguments?.getParcelable<CourseDocument>("courseDocument")
-
-        // Setup Download Click Listener
-        val downloadImageView: ImageView = view.findViewById(R.id.tv_quantity)
-        downloadImageView.setOnClickListener {
-            // Check if courseDocument is not null before accessing its properties
-            if (courseDocument != null) {
-                downloadDocument(courseDocument.documentUrl)
-            } else {
-                // Handle the case where courseDocument is null
-                Toast.makeText(context, "Document URL is not available", Toast.LENGTH_SHORT).show()
+        // Fetch Courses sub-collection and update the adapter
+        materialRef.collection("Courses").get().addOnSuccessListener { querySnapshot ->
+            val courseDocuments = querySnapshot.documents.mapNotNull { document ->
+                document.toObject(CourseDocument::class.java)
             }
+            // Update the adapter with the fetched CourseDocuments
+            productsAdapter.submitList(courseDocuments)
+        }.addOnFailureListener { exception ->
+            // Handle the error appropriately
+            Log.e(TAG, "Error fetching courses", exception)
         }
 
-
+        // ... other initializations ...
     }
+
+
+
 
     private fun downloadDocument(documentUrl: String) {
         val uri = Uri.parse(documentUrl)

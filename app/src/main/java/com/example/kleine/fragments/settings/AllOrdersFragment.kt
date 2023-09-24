@@ -30,7 +30,6 @@ class AllOrdersFragment : Fragment() {
     private lateinit var viewModel: ShoppingViewModel
     private lateinit var binding: FragmentAllOrdersBinding
     private lateinit var allOrdersAdapter: AllOrdersAdapter
-    private lateinit var materialAdapter: MaterialAdapter
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -44,23 +43,19 @@ class AllOrdersFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         binding = FragmentAllOrdersBinding.inflate(inflater)
         activity?.findViewById<BottomNavigationView>(R.id.bottom_navigation)?.visibility = View.GONE
         return binding.root
     }
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         fetchEnrolledMaterials()
         setupRecyclerView()
-        observeAllOrders()
         onCloseClick()
         onItemClick()
-        binding.imgCloseOrders.setOnClickListener {
-            findNavController().navigateUp()
-        }
     }
 
 
@@ -125,21 +120,17 @@ class AllOrdersFragment : Fragment() {
 
     private fun displayMaterials(materials: List<Material>) {
         Log.d(TAG, "Displaying materials: ${materials.size}")
-        materialAdapter.differ.submitList(materials)
-        materialAdapter.notifyDataSetChanged() // Force redraw
+        allOrdersAdapter.differ.submitList(materials)
+        allOrdersAdapter.notifyDataSetChanged()
     }
-
-
 
     private fun onItemClick() {
-        materialAdapter.onItemClick = { material ->
+        allOrdersAdapter.onItemClick = { material ->
             val bundle = Bundle()
             bundle.putParcelable("material", material)
-            findNavController().navigate(R.id.action_allOrdersFragment_to_materialDetailsFragment, bundle)
+            findNavController().navigate(R.id.action_allOrdersFragment_to_orderDetails, bundle)
         }
     }
-
-
 
 
 
@@ -150,46 +141,7 @@ class AllOrdersFragment : Fragment() {
         }
     }
 
-    private fun observeAllOrders() {
-        viewModel.userOrders.observe(viewLifecycleOwner) { response ->
-            when (response) {
-                is Resource.Loading -> {
-                    showLoading()
-                    return@observe
-                }
 
-                is Resource.Success -> {
-                    hideLoading()
-                    val orders = response.data
-                    if (orders!!.isEmpty())
-                        binding.apply {
-                            imgEmptyBox.visibility = View.VISIBLE
-                            imgEmptyBoxTexture.visibility = View.VISIBLE
-                            tvEmptyOrders.visibility = View.VISIBLE
-                            return@observe
-                        }
-                    binding.apply {
-                        imgEmptyBox.visibility = View.GONE
-                        imgEmptyBoxTexture.visibility = View.GONE
-                        tvEmptyOrders.visibility = View.GONE
-                    }
-                    allOrdersAdapter.differ.submitList(orders)
-                    return@observe
-                }
-
-                is Resource.Error -> {
-                    hideLoading()
-                    Toast.makeText(
-                        activity,
-                        resources.getText(R.string.error_occurred),
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    Log.e(TAG, response.message.toString())
-                    return@observe
-                }
-            }
-        }
-    }
 
     private fun hideLoading() {
         binding.progressbarAllOrders.visibility = View.GONE
@@ -201,10 +153,10 @@ class AllOrdersFragment : Fragment() {
     }
 
     private fun setupRecyclerView() {
-        materialAdapter = MaterialAdapter()
+        allOrdersAdapter = AllOrdersAdapter()
         binding.rvAllOrders.apply {
             layoutManager = LinearLayoutManager(context)
-            adapter = materialAdapter
+            adapter = allOrdersAdapter
         }
     }
 }

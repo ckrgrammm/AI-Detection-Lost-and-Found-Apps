@@ -88,8 +88,7 @@
                app:sv_doneStepMarkColor="@color/colorPrimary"
                app:sv_stepNumberTextSize="@dimen/_12ssp"
                app:sv_animationType="Line"
-               app:sv_doneTextColor="@color/g_hint"
-               />
+               app:sv_doneTextColor="@color/g_hint"/>
         </LinearLayout>
 
 
@@ -118,6 +117,56 @@
             app:layout_constraintTop_toBottomOf="@id/tv_shopping_addresses"/>
 
 
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/linear"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="40dp"
+            android:layout_marginBottom="20dp"
+            app:layout_constraintTop_toBottomOf="@id/rv_products"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="@id/guideline1"
+            app:layout_constraintEnd_toEndOf="@id/guideline2">
+
+            <Button
+                android:id="@+id/btn_buttonA"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="Rate Course"
+                android:textSize="@dimen/_16ssp"
+                android:textColor="@color/white"
+                android:fontFamily="@font/sf_pro_display"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="@dimen/_15sdp"
+                android:layout_marginBottom="@dimen/_15sdp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/guideline_center"/>
+
+            <Button
+                android:id="@+id/btn_buttonB"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="Quizz"
+                android:textSize="@dimen/_16ssp"
+                android:textColor="@color/white"
+                android:fontFamily="@font/sf_pro_display"
+                android:layout_marginEnd="10dp"
+                android:layout_marginTop="@dimen/_15sdp"
+                android:layout_marginBottom="@dimen/_15sdp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/guideline_center"/>
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline_center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_begin="207dp" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
 
         <View
@@ -158,51 +207,7 @@
             tools:listitem="@layout/cart_item"
             />
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/linear"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            app:layout_constraintStart_toStartOf="@id/guideline1"
-            app:layout_constraintEnd_toEndOf="@id/guideline2"
-            app:layout_constraintTop_toBottomOf="@id/rv_products"
-            app:layout_constraintBottom_toBottomOf="parent"
-            android:layout_marginTop="40dp"
-            android:layout_marginBottom="20dp"
-            android:background="@drawable/total_box_background">
 
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="@string/g_total"
-                android:textSize="@dimen/_16ssp"
-                android:textColor="@color/black"
-                android:fontFamily="@font/sf_pro_display"
-                android:layout_marginStart="10dp"
-                android:layout_weight="1"
-                android:layout_marginTop="@dimen/_15sdp"
-                android:layout_marginBottom="@dimen/_15sdp"
-                android:layout_gravity="start|center_vertical"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"/>
-
-            <TextView
-                android:id="@+id/tv_totalprice"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="10dp"
-                android:textSize="@dimen/_16ssp"
-                android:textColor="@color/black"
-                android:fontFamily="@font/sf_pro_display"
-                android:layout_marginTop="@dimen/_15sdp"
-                android:layout_marginBottom="@dimen/_15sdp"
-                android:layout_gravity="end|center_vertical"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline1"
