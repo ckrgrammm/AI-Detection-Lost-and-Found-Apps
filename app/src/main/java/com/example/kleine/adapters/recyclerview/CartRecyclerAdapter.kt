@@ -1,8 +1,10 @@
 package com.example.kleine.adapters.recyclerview
 
 import android.annotation.SuppressLint
+import android.content.ContentValues.TAG
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -22,8 +24,18 @@ class CartRecyclerAdapter(
     var onPlusClick: ((CartProduct) -> Unit)? = null
     var onMinusesClick: ((CartProduct) -> Unit)? = null
     var onItemClick: ((CartProduct) -> Unit)? = null
-    var onDocumentDownloadClick: ((String) -> Unit)? = null // Add this line for document download click
+    var onDocumentDownloadClick: ((String) -> Unit)? = null // Lambda to handle document download
+
     private val courseDocuments = mutableListOf<CourseDocument>()
+
+
+    fun submitList(list: List<CourseDocument>) {
+        courseDocuments.clear()
+        courseDocuments.addAll(list)
+        notifyDataSetChanged()
+        Log.d(TAG, "List submitted with size: ${courseDocuments.size}")
+    }
+
 
     inner class CartRecyclerAdapterViewHolder(val binding: CartItemBinding) :
         RecyclerView.ViewHolder(binding.root)
@@ -40,12 +52,7 @@ class CartRecyclerAdapter(
 
     val differ = AsyncListDiffer(this, diffCallBack)
 
-    // Add this function to update the list of CourseDocument
-    fun submitList(list: List<CourseDocument>) {
-        courseDocuments.clear()
-        courseDocuments.addAll(list)
-        notifyDataSetChanged()
-    }
+
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int
@@ -58,9 +65,7 @@ class CartRecyclerAdapter(
     }
 
 
-    @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: CartRecyclerAdapterViewHolder, position: Int) {
-        val product = differ.currentList[position]
         val courseDocument = courseDocuments.getOrNull(position)
 
         // Set CourseDocument to the item's binding
@@ -70,14 +75,27 @@ class CartRecyclerAdapter(
         holder.binding.tvQuantity.setOnClickListener {
             courseDocument?.let {
                 onDocumentDownloadClick?.invoke(it.documentUrl)
+            } ?: run {
+                // Log an error or handle the case where courseDocument is null
+                Log.e(TAG, "CourseDocument is null")
             }
         }
-
-        // ... other binding code ...
     }
 
+
+
+
     override fun getItemCount(): Int {
-        return differ.currentList.size
+        val itemCount = courseDocuments.size
+        Log.d(TAG, "Item count: $itemCount")
+        return itemCount
+    }
+
+
+
+
+    companion object {
+        private const val TAG = "CartRecyclerAdapter"
     }
 
 }

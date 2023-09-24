@@ -31,7 +31,9 @@ import com.example.kleine.util.Constants.Companion.ORDER_Delivered_STATE
 import com.example.kleine.util.Constants.Companion.ORDER_PLACED_STATE
 import com.example.kleine.util.Constants.Companion.ORDER_SHIPPED_STATE
 import com.example.kleine.viewmodel.shopping.ShoppingViewModel
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
 
 class OrderDetails : Fragment() {
     val TAG = "OrderDetails"
@@ -45,7 +47,6 @@ class OrderDetails : Fragment() {
         super.onCreate(savedInstanceState)
 
         viewModel = (activity as ShoppingActivity).viewModel
-//        viewModel.getOrderAddressAndProducts(args.order)
     }
 
     override fun onCreateView(
@@ -60,32 +61,64 @@ class OrderDetails : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Retrieve materialId from arguments or elsewhere
-        val materialId: String = arguments?.getString("materialId") ?: return
-
         // Reference to the Firestore database
         val firestore = FirebaseFirestore.getInstance()
-
-        // Reference to the specific Material document
-        val materialRef = firestore.collection("Materials").document(materialId)
 
         // Initialize the RecyclerView
         setupRecyclerview()
 
-        // Fetch Courses sub-collection and update the adapter
-        materialRef.collection("Courses").get().addOnSuccessListener { querySnapshot ->
-            val courseDocuments = querySnapshot.documents.mapNotNull { document ->
-                document.toObject(CourseDocument::class.java)
-            }
-            // Update the adapter with the fetched CourseDocuments
-            productsAdapter.submitList(courseDocuments)
-        }.addOnFailureListener { exception ->
-            // Handle the error appropriately
-            Log.e(TAG, "Error fetching courses", exception)
+        // Get the current user's ID (replace this with your user ID retrieval logic)
+        val userId = FirebaseAuth.getInstance().currentUser?.uid
+
+        if (userId != null) {
+            // Initialize a HashSet to store unique course documents
+            val uniqueCourseDocuments = HashSet<CourseDocument>()
+
+            // Query the "enrollments" collection to get material IDs for the user
+            firestore.collection("enrollments")
+                .whereEqualTo("userId", userId)
+                .get()
+                .addOnSuccessListener { enrollmentsQuerySnapshot ->
+                    // Iterate through the enrollments
+                    for (enrollmentDocument in enrollmentsQuerySnapshot.documents) {
+                        val materialId = enrollmentDocument.getString("materialId")
+
+                        if (materialId != null) {
+                            // Query the "Courses" sub-collection for the specific material ID
+                            firestore.collection("Materials")
+                                .document(materialId)
+                                .collection("Courses")
+                                .get()
+                                .addOnSuccessListener { coursesQuerySnapshot ->
+                                    // Iterate through course documents and add them to the HashSet
+                                    coursesQuerySnapshot.documents.mapNotNull { document ->
+                                        document.toObject(CourseDocument::class.java)
+                                    }.forEach { courseDocument ->
+                                        uniqueCourseDocuments.add(courseDocument)
+                                    }
+
+                                    // Update the adapter with the unique CourseDocuments
+                                    productsAdapter.submitList(uniqueCourseDocuments.toList())
+                                }
+                                .addOnFailureListener { exception ->
+                                    // Handle the error appropriately
+                                    Log.e(TAG, "Error fetching courses for material $materialId", exception)
+                                }
+                        }
+                    }
+                }
+                .addOnFailureListener { exception ->
+                    // Handle the error appropriately
+                    Log.e(TAG, "Error fetching enrollments", exception)
+                }
+        } else {
+            // Handle the case where the user is not logged in
         }
 
-        // ... other initializations ...
+
+
     }
+
 
 
 
@@ -98,35 +131,12 @@ class OrderDetails : Fragment() {
         downloadManager.enqueue(request)
     }
 
-    private fun onCloseImageClick() {
-        binding.imgCloseOrder.setOnClickListener {
-            findNavController().navigateUp()
-        }
-    }
-
-
-    private fun hideProductsLoading() {
-        binding.apply {
-            progressbarOrder.visibility = View.GONE
-            rvProducts.visibility = View.VISIBLE
-            tvProducts.visibility = View.VISIBLE
-            linear.visibility = View.VISIBLE
-            line1.visibility = View.VISIBLE
-        }
-    }
-
-    private fun showProductsLoading() {
-        binding.apply {
-            progressbarOrder.visibility = View.VISIBLE
-            rvProducts.visibility = View.INVISIBLE
-            tvProducts.visibility = View.INVISIBLE
-            linear.visibility = View.INVISIBLE
-            line1.visibility = View.INVISIBLE
-        }
-    }
-
     private fun setupRecyclerview() {
-        productsAdapter = CartRecyclerAdapter("From Order Detail")
+        productsAdapter = CartRecyclerAdapter().apply {
+            onDocumentDownloadClick = { documentUrl ->
+                downloadDocument(documentUrl)
+            }
+        }
         binding.rvProducts.apply {
             adapter = productsAdapter
             layoutManager = LinearLayoutManager(context)
@@ -136,25 +146,7 @@ class OrderDetails : Fragment() {
 
 
 
-    private fun hideAddressLoading() {
-        binding.apply {
-            progressbarOrder.visibility = View.GONE
-            stepView.visibility = View.VISIBLE
-            tvShoppingAddresses.visibility = View.VISIBLE
-            linearAddress.visibility = View.VISIBLE
-        }
-    }
 
-    private fun showAddressLoading() {
-        binding.apply {
-            binding.apply {
-                progressbarOrder.visibility = View.VISIBLE
-                stepView.visibility = View.INVISIBLE
-                tvShoppingAddresses.visibility = View.INVISIBLE
-                linearAddress.visibility = View.INVISIBLE
-            }
-        }
-    }
 
 
 }
