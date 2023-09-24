@@ -1,5 +1,9 @@
 package com.example.kleine.fragments.admin
 
+import android.app.DownloadManager
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -13,12 +17,15 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
+import androidx.room.Room
 import com.bumptech.glide.Glide
 import com.example.kleine.R
 import com.example.kleine.activities.ShoppingActivity
 import com.example.kleine.databinding.FragmentAdminViewPartnershipRequestBinding
 import com.example.kleine.databinding.RecyclerViewAdminViewPartnershipRequestBinding
+import com.example.kleine.model.AppDatabase
 import com.example.kleine.model.Partnership
+import com.example.kleine.model.PartnershipEntity
 import com.example.kleine.model.PartnershipStatus
 import com.example.kleine.model.Status
 import com.example.kleine.viewmodel.partnership.PartnershipViewModel
@@ -26,9 +33,17 @@ import com.example.kleine.viewmodel.shopping.ShoppingViewModel
 import com.example.kleine.viewmodel.user.UserViewModel
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
+import android.content.IntentFilter
+import android.net.ConnectivityManager
+import android.net.Uri
+import androidx.lifecycle.lifecycleScope
+import com.example.kleine.resource.NetworkReceiver
+import kotlinx.coroutines.launch
+import java.io.File
+
 
 interface OnRequestPdfClickListener {
-    fun onPdfClick(pdfUrl: String)
+    fun onPdfClick(pdfUrl: String,documentName: String)
 }
 class AdminViewPartnershipRequestFragment : Fragment(), OnRequestPdfClickListener {
     val TAG = "AdminViewPartnershipRequestFragment"
@@ -37,6 +52,21 @@ class AdminViewPartnershipRequestFragment : Fragment(), OnRequestPdfClickListene
     private val partnershipViewModel: PartnershipViewModel by viewModels()
     private val userViewModel: UserViewModel by viewModels()
     private var partnershipAdapter = PartnershipAdapter(listOf(), this)
+    private lateinit var roomDB: AppDatabase
+    private var isNetworkAvailable: Boolean = false
+    private var partnershipId: String? = null
+    private val networkReceiver = NetworkReceiver(
+        onNetworkAvailable = {
+            isNetworkAvailable = true
+            partnershipAdapter.setNetworkAvailability(true)
+        },
+        onNetworkUnavailable = {
+            isNetworkAvailable = false
+            partnershipAdapter.setNetworkAvailability(false)
+        }
+    )
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -48,6 +78,12 @@ class AdminViewPartnershipRequestFragment : Fragment(), OnRequestPdfClickListene
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+
+        roomDB = Room.databaseBuilder(
+            requireContext(),
+            AppDatabase::class.java, "partnership-database"
+        ).build()
+
         binding = FragmentAdminViewPartnershipRequestBinding.inflate(inflater, container, false)
 
         binding.partnershipRequestData.adapter = partnershipAdapter
@@ -67,6 +103,13 @@ class AdminViewPartnershipRequestFragment : Fragment(), OnRequestPdfClickListene
         return binding.root
     }
     inner class PartnershipAdapter(var partnershipsList: List<Partnership>, private val pdfClickListener: OnRequestPdfClickListener) : RecyclerView.Adapter<PartnershipViewHolder>() {
+        var isNetworkAvailable: Boolean = false
+
+        fun setNetworkAvailability(isAvailable: Boolean) {
+            isNetworkAvailable = isAvailable
+            notifyDataSetChanged()
+        }
+
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AdminViewPartnershipRequestFragment.PartnershipViewHolder {
             val inflater = LayoutInflater.from(parent.context)
             val itemBinding = RecyclerViewAdminViewPartnershipRequestBinding.inflate(inflater, parent, false)
@@ -85,6 +128,15 @@ class AdminViewPartnershipRequestFragment : Fragment(), OnRequestPdfClickListene
     }
     inner class PartnershipViewHolder(private val itemBinding: RecyclerViewAdminViewPartnershipRequestBinding, private val pdfClickListener: OnRequestPdfClickListener) : RecyclerView.ViewHolder(itemBinding.root) {
         fun bind(partnership: Partnership) {
+
+            val partnershipEntity = partnership.toEntity()
+            insertPartnershipIntoRoomDB(partnershipEntity)
+
+
+//            insertPartnershipIntoRoomDB(partnership)
+            partnershipId = partnership.id
+            itemBinding.btnApprove.isEnabled = isNetworkAvailable
+            itemBinding.btnReject.isEnabled = isNetworkAvailable
             itemBinding.instiNameType.text = partnership.instiName + "\n" + partnership.instiType
             itemBinding.location.text = partnership.location
             itemBinding.contactNum.text = partnership.contactNum
@@ -96,14 +148,14 @@ class AdminViewPartnershipRequestFragment : Fragment(), OnRequestPdfClickListene
             if (pdfFilesName.isNotEmpty()) {
                 itemBinding.pdfFile1.text = pdfFilesName[0]
                 itemBinding.pdfFile1.setOnClickListener {
-                    pdfClickListener.onPdfClick(pdfFiles[0])  // Using pdfClickListener
+                    pdfClickListener.onPdfClick(pdfFiles[0],documentationName)  // Using pdfClickListener
                 }
             }
 
             if (pdfFilesName.size >= 2) {
                 itemBinding.pdfFile2.text = pdfFilesName[1]
                 itemBinding.pdfFile2.setOnClickListener {
-                    pdfClickListener.onPdfClick(pdfFiles[0])
+                    pdfClickListener.onPdfClick(pdfFiles[0],documentationName)
                 }
             } else {
                 itemBinding.pdfFile2.visibility = View.GONE
@@ -142,16 +194,27 @@ class AdminViewPartnershipRequestFragment : Fragment(), OnRequestPdfClickListene
                     partnership = partnership
                 )
             }
+
         }
 
-
     }
-    override fun onPdfClick(pdfUrl: String) {
-        partnershipViewModel.loadPdfIntoView(
-            pdfUrl,
-            binding.pdfView,
-            binding.closePdfButton
-        )
+    override fun onPdfClick(pdfUrl: String, documentName: String) {
+        val alertDialog = AlertDialog.Builder(requireContext())
+            .setTitle("Download PDF")
+            .setMessage("Do you want to download the PDF for offline viewing?")
+            .setPositiveButton("Download") { dialog, which ->
+                downloadAndSavePdf(pdfUrl, documentName)
+            }
+            .setNegativeButton("View Online") { dialog, which ->
+                partnershipViewModel.loadPdfIntoView(
+                    pdfUrl,
+                    binding.pdfView,
+                    binding.closePdfButton
+                )
+            }
+            .create()
+
+        alertDialog.show()
     }
     private fun showAlertDialog(title: String, message: String, partnership: Partnership) {
         // Inflate the layout for the dialog
@@ -215,6 +278,10 @@ class AdminViewPartnershipRequestFragment : Fragment(), OnRequestPdfClickListene
     }
 
     private fun approvePartnerData(partnershipId: String, userId: String) {
+        if (isNetworkAvailable) {
+            Toast.makeText(context, "Network is not available. Cannot approve partner.", Toast.LENGTH_SHORT).show()
+            return
+        }
         val firestore = FirebaseFirestore.getInstance()
         val partnershipRef = firestore.collection("Partnerships").document(partnershipId)
 
@@ -230,6 +297,10 @@ class AdminViewPartnershipRequestFragment : Fragment(), OnRequestPdfClickListene
     }
 
     private fun rejectPartnerData(partnershipId: String, userId: String, reasonMsg: String) {
+        if (isNetworkAvailable) {
+            Toast.makeText(context, "Network is not available. Cannot reject partner.", Toast.LENGTH_SHORT).show()
+            return
+        }
         val firestore = FirebaseFirestore.getInstance()
         val partnershipRef = firestore.collection("Partnerships").document(partnershipId)
 
@@ -239,4 +310,61 @@ class AdminViewPartnershipRequestFragment : Fragment(), OnRequestPdfClickListene
                 Toast.makeText(context, "Partner rejected successfully!", Toast.LENGTH_SHORT).show()
             }
     }
+
+
+
+    override fun onResume() {
+        super.onResume()
+        val filter = IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
+        requireContext().registerReceiver(networkReceiver, filter)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        requireContext().unregisterReceiver(networkReceiver)
+    }
+    private val onDownloadComplete: BroadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            val id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1)
+            if (downloadID == id) {
+                // Download is complete, update the Room Database with the local file path
+                updateRoomDatabaseWithFilePath(partnershipId.toString(), file.absolutePath)
+            }
+        }
+    }
+
+
+    private var downloadID: Long = 0L
+    private lateinit var file: File
+
+    private fun downloadAndSavePdf(pdfUrl: String,documentName:String) {
+        val downloadManager = requireActivity().getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+
+        val uri = Uri.parse(pdfUrl)
+        val request = DownloadManager.Request(uri)
+        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+
+        // Set the local destination for the downloaded file to a path within the application's external files directory
+        file = File(requireActivity().getExternalFilesDir(null), documentName)
+        request.setDestinationUri(Uri.fromFile(file))
+
+        // Enqueue a new download and get the reference ID
+        downloadID = downloadManager.enqueue(request)
+
+        // Register a BroadcastReceiver to listen for the completion of the download
+        requireActivity().registerReceiver(onDownloadComplete, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE))
+    }
+
+    private fun updateRoomDatabaseWithFilePath(partnershipId: String, filePath: String) {
+        lifecycleScope.launch {
+            roomDB.partnershipDao().updateDocumentationLocalPath(partnershipId, filePath)
+        }
+    }
+    private fun insertPartnershipIntoRoomDB(partnershipEntity: PartnershipEntity) {
+        lifecycleScope.launch {
+            roomDB.partnershipDao().insert(partnershipEntity)
+        }
+    }
+
+
 }

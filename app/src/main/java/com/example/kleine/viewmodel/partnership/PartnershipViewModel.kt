@@ -17,7 +17,6 @@ class PartnershipViewModel : ViewModel() {
     private val _partnershipsList = MutableLiveData<List<Partnership>>()
     val partnershipsList: LiveData<List<Partnership>> = _partnershipsList
     private var partnershipListenerRegistration: ListenerRegistration? = null
-
     val isDataUpdated = MutableLiveData<Boolean>()
 
 
@@ -53,6 +52,7 @@ class PartnershipViewModel : ViewModel() {
                 val partnershipList = mutableListOf<Partnership>()
                 for (document in result) {
                     val partnership = document.toObject(Partnership::class.java)
+                    partnership.id = document.id
                     partnershipList.add(partnership)
                 }
 

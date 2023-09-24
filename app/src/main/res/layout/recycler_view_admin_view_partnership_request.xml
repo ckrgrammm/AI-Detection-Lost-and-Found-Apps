@@ -168,7 +168,7 @@
                     android:layout_height="wrap_content"
                     android:text="123.pdf"
                     android:textSize="25sp"
-                    android:textColor="#000"
+                    android:textColor="@color/g_blue"
                     android:clickable="true"
                     android:onClick="openPdfFile1"
                     />
@@ -179,7 +179,7 @@
                     android:layout_height="wrap_content"
                     android:text="456.pdf"
                     android:textSize="25sp"
-                    android:textColor="#000"
+                    android:textColor="@color/g_blue"
                     android:clickable="true"
                     android:onClick="openPdfFile2"
                     />
