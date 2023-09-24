@@ -127,9 +127,10 @@ class AllOrdersFragment : Fragment() {
     private fun onItemClick() {
         allOrdersAdapter.onItemClick = { material ->
             val bundle = Bundle()
-            bundle.putParcelable("material", material)
+            bundle.putString("documentId", material.id)
             findNavController().navigate(R.id.action_allOrdersFragment_to_orderDetails, bundle)
         }
+
     }
 
 
