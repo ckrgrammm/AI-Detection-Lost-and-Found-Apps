@@ -91,6 +91,7 @@
                         android:scaleX="0.6"
                         android:scaleY="0.6"
                         android:stepSize="1"
+                        android:isIndicator="true"
                         android:transformPivotX="0dp"
                         android:transformPivotY="0dp" />
                 </LinearLayout>

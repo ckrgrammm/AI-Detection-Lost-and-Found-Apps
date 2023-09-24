@@ -50,8 +50,13 @@ class TempCommentFragment : Fragment() {
 
         commentViewModel.commentsWithUserDetails.observe(viewLifecycleOwner, Observer { commentsWithUserDetails ->
             Log.d("TempCommentFragment", "Data received: $commentsWithUserDetails")
-            adapter.setData(commentsWithUserDetails)
+            val sortedComments = commentsWithUserDetails.sortedByDescending {
+                it.comment.commentDate
+            }
+
+            adapter.setData(sortedComments)
         })
+
 
         // Set OnClickListener on them
         binding.allMaterialComment.commentTitle.setOnClickListener {
