@@ -17,6 +17,7 @@
 
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/productView"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
         <androidx.cardview.widget.CardView
@@ -289,14 +290,18 @@
             app:layout_constraintStart_toStartOf="@id/guideline1"
             app:layout_constraintTop_toBottomOf="@id/linear"
             app:layout_constraintVertical_bias="0.494"
+            app:layout_constraintBottom_toTopOf="@+id/allMaterialComment"
             android:layout_marginTop="45dp"
             android:visibility="visible"
             />
 
-
-
-
-
+        <include
+            app:layout_constraintTop_toBottomOf="@+id/btnEnroll"
+            android:layout_marginTop="20dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            layout="@layout/material_comment"
+            android:id="@+id/allMaterialComment"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

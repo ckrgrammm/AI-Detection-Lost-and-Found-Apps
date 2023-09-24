@@ -24,6 +24,7 @@ import com.google.firebase.storage.FirebaseStorage
 class TempCommentFragment : Fragment() {
 
     private lateinit var binding: FragmentTempCommentBinding
+    private var areCommentsVisible = true
     val userViewModel: UserViewModel by viewModels()
     val commentViewModel: CommentViewModel by viewModels {
         CommentViewModel.CommentViewModelFactory(userViewModel)
@@ -51,6 +52,27 @@ class TempCommentFragment : Fragment() {
             Log.d("TempCommentFragment", "Data received: $commentsWithUserDetails")
             adapter.setData(commentsWithUserDetails)
         })
+
+        // Set OnClickListener on them
+        binding.allMaterialComment.commentTitle.setOnClickListener {
+            toggleComments()
+        }
+        binding.allMaterialComment.downArrowComment.setOnClickListener {
+            toggleComments()
+        }
+
+    }
+    private fun toggleComments() {
+        // Toggle the visibility of the RecyclerView
+        if (areCommentsVisible) {
+            binding.allMaterialComment.materialCommentData.visibility = View.GONE
+            binding.allMaterialComment.downArrowComment.animate().rotation(0f).setDuration(300).start() // Rotate to initial position
+        } else {
+            binding.allMaterialComment.materialCommentData.visibility = View.VISIBLE
+            binding.allMaterialComment.downArrowComment.animate().rotation(180f).setDuration(300).start() // Rotate 180 degrees
+        }
+        // Update the state
+        areCommentsVisible = !areCommentsVisible
     }
 
     inner class CommentsAdapter(

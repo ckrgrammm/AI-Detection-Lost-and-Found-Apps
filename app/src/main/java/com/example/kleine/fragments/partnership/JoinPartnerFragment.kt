@@ -1,7 +1,9 @@
 package com.example.kleine.fragments.partnership
 
 import android.Manifest
+import android.content.IntentFilter
 import android.content.pm.PackageManager
+import android.net.ConnectivityManager
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -18,12 +20,17 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.RecyclerView
 import com.example.kleine.R
 import com.example.kleine.activities.ShoppingActivity
 import com.example.kleine.databinding.FragmentJoinPartnerBinding
+import com.example.kleine.databinding.RecyclerViewAdminViewPartnershipBinding
+import com.example.kleine.fragments.admin.AdminViewPartnershipFragment
+import com.example.kleine.fragments.admin.OnPdfClickListener
 import com.example.kleine.model.Partnership
 import com.example.kleine.model.PartnershipStatus
 import com.example.kleine.model.Status
+import com.example.kleine.resource.NetworkReceiver
 import com.example.kleine.viewmodel.shopping.ShoppingViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -44,6 +51,17 @@ class JoinPartnerFragment : Fragment() {
     private val uploadedPDFLinks = ArrayList<String>()
     private var uploadedPDFNames = mutableListOf<String>()
     private val userId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+    private var isNetworkAvailable: Boolean = false
+    private val networkReceiver = NetworkReceiver(
+        onNetworkAvailable = {
+            isNetworkAvailable = true
+        },
+        onNetworkUnavailable = {
+            isNetworkAvailable = false
+        }
+    )
+
+
     override fun onCreateView (
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -108,64 +126,68 @@ class JoinPartnerFragment : Fragment() {
 
 
         binding.btnRequest.setOnClickListener {
-            it.isEnabled = false
-            (it as Button).text = "Wait for a while"
-            it.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.white))
-            binding.instiName.isEnabled = false
-            binding.instiType.isEnabled = false
-            binding.location.isEnabled = false
-            binding.contactNo.isEnabled = false
-            binding.reason.isEnabled = false
-            binding.documentUploadBtn.isEnabled = false
-            val errors = StringBuilder()
-            // Validation starts here
-            if (selectedPDFs.size == 0 || selectedPDFs.size > 2) {
-                errors.append("• Please select up to two PDF files.\n")
-            }
-
-            val name = binding.instiName.text.toString()
-            if (name.isEmpty()) {
-                errors.append("• Institution name is empty.\n")
-            }
-
-            val type = binding.instiType.text.toString()
-            if (type.isEmpty()) {
-                errors.append("• Institution type is empty.\n")
-            }
-
-            val loc = binding.location.text.toString()
-            if (loc.isEmpty()) {
-                errors.append("• Location is empty.\n")
-            }
-
-            val contact = binding.contactNo.text.toString()
-            val contactPattern = "^0\\d{2}-\\d{7,8}$"
-            if (contact.isEmpty()) {
-                errors.append("• Contact number is empty.\n")
-            } else if (!contact.matches(contactPattern.toRegex())) {
-                errors.append("• Contact number should be in the format 012-1231231 or 012-12341234.\n")
-            }
-
-            val res = binding.reason.text.toString()
-            if (res.isEmpty()) {
-                errors.append("• Reason is empty.\n")
-            }
-
-            if (errors.isNotEmpty()) {
-                showErrorDialog("Validation Error", errors.toString())
-                it.isEnabled = true
-                it.text = "Request"
+            if (isNetworkAvailable) {
+                it.isEnabled = false
+                (it as Button).text = "Wait for a while"
                 it.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.white))
+                binding.instiName.isEnabled = false
+                binding.instiType.isEnabled = false
+                binding.location.isEnabled = false
+                binding.contactNo.isEnabled = false
+                binding.reason.isEnabled = false
+                binding.documentUploadBtn.isEnabled = false
+                val errors = StringBuilder()
+                // Validation starts here
+                if (selectedPDFs.size == 0 || selectedPDFs.size > 2) {
+                    errors.append("• Please select up to two PDF files.\n")
+                }
 
-                binding.instiName.isEnabled = true
-                binding.instiType.isEnabled = true
-                binding.location.isEnabled = true
-                binding.contactNo.isEnabled = true
-                binding.reason.isEnabled = true
-                binding.documentUploadBtn.isEnabled = true
-                return@setOnClickListener
+                val name = binding.instiName.text.toString()
+                if (name.isEmpty()) {
+                    errors.append("• Institution name is empty.\n")
+                }
+
+                val type = binding.instiType.text.toString()
+                if (type.isEmpty()) {
+                    errors.append("• Institution type is empty.\n")
+                }
+
+                val loc = binding.location.text.toString()
+                if (loc.isEmpty()) {
+                    errors.append("• Location is empty.\n")
+                }
+
+                val contact = binding.contactNo.text.toString()
+                val contactPattern = "^0\\d{2}-\\d{7,8}$"
+                if (contact.isEmpty()) {
+                    errors.append("• Contact number is empty.\n")
+                } else if (!contact.matches(contactPattern.toRegex())) {
+                    errors.append("• Contact number should be in the format 012-1231231 or 012-12341234.\n")
+                }
+
+                val res = binding.reason.text.toString()
+                if (res.isEmpty()) {
+                    errors.append("• Reason is empty.\n")
+                }
+
+                if (errors.isNotEmpty()) {
+                    showErrorDialog("Validation Error", errors.toString())
+                    it.isEnabled = true
+                    it.text = "Request"
+                    it.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.white))
+
+                    binding.instiName.isEnabled = true
+                    binding.instiType.isEnabled = true
+                    binding.location.isEnabled = true
+                    binding.contactNo.isEnabled = true
+                    binding.reason.isEnabled = true
+                    binding.documentUploadBtn.isEnabled = true
+                    return@setOnClickListener
+                }
+                uploadDataToFirestoreAndStorage()
+            } else {
+                showNoInternetDialog()
             }
-            uploadDataToFirestoreAndStorage()
         }
     }
     private fun checkExistingRequest() {
@@ -343,6 +365,36 @@ class JoinPartnerFragment : Fragment() {
 
         alertDialog.show()
     }
+
+    private fun showNoInternetDialog() {
+        // Inflate the layout for the dialog
+        val inflater = layoutInflater
+        val dialogView = inflater.inflate(R.layout.no_internet_dialog, null)
+
+        // Create the AlertDialog
+        val alertDialog = AlertDialog.Builder(requireContext())
+            .setView(dialogView)
+            .create()
+
+        // Set up the click listener for the "OK" button in the dialog
+        val btnOk = dialogView.findViewById<Button>(R.id.btn_ok)
+        btnOk.setOnClickListener {
+            alertDialog.dismiss()
+        }
+
+        alertDialog.show()
+    }
+    override fun onResume() {
+        super.onResume()
+        val filter = IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
+        requireActivity().registerReceiver(networkReceiver, filter)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        requireActivity().unregisterReceiver(networkReceiver)
+    }
+
 
 
 

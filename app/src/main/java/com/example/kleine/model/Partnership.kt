@@ -1,6 +1,9 @@
 package com.example.kleine.model
 
+import android.annotation.SuppressLint
+import android.content.Context
 import android.os.Parcelable
+import android.util.Log
 import androidx.room.Dao
 import androidx.room.Database
 import androidx.room.Entity
@@ -8,10 +11,36 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.PrimaryKey
 import androidx.room.Query
+import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import kotlinx.parcelize.Parcelize
+
+@Database(entities = [PartnershipEntity::class], version = 2, exportSchema = false)
+abstract class AppDatabase : RoomDatabase() {
+    abstract fun partnershipDao(): PartnershipDao
+
+    companion object {
+        @Volatile
+        private var INSTANCE: AppDatabase? = null
+
+        fun getDatabase(context: Context): AppDatabase {
+            return INSTANCE ?: synchronized(this) {
+                val instance = Room.databaseBuilder(
+                    context.applicationContext,
+                    AppDatabase::class.java,
+                    "partnership-database"
+                )
+                    .addMigrations(MIGRATION_1_2)
+                    .build()
+                INSTANCE = instance
+                instance
+            }
+        }
+    }
+}
+
 
 enum class PartnershipStatus {
     pending, approved, rejected, quit
@@ -43,7 +72,7 @@ data class Partnership(
             documentationName = this.documentationName,
             userId = this.userId,
             status = this.status.toString(),
-            documentationLocalPath = null // Initially, there is no local path
+            documentationLocalPath = "|"
         )
     }
 }
@@ -59,7 +88,7 @@ data class PartnershipEntity(
     val reason: String,
     val documentation: String,
     val documentationName: String,
-    var documentationLocalPath: String? = null, // Added this field to store local file path
+    var documentationLocalPath: String? = "|", // Added this field to store local file path
     val userId: String,
     val status: String
 )
@@ -74,21 +103,64 @@ interface PartnershipDao {
     @Query("SELECT * FROM partnership WHERE userId = :userId")
     suspend fun getPartnershipByUserId(userId: String): List<PartnershipEntity>
 
+    @Query("SELECT documentationLocalPath FROM partnership WHERE id = :partnershipId")
+    suspend fun getDocumentationLocalPath(partnershipId: String): String
+
     @Query("UPDATE partnership SET documentationLocalPath = :filePath WHERE id = :id")
     suspend fun updateDocumentationLocalPath(id: String, filePath: String)
-}
+
+    @Query("SELECT * FROM partnership WHERE id = :id LIMIT 1")
+    suspend fun getPartnershipById(id: String): PartnershipEntity?
+
+    @Query("""
+    UPDATE partnership 
+    SET instiName = :instiName, instiType = :instiType, location = :location, 
+        contactNum = :contactNum, reason = :reason, documentation = :documentation,
+        documentationName = :documentationName, userId = :userId, status = :status
+    WHERE id = :id
+""")
+    suspend fun update(
+        id: String,
+        instiName: String,
+        instiType: String,
+        location: String,
+        contactNum: String,
+        reason: String,
+        documentation: String,
+        documentationName: String,
+        userId: String,
+        status: String
+    )
 
 
-@Database(entities = [PartnershipEntity::class], version = 1)
-abstract class AppDatabase : RoomDatabase() {
-    abstract fun partnershipDao(): PartnershipDao
 }
+
 
 val MIGRATION_1_2 = object : Migration(1, 2) {
+    @SuppressLint("Range")
     override fun migrate(database: SupportSQLiteDatabase) {
-        database.execSQL("ALTER TABLE partnership ADD COLUMN documentationLocalPath TEXT")
-    }
+        val cursor = database.query("PRAGMA table_info(partnership)")
+        var columnExists = false
+        while (cursor.moveToNext()) {
+            val name = cursor.getString(cursor.getColumnIndex("name"))
+            if ("documentationLocalPath" == name) {
+                columnExists = true
+                break
+            }
+        }
+        cursor.close()
 
+        if (!columnExists) {
+            Log.d("Migration", "Adding column documentationLocalPath")
+            database.execSQL("ALTER TABLE partnership ADD COLUMN documentationLocalPath TEXT DEFAULT NULL")
+        } else {
+            Log.d("Migration", "Column documentationLocalPath already exists")
+        }
+
+    }
 }
+
+
+
 
 

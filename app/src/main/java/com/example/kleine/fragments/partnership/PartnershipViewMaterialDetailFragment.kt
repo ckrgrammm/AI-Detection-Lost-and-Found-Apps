@@ -1,36 +1,68 @@
 package com.example.kleine.fragments.partnership
 
+import android.content.IntentFilter
 import android.graphics.Color
+import android.net.ConnectivityManager
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.kleine.R
+import com.example.kleine.databinding.CommentViewDetailBinding
 import com.example.kleine.databinding.FragmentPartnershipViewMaterialDetailBinding
+import com.example.kleine.databinding.QuizViewDetailBinding
 import com.example.kleine.model.CommentWithUserDetails
+import com.example.kleine.resource.NetworkReceiver
 import com.example.kleine.viewmodel.comment.CommentViewModel
 import com.example.kleine.viewmodel.material.MaterialViewModel
 import com.example.kleine.viewmodel.user.UserViewModel
 import com.google.android.material.card.MaterialCardView
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
+import org.w3c.dom.Text
+
+data class QuizData(
+    val id: String = "",
+    val userImage: String = "",
+    val username: String = "",
+    val score: String = "",
+    val materialId: String = "",
+    val setName: String = ""
+)
 
 class PartnershipViewMaterialDetailFragment : Fragment(){
     val TAG = "PartnershipViewMaterialDetailFragment"
     private lateinit var binding: FragmentPartnershipViewMaterialDetailBinding
     private val materialViewModel: MaterialViewModel by viewModels()
+    val db = FirebaseFirestore.getInstance()
+    private lateinit var commentAdapter: CommentsAdapter
+    private lateinit var quizAdapter: QuizAdapter
+    private val quizDataLiveData = MutableLiveData<List<QuizData>>()
     val commentViewModel: CommentViewModel by viewModels {
         CommentViewModel.CommentViewModelFactory(userViewModel)
     }
     val userViewModel: UserViewModel by viewModels()
+    private var isNetworkAvailable: Boolean = false
+    private val networkReceiver = NetworkReceiver(
+        onNetworkAvailable = {
+            isNetworkAvailable = true
+        },
+        onNetworkUnavailable = {
+            isNetworkAvailable = false
+        }
+    )
 
     override fun onCreateView (
         inflater: LayoutInflater, container: ViewGroup?,
@@ -43,15 +75,31 @@ class PartnershipViewMaterialDetailFragment : Fragment(){
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val adapter = CommentsAdapter(listOf())
-        binding.commentLayout.commentData.adapter = adapter
+
+        val quizLayoutBinding = QuizViewDetailBinding.bind(binding.root)
+        val commentLayoutBinding = CommentViewDetailBinding.bind(binding.root)
+
+        commentAdapter = CommentsAdapter(listOf())
+        quizAdapter = QuizAdapter(listOf())
+
+        commentLayoutBinding.commentData.adapter = commentAdapter
+        quizLayoutBinding.quizData.adapter = quizAdapter
+
+
+
         val documentId = arguments?.getString("documentId") ?: return
+
         commentViewModel.fetchComments(documentId)
         commentViewModel.commentsWithUserDetails.observe(viewLifecycleOwner, Observer { commentsWithUserDetails ->
             Log.d("TempCommentFragment", "Data received: $commentsWithUserDetails")
-            adapter.setData(commentsWithUserDetails)
+            commentAdapter.setData(commentsWithUserDetails)
         })
 
+        quizDataLiveData.observe(viewLifecycleOwner, Observer { quizData ->
+            quizAdapter.setData(quizData)
+        })
+
+        fetchQuizData(documentId)
         materialViewModel.materialEngageData.observe(viewLifecycleOwner) { materialEngageData ->
             // Update UI with material engage data
             binding.textTitle.text = materialEngageData?.name ?: ""
@@ -69,34 +117,135 @@ class PartnershipViewMaterialDetailFragment : Fragment(){
                 }
             }
         }
-
-
-        // Fetch material engage data and image URI using MaterialViewModel
         materialViewModel.fetchMaterialsEngageData(documentId)
 
-        val quizLayout = view.findViewById<View>(R.id.quiz_layout)
-        val commentLayout = view.findViewById<View>(R.id.comment_layout)
 
-        // For quizLayout
-        val quizCard = quizLayout.findViewById<MaterialCardView>(R.id.quiz_card)
-        val downArrowQuiz = quizLayout.findViewById<ImageView>(R.id.down_arrow)
-        val quizData = quizLayout.findViewById<RecyclerView>(R.id.quizData)
 
-        // For commentLayout
-        val commentCard = commentLayout.findViewById<MaterialCardView>(R.id.comment_card)
-        val downArrowComment = commentLayout.findViewById<ImageView>(R.id.down_arrow_comment)
-        val commentData = commentLayout.findViewById<RecyclerView>(R.id.commentData)
+        binding.quizLayout.downArrowQuiz.setOnClickListener {
+            toggleVisibilityAndRotateArrow(
+                binding.quizLayout.downArrowQuiz,
+                binding.quizLayout.quizCard,
+                binding.quizLayout.quizData
+            )
+        }
+        binding.commentLayout.downArrowComment.setOnClickListener {
+            toggleVisibilityAndRotateArrow(
+                binding.commentLayout.downArrowComment,
+                binding.commentLayout.commentCard,
+                binding.commentLayout.commentData
+            )
+        }
+    }
 
-        downArrowQuiz.setOnClickListener {
-            val visibility = if (quizCard.visibility == View.VISIBLE) View.GONE else View.VISIBLE
-            quizCard.visibility = visibility
-            quizData.visibility = visibility
+    private fun toggleVisibilityAndRotateArrow(arrow: ImageView, vararg views: View) {
+        for (view in views) {
+            view.visibility = if (view.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+        }
+        arrow.animate().rotationBy(180f).start()
+    }
+    private fun fetchQuizData(documentId: String) {
+        db.collectionGroup("quizHistory").whereEqualTo("materialId", documentId).get()
+            .addOnSuccessListener { querySnapshot ->
+                val allQuizData = mutableListOf<QuizData>()
+                for (quizDocument in querySnapshot.documents) {
+                    val userId = quizDocument.reference.parent.parent?.id ?: ""
+                    userViewModel.fetchUserName(userId) { username ->
+                        userViewModel.fetchUserImage(userId) { userImage ->
+                            val quizMaterialId = quizDocument.getString("materialId") ?: ""
+                            val quizId = quizDocument.getString("setId") ?: ""
+                            val score = quizDocument.getString("score")?: ""
+                            db.collection("Materials").document(quizMaterialId).collection("Sets").document(quizId).get()
+                                .addOnSuccessListener { setDocument ->
+                                    // Extract setName from setDocument
+                                    val setName = setDocument.getString("setName") ?: ""
+                                    // Create QuizData object with setName
+                                    allQuizData.add(
+                                        QuizData(
+                                            id = quizId,
+                                            userImage = userImage.toString(),
+                                            username = username.toString(),
+                                            score = score,
+                                            materialId = quizMaterialId,
+                                            setName = setName
+                                        )
+                                    )
+                                    quizDataLiveData.postValue(allQuizData)
+                                }
+                        }
+                    }
+                }
+            }
+    }
+    inner class QuizAdapter(
+        private var quizDataList: List<QuizData>
+    ) : RecyclerView.Adapter<QuizAdapter.QuizViewHolder>() {
+
+        inner class QuizViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+            val userName: TextView = view.findViewById(R.id.userTextTitleQuiz)
+            val userImage: ImageView = view.findViewById(R.id.userImageQuiz)
+            val score: TextView = view.findViewById(R.id.quizScore)
+            val quizPaper: TextView = view.findViewById(R.id.userQuizPaper)
         }
 
-        downArrowComment.setOnClickListener {
-            val visibility = if (commentCard.visibility == View.VISIBLE) View.GONE else View.VISIBLE
-            commentCard.visibility = visibility
-            commentData.visibility = visibility
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): QuizViewHolder {
+            val view = LayoutInflater.from(parent.context)
+                .inflate(R.layout.recycler_view_quiz_detail, parent, false)
+            return QuizViewHolder(view)
+        }
+
+        override fun getItemCount(): Int {
+            return quizDataList.size
+        }
+
+
+        override fun onBindViewHolder(holder: QuizViewHolder, position: Int) {
+            val quizData = quizDataList[position]
+            holder.userName.text = quizData.username
+            binding.quizLayout.totalResponse.text = getItemCount().toString()
+            val storageReference = FirebaseStorage.getInstance().getReferenceFromUrl(quizData.userImage)
+            storageReference.downloadUrl.addOnSuccessListener { uri ->
+                Glide.with(holder.userImage.context)
+                    .load(uri.toString())
+                    .into(holder.userImage)
+                holder.score.text = quizData.score
+                holder.quizPaper.text = "Quiz Paper:" + quizData.setName
+            }
+            val (passAbove80Percent, overallPassingPercentage) = calculatePassingRate(quizDataList)
+            binding.quizLayout.pass.text = passAbove80Percent.toString()
+            binding.quizLayout.passPercentage.text = String.format("%.0f%%", overallPassingPercentage.toDouble())
+        }
+        fun setData(newQuizDataList: List<QuizData>) {
+            this.quizDataList = newQuizDataList
+            notifyDataSetChanged()
+        }
+        fun calculatePassingRate(quizDataList: List<QuizData>): Pair<Double, Double> {
+            var totalPassCount = 0
+            var totalQuizCount = 0
+
+            for (quizData in quizDataList) {
+                // Parse the score as a fraction (e.g., "3/5")
+                val scoreParts = quizData.score.split("/")
+                if (scoreParts.size == 2) {
+                    val correctAnswers = scoreParts[0].toDoubleOrNull()
+                    val totalQuestions = scoreParts[1].toDoubleOrNull()
+
+                    if (correctAnswers != null && totalQuestions != null && totalQuestions > 0) {
+                        val passingRate = (correctAnswers / totalQuestions) * 100
+                        if (passingRate >= 80) {
+                            totalPassCount++
+                        }
+                        totalQuizCount++
+                    }
+                }
+            }
+
+            val overallPassingPercentage = if (totalQuizCount > 0) {
+                (totalPassCount.toDouble() / totalQuizCount) * 100
+            } else {
+                0.0
+            }
+
+            return Pair(totalPassCount.toDouble(), overallPassingPercentage)
         }
 
     }
@@ -146,13 +295,15 @@ class PartnershipViewMaterialDetailFragment : Fragment(){
                 holder.commentReply.setBackgroundColor(Color.GREEN)
                 holder.commentReply.isClickable = true
                 holder.commentReply.setOnClickListener {
-                    val commentId = comment.id
-                    if (commentId != "") {
-                        val bundle = Bundle()
-                        bundle.putString("commentDocumentId", commentId)
-                        findNavController().navigate(R.id.action_partnershipViewMaterialDetailFragment_to_replyCommentFragment, bundle)
+                    if (isNetworkAvailable) {
+                        val commentId = comment.id
+                        if (commentId != "") {
+                            val bundle = Bundle()
+                            bundle.putString("commentDocumentId", commentId)
+                            findNavController().navigate(R.id.action_partnershipViewMaterialDetailFragment_to_replyCommentFragment, bundle)
+                        }
                     } else {
-                        Log.e(TAG, "Error: Comment ID is null")
+                        showNoInternetDialog()
                     }
                 }
             }
@@ -161,7 +312,6 @@ class PartnershipViewMaterialDetailFragment : Fragment(){
         override fun getItemCount(): Int {
             return commentsWithUserDetails.size
         }
-
         fun setData(newCommentsWithUserDetails: List<CommentWithUserDetails>) {
             this.commentsWithUserDetails = newCommentsWithUserDetails
             notifyDataSetChanged()
@@ -179,5 +329,33 @@ class PartnershipViewMaterialDetailFragment : Fragment(){
             return 0.0
         }
 
+    }
+    private fun showNoInternetDialog() {
+        // Inflate the layout for the dialog
+        val inflater = layoutInflater
+        val dialogView = inflater.inflate(R.layout.no_internet_dialog, null)
+
+        // Create the AlertDialog
+        val alertDialog = AlertDialog.Builder(requireContext())
+            .setView(dialogView)
+            .create()
+
+        // Set up the click listener for the "OK" button in the dialog
+        val btnOk = dialogView.findViewById<Button>(R.id.btn_ok)
+        btnOk.setOnClickListener {
+            alertDialog.dismiss()
+        }
+
+        alertDialog.show()
+    }
+    override fun onResume() {
+        super.onResume()
+        val filter = IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
+        requireActivity().registerReceiver(networkReceiver, filter)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        requireActivity().unregisterReceiver(networkReceiver)
     }
 }

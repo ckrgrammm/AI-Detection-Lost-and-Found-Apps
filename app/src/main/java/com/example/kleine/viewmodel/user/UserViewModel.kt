@@ -26,6 +26,27 @@ class UserViewModel : ViewModel() {
             }
     }
 
+    fun fetchUserEmail(userId: String, callback: (String?) -> Unit) {
+        if (userId.isBlank()) {
+            callback(null)
+            return
+        }
+
+        val db = FirebaseFirestore.getInstance()
+        db.collection("users").document(userId)
+            .get()
+            .addOnSuccessListener { document ->
+                if (document != null) {
+                    val email = document.getString("email")
+                    callback(email)
+                } else {
+                    callback(null)
+                }
+            }
+            .addOnFailureListener {
+                callback(null)
+            }
+    }
 
     fun fetchUserImage(userId: String, callback: (String?) -> Unit) {
         val db = FirebaseFirestore.getInstance()

@@ -1,5 +1,7 @@
 package com.example.kleine.fragments.partnership
 
+import android.content.IntentFilter
+import android.net.ConnectivityManager
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -15,6 +17,7 @@ import androidx.fragment.app.viewModels
 import com.bumptech.glide.Glide
 import com.example.kleine.R
 import com.example.kleine.databinding.FragmentReplyCommentBinding
+import com.example.kleine.resource.NetworkReceiver
 import com.example.kleine.viewmodel.comment.CommentViewModel
 import com.example.kleine.viewmodel.material.MaterialViewModel
 import com.example.kleine.viewmodel.user.UserViewModel
@@ -34,6 +37,15 @@ class ReplyCommentFragment : Fragment() {
     private val db = FirebaseFirestore.getInstance()
     private val userViewModel: UserViewModel by viewModels()
     private val materialViewModel: MaterialViewModel by viewModels()
+    private var isNetworkAvailable: Boolean = false
+    private val networkReceiver = NetworkReceiver(
+        onNetworkAvailable = {
+            isNetworkAvailable = true
+        },
+        onNetworkUnavailable = {
+            isNetworkAvailable = false
+        }
+    )
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -59,18 +71,29 @@ class ReplyCommentFragment : Fragment() {
             // Fetch the Material data and update UI
             materialViewModel.fetchMaterialForComment(comment.materialId) { name, imageUrl ->
                 binding.subjectTitle.text = name
-                val storageReference = FirebaseStorage.getInstance().getReferenceFromUrl(imageUrl)
-                storageReference.downloadUrl.addOnSuccessListener { uri ->
-                    Glide.with(binding.subjectImg.context)
-                        .load(uri.toString())
-                        .into(binding.subjectImg)
+                if (imageUrl == "" || imageUrl == null) {
+                    binding.subjectImg.setImageResource(R.drawable.default_book_logo)
+                }else{
+                    val storageReference =
+                        FirebaseStorage.getInstance().getReferenceFromUrl(imageUrl)
+                    storageReference.downloadUrl
+                        .addOnSuccessListener { uri ->
+                            Glide.with(binding.subjectImg.context)
+                                .load(uri.toString())
+                                .into(binding.subjectImg)
+                        }
+                        .addOnFailureListener { e ->
+                            binding.subjectImg.setImageResource(R.drawable.default_book_logo)
+
+                        }
                 }
             }
 
             val currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: return@fetchCommentToReply
             userViewModel.fetchUserImage(comment.userId) { userImage ->
                 val storageReference = FirebaseStorage.getInstance().getReferenceFromUrl(userImage.toString())
-                storageReference.downloadUrl.addOnSuccessListener { uri ->
+                storageReference.downloadUrl
+                    .addOnSuccessListener { uri ->
                     Glide.with(binding.postDetailUserImg.context)
                         .load(uri.toString())
                         .into(binding.postDetailUserImg)
@@ -87,55 +110,26 @@ class ReplyCommentFragment : Fragment() {
             }
             // Set the onClickListener for the reply button
             binding.postDetailAddCommentBtn.setOnClickListener { btn ->
-                btn.isEnabled = false
+                if (isNetworkAvailable) {
+                    btn.isEnabled = false
 
-                (btn as Button).setTextColor(ContextCompat.getColor(requireContext(), android.R.color.darker_gray))
-                binding.postDetailComment.isEnabled = false
-
-                val errors = StringBuilder()
-                // Validation starts here
-                val commentText = binding.postDetailComment.text.toString()
-                if (commentText.isBlank()) {
-                    errors.append("• Comment cannot be empty.\n")
-                }
-                Toast.makeText(requireContext(), "Posting...", Toast.LENGTH_SHORT).show()
-                if (errors.isNotEmpty()) {
-                    showErrorDialog("Validation Error", errors.toString())
-                    btn.isEnabled = true
-                    btn.text = "Reply"
-                    btn.setTextColor(
+                    (btn as Button).setTextColor(
                         ContextCompat.getColor(
                             requireContext(),
-                            android.R.color.white
+                            android.R.color.darker_gray
                         )
                     )
-                    binding.postDetailComment.isEnabled = true
-                    return@setOnClickListener
-                }
+                    binding.postDetailComment.isEnabled = false
 
-                // If no errors, proceed to post the comment
-                val currentTime =
-                    SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
-                val currentUserId =
-                    FirebaseAuth.getInstance().currentUser?.uid ?: return@setOnClickListener
-
-                val replyData = mapOf(
-                    "replyPartnerId" to currentUserId,
-                    "replyDate" to currentTime,
-                    "replyComment" to commentText
-                )
-
-                db.collection("Comments").document(commentDocumentId)
-                    .update(replyData)
-                    .addOnSuccessListener {
-                        // Handle success, e.g., navigate to another screen or display a success message
-                        Toast.makeText(requireContext(), "Reply posted successfully!", Toast.LENGTH_SHORT).show()
-                        val fragmentManager = requireActivity().supportFragmentManager
-                        fragmentManager.popBackStack()
+                    val errors = StringBuilder()
+                    // Validation starts here
+                    val commentText = binding.postDetailComment.text.toString()
+                    if (commentText.isBlank()) {
+                        errors.append("• Comment cannot be empty.\n")
                     }
-                    .addOnFailureListener { e ->
-                        // Handle error, re-enable EditText and Button and display an error message
-                        showErrorDialog("Error", e.message ?: "Failed to post comment.")
+                    Toast.makeText(requireContext(), "Posting...", Toast.LENGTH_SHORT).show()
+                    if (errors.isNotEmpty()) {
+                        showErrorDialog("Validation Error", errors.toString())
                         btn.isEnabled = true
                         btn.text = "Reply"
                         btn.setTextColor(
@@ -145,7 +139,49 @@ class ReplyCommentFragment : Fragment() {
                             )
                         )
                         binding.postDetailComment.isEnabled = true
+                        return@setOnClickListener
                     }
+
+                    // If no errors, proceed to post the comment
+                    val currentTime =
+                        SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
+                    val currentUserId =
+                        FirebaseAuth.getInstance().currentUser?.uid ?: return@setOnClickListener
+
+                    val replyData = mapOf(
+                        "replyPartnerId" to currentUserId,
+                        "replyDate" to currentTime,
+                        "replyComment" to commentText
+                    )
+
+                    db.collection("Comments").document(commentDocumentId)
+                        .update(replyData)
+                        .addOnSuccessListener {
+                            // Handle success, e.g., navigate to another screen or display a success message
+                            Toast.makeText(
+                                requireContext(),
+                                "Reply posted successfully!",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            val fragmentManager = requireActivity().supportFragmentManager
+                            fragmentManager.popBackStack()
+                        }
+                        .addOnFailureListener { e ->
+                            // Handle error, re-enable EditText and Button and display an error message
+                            showErrorDialog("Error", e.message ?: "Failed to post comment.")
+                            btn.isEnabled = true
+                            btn.text = "Reply"
+                            btn.setTextColor(
+                                ContextCompat.getColor(
+                                    requireContext(),
+                                    android.R.color.white
+                                )
+                            )
+                            binding.postDetailComment.isEnabled = true
+                        }
+                } else {
+                    showNoInternetDialog()
+                }
             }
 
 
@@ -166,6 +202,34 @@ class ReplyCommentFragment : Fragment() {
         val alertDialog = builder.create()
 
         okButton.setOnClickListener {
+            alertDialog.dismiss()
+        }
+
+        alertDialog.show()
+    }
+    override fun onResume() {
+        super.onResume()
+        val filter = IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
+        requireActivity().registerReceiver(networkReceiver, filter)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        requireActivity().unregisterReceiver(networkReceiver)
+    }
+    private fun showNoInternetDialog() {
+        // Inflate the layout for the dialog
+        val inflater = layoutInflater
+        val dialogView = inflater.inflate(R.layout.no_internet_dialog, null)
+
+        // Create the AlertDialog
+        val alertDialog = AlertDialog.Builder(requireContext())
+            .setView(dialogView)
+            .create()
+
+        // Set up the click listener for the "OK" button in the dialog
+        val btnOk = dialogView.findViewById<Button>(R.id.btn_ok)
+        btnOk.setOnClickListener {
             alertDialog.dismiss()
         }
 

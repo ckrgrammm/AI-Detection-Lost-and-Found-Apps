@@ -31,7 +31,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/textAmount"
+                android:id="@+id/quizScore"
                 android:text="8/10"
                 android:textColor="@color/pass_quiz"
                 android:textSize="14sp"
@@ -41,7 +41,7 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
-                android:id="@+id/userQuizPaper1"
+                android:id="@+id/userQuizPaper"
                 android:layout_width="100dp"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
@@ -49,11 +49,11 @@
                 android:textColor="@color/primary_text"
                 android:textSize="14sp"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/textAmount"
+                app:layout_constraintEnd_toStartOf="@+id/quizScore"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
-                android:id="@+id/userTextTitle"
+                android:id="@+id/userTextTitleQuiz"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
@@ -61,7 +61,7 @@
                 android:textColor="@color/primary_text"
                 android:textSize="14sp"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/userQuizPaper1"
+                app:layout_constraintEnd_toStartOf="@+id/userQuizPaper"
                 app:layout_constraintHorizontal_bias="1.0"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -83,9 +83,10 @@
         tools:ignore="MissingConstraints">
 
         <androidx.appcompat.widget.AppCompatImageView
-            android:layout_width="match_parent"
+            android:layout_width="30dp"
             android:layout_height="30dp"
             android:layout_margin="8dp"
+            android:id="@+id/userImageQuiz"
             android:src="@drawable/ic_launcher_foreground"
             app:tint="@color/white" />
 

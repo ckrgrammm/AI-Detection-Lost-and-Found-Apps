@@ -17,10 +17,8 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
-import androidx.room.Room
 import com.bumptech.glide.Glide
 import com.example.kleine.R
-import com.example.kleine.activities.ShoppingActivity
 import com.example.kleine.databinding.FragmentAdminViewPartnershipRequestBinding
 import com.example.kleine.databinding.RecyclerViewAdminViewPartnershipRequestBinding
 import com.example.kleine.model.AppDatabase
@@ -29,7 +27,6 @@ import com.example.kleine.model.PartnershipEntity
 import com.example.kleine.model.PartnershipStatus
 import com.example.kleine.model.Status
 import com.example.kleine.viewmodel.partnership.PartnershipViewModel
-import com.example.kleine.viewmodel.shopping.ShoppingViewModel
 import com.example.kleine.viewmodel.user.UserViewModel
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
@@ -37,24 +34,26 @@ import android.content.IntentFilter
 import android.net.ConnectivityManager
 import android.net.Uri
 import androidx.lifecycle.lifecycleScope
+import com.example.kleine.model.PartnershipDao
 import com.example.kleine.resource.NetworkReceiver
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import java.io.File
 
 
 interface OnRequestPdfClickListener {
-    fun onPdfClick(pdfUrl: String,documentName: String)
+    fun onPdfClick(pdfUrl: String, documentName: String, isFirstPdf: Boolean, partnershipId: String)
 }
 class AdminViewPartnershipRequestFragment : Fragment(), OnRequestPdfClickListener {
     val TAG = "AdminViewPartnershipRequestFragment"
     private lateinit var binding: FragmentAdminViewPartnershipRequestBinding
-    private lateinit var viewModel: ShoppingViewModel
     private val partnershipViewModel: PartnershipViewModel by viewModels()
     private val userViewModel: UserViewModel by viewModels()
     private var partnershipAdapter = PartnershipAdapter(listOf(), this)
-    private lateinit var roomDB: AppDatabase
     private var isNetworkAvailable: Boolean = false
     private var partnershipId: String? = null
+    private lateinit var database: AppDatabase
+    private lateinit var partnershipDao: PartnershipDao
     private val networkReceiver = NetworkReceiver(
         onNetworkAvailable = {
             isNetworkAvailable = true
@@ -65,24 +64,12 @@ class AdminViewPartnershipRequestFragment : Fragment(), OnRequestPdfClickListene
             partnershipAdapter.setNetworkAvailability(false)
         }
     )
-
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        viewModel = (activity as ShoppingActivity).viewModel
-        viewModel.getUser()
-    }
-
     override fun onCreateView (
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-
-        roomDB = Room.databaseBuilder(
-            requireContext(),
-            AppDatabase::class.java, "partnership-database"
-        ).build()
+        database = AppDatabase.getDatabase(requireContext())
+        partnershipDao = database.partnershipDao()
 
         binding = FragmentAdminViewPartnershipRequestBinding.inflate(inflater, container, false)
 
@@ -132,30 +119,26 @@ class AdminViewPartnershipRequestFragment : Fragment(), OnRequestPdfClickListene
             val partnershipEntity = partnership.toEntity()
             insertPartnershipIntoRoomDB(partnershipEntity)
 
-
-//            insertPartnershipIntoRoomDB(partnership)
             partnershipId = partnership.id
-            itemBinding.btnApprove.isEnabled = isNetworkAvailable
-            itemBinding.btnReject.isEnabled = isNetworkAvailable
             itemBinding.instiNameType.text = partnership.instiName + "\n" + partnership.instiType
             itemBinding.location.text = partnership.location
             itemBinding.contactNum.text = partnership.contactNum
             itemBinding.reason.text = partnership.reason
             val documentation = partnership.documentation
             val documentationName = partnership.documentationName
-            val pdfFilesName = documentationName.split("|") // Split the field using the "|" delimiter
+            val pdfFilesName = documentationName.split("|")
             val pdfFiles = documentation.split("|")
             if (pdfFilesName.isNotEmpty()) {
                 itemBinding.pdfFile1.text = pdfFilesName[0]
                 itemBinding.pdfFile1.setOnClickListener {
-                    pdfClickListener.onPdfClick(pdfFiles[0],documentationName)  // Using pdfClickListener
+                    pdfClickListener.onPdfClick(pdfFiles[0], pdfFilesName[0], true,partnership.id)
                 }
             }
 
             if (pdfFilesName.size >= 2) {
                 itemBinding.pdfFile2.text = pdfFilesName[1]
                 itemBinding.pdfFile2.setOnClickListener {
-                    pdfClickListener.onPdfClick(pdfFiles[0],documentationName)
+                    pdfClickListener.onPdfClick(pdfFiles[1], pdfFilesName[1], false,partnership.id)
                 }
             } else {
                 itemBinding.pdfFile2.visibility = View.GONE
@@ -180,38 +163,91 @@ class AdminViewPartnershipRequestFragment : Fragment(), OnRequestPdfClickListene
             }
 
             itemBinding.btnApprove.setOnClickListener {
-                showAlertDialog(
-                    title = "Approve Partnership",
-                    message = "Are you sure you want to approve this user as partner?",
-                    partnership = partnership
-                )
+                if (isNetworkAvailable) {
+                    // Show approval dialog
+                    showAlertDialog(
+                        title = "Approve Partnership",
+                        message = "Are you sure you want to approve this user as partner?",
+                        partnership = partnership
+                    )
+                } else {
+                    showNoInternetDialog()
+                }
             }
 
             itemBinding.btnReject.setOnClickListener {
-                showRejectAlertDialog(
-                    title = "Reject Partnership",
-                    message = "Are you sure you want to reject this user?",
-                    partnership = partnership
-                )
+                if (isNetworkAvailable) {
+                    // Show reject dialog
+                    showRejectAlertDialog(
+                        title = "Reject Partnership",
+                        message = "Are you sure you want to reject this user?",
+                        partnership = partnership
+                    )
+                } else {
+                    showNoInternetDialog()
+                }
             }
+
+
 
         }
 
     }
-    override fun onPdfClick(pdfUrl: String, documentName: String) {
+    override fun onPdfClick(pdfUrl: String, documentName: String, isFirstPdf: Boolean, partnershipId: String) {
         val alertDialog = AlertDialog.Builder(requireContext())
             .setTitle("Download PDF")
             .setMessage("Do you want to download the PDF for offline viewing?")
             .setPositiveButton("Download") { dialog, which ->
-                downloadAndSavePdf(pdfUrl, documentName)
+                if (isNetworkAvailable) {
+                    downloadAndSavePdf(pdfUrl, documentName, isFirstPdf)
+                } else {
+                    showNoInternetDialog()
+                }
             }
-            .setNegativeButton("View Online") { dialog, which ->
-                partnershipViewModel.loadPdfIntoView(
-                    pdfUrl,
-                    binding.pdfView,
-                    binding.closePdfButton
-                )
+            .setNeutralButton("View Online") { dialog, which ->
+                if (isNetworkAvailable) {
+                    partnershipViewModel.loadPdfIntoView(
+                        pdfUrl,
+                        binding.pdfView,
+                        binding.closePdfButton
+                    )
+                } else {
+                    showNoInternetDialog()
+                }
+
             }
+            .setNegativeButton("View Offline") { dialog, which ->
+                val pdfPaths = runBlocking {
+                    database.partnershipDao().getDocumentationLocalPath(partnershipId)?.split("|")
+                }
+                if (pdfPaths != null && pdfPaths.isNotEmpty()) {
+
+                    if(isFirstPdf){
+                        val firstPdfPath = pdfPaths[0]
+                        val pdfFile = File(firstPdfPath)
+                        if (pdfFile.exists()) {
+                            openPdfFile(firstPdfPath)
+                        } else {
+                            // PDF file not found, show a message
+                            Toast.makeText(requireContext(), "PDF not found on device.", Toast.LENGTH_SHORT).show()
+                        }
+                    }else{
+                        val secondPdfPath = pdfPaths[1]
+                        val pdfFile = File(secondPdfPath)
+                        if (pdfFile.exists()) {
+                            openPdfFile(secondPdfPath)
+                        } else {
+                            // PDF file not found, show a message
+                            Toast.makeText(requireContext(), "PDF not found on device.", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+
+                } else {
+                    // PDF path not found in the database, show a message
+                    Toast.makeText(requireContext(), "PDF path not found.", Toast.LENGTH_SHORT).show()
+                }
+            }
+
             .create()
 
         alertDialog.show()
@@ -327,8 +363,8 @@ class AdminViewPartnershipRequestFragment : Fragment(), OnRequestPdfClickListene
         override fun onReceive(context: Context, intent: Intent) {
             val id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1)
             if (downloadID == id) {
-                // Download is complete, update the Room Database with the local file path
-                updateRoomDatabaseWithFilePath(partnershipId.toString(), file.absolutePath)
+                // Download is complete, update the Room Database with the updated downloadedPdfLocations string
+                updateRoomDatabaseWithFilePath(partnershipId.toString(), downloadedPdfLocations)
             }
         }
     }
@@ -336,8 +372,8 @@ class AdminViewPartnershipRequestFragment : Fragment(), OnRequestPdfClickListene
 
     private var downloadID: Long = 0L
     private lateinit var file: File
-
-    private fun downloadAndSavePdf(pdfUrl: String,documentName:String) {
+    private var downloadedPdfLocations = "|"
+    private fun downloadAndSavePdf(pdfUrl: String, documentName: String, isFirstPdf: Boolean) {
         val downloadManager = requireActivity().getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
 
         val uri = Uri.parse(pdfUrl)
@@ -353,18 +389,82 @@ class AdminViewPartnershipRequestFragment : Fragment(), OnRequestPdfClickListene
 
         // Register a BroadcastReceiver to listen for the completion of the download
         requireActivity().registerReceiver(onDownloadComplete, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE))
+
+        // Update the downloadedPdfLocations string based on whether it is the first or second PDF
+        val currentPaths = downloadedPdfLocations.split("|").toMutableList()
+        if (isFirstPdf) {
+            currentPaths[0] = file.absolutePath
+        } else {
+            currentPaths[1] = file.absolutePath
+        }
+        downloadedPdfLocations = currentPaths.joinToString("|")
     }
+
+
 
     private fun updateRoomDatabaseWithFilePath(partnershipId: String, filePath: String) {
         lifecycleScope.launch {
-            roomDB.partnershipDao().updateDocumentationLocalPath(partnershipId, filePath)
+            database.partnershipDao().updateDocumentationLocalPath(partnershipId, filePath)
         }
     }
     private fun insertPartnershipIntoRoomDB(partnershipEntity: PartnershipEntity) {
         lifecycleScope.launch {
-            roomDB.partnershipDao().insert(partnershipEntity)
+            val existingEntity = database.partnershipDao().getPartnershipById(partnershipEntity.id)
+            if (existingEntity != null) {
+                database.partnershipDao().update(
+                    id = partnershipEntity.id,
+                    instiName = partnershipEntity.instiName,
+                    instiType = partnershipEntity.instiType,
+                    location = partnershipEntity.location,
+                    contactNum = partnershipEntity.contactNum,
+                    reason = partnershipEntity.reason,
+                    documentation = partnershipEntity.documentation,
+                    documentationName = partnershipEntity.documentationName,
+                    userId = partnershipEntity.userId,
+                    status = partnershipEntity.status
+                )
+            } else {
+                database.partnershipDao().insert(partnershipEntity)
+            }
         }
     }
+
+
+
+    private fun openPdfFile(pdfPath: String) {
+        val pdfFile = File(pdfPath)
+        if (pdfFile.exists()) {
+            binding.pdfView.fromFile(pdfFile)
+                .load()
+
+            binding.pdfView.bringToFront()
+            binding.pdfView.visibility = View.VISIBLE
+            binding.closePdfButton.visibility = View.VISIBLE
+        } else {
+            Toast.makeText(requireContext(), "PDF file not found.", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+
+    private fun showNoInternetDialog() {
+        // Inflate the layout for the dialog
+        val inflater = layoutInflater
+        val dialogView = inflater.inflate(R.layout.no_internet_dialog, null)
+
+        // Create the AlertDialog
+        val alertDialog = AlertDialog.Builder(requireContext())
+            .setView(dialogView)
+            .create()
+
+        // Set up the click listener for the "OK" button in the dialog
+        val btnOk = dialogView.findViewById<Button>(R.id.btn_ok)
+        btnOk.setOnClickListener {
+            alertDialog.dismiss()
+        }
+
+        alertDialog.show()
+    }
+
 
 
 }

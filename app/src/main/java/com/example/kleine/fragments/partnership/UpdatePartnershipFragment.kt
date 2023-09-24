@@ -1,5 +1,7 @@
 package com.example.kleine.fragments.partnership
 
+import android.content.IntentFilter
+import android.net.ConnectivityManager
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -14,6 +16,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.example.kleine.R
 import com.example.kleine.databinding.FragmentUpdatePartnershipBinding
+import com.example.kleine.resource.NetworkReceiver
 import com.example.kleine.viewmodel.partnership.PartnershipViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -25,6 +28,15 @@ class UpdatePartnershipFragment : Fragment() {
     private val db = FirebaseFirestore.getInstance()
     private val userId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
     private lateinit var partnershipViewModel: PartnershipViewModel
+    private var isNetworkAvailable: Boolean = false
+    private val networkReceiver = NetworkReceiver(
+        onNetworkAvailable = {
+            isNetworkAvailable = true
+        },
+        onNetworkUnavailable = {
+            isNetworkAvailable = false
+        }
+    )
     override fun onCreateView (
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -53,56 +65,61 @@ class UpdatePartnershipFragment : Fragment() {
         loadExistingData()
 
         binding.reqBtnRequest.setOnClickListener {
-            it.isEnabled = false
-            (it as Button).text = "Wait for a while"
-            it.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.white))
-            binding.reqInstiName.isEnabled = false
-            binding.reqInstiType.isEnabled = false
-            binding.reqLocation.isEnabled = false
-            binding.reqContactNo.isEnabled = false
-            val errors = StringBuilder()
-
-            val name = binding.reqInstiName.text.toString()
-            if (name.isEmpty()) {
-                errors.append("• Institution name is empty.\n")
-            }
-
-            val type = binding.reqInstiType.text.toString()
-            if (type.isEmpty()) {
-                errors.append("• Institution type is empty.\n")
-            }
-
-            val loc = binding.reqLocation.text.toString()
-            if (loc.isEmpty()) {
-                errors.append("• Location is empty.\n")
-            }
-
-            val contact = binding.reqContactNo.text.toString()
-            val contactPattern = "^0\\d{2}-\\d{7,8}$"
-            if (contact.isEmpty()) {
-                errors.append("• Contact number is empty.\n")
-            } else if (!contact.matches(contactPattern.toRegex())) {
-                errors.append("• Contact number should be in the format like 012-1234567 or 012-12345678.\n")
-            }
-
-            if (errors.isNotEmpty()) {
-                showErrorDialog("Validation Error", errors.toString())
-                it.isEnabled = true
-                it.text = "Update"
+            if (isNetworkAvailable) {
+                it.isEnabled = false
+                (it as Button).text = "Wait for a while"
                 it.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.white))
+                binding.reqInstiName.isEnabled = false
+                binding.reqInstiType.isEnabled = false
+                binding.reqLocation.isEnabled = false
+                binding.reqContactNo.isEnabled = false
+                val errors = StringBuilder()
 
-                binding.reqInstiName.isEnabled = true
-                binding.reqInstiType.isEnabled = true
-                binding.reqLocation.isEnabled = true
-                binding.reqContactNo.isEnabled = true
-                return@setOnClickListener
+                val name = binding.reqInstiName.text.toString()
+                if (name.isEmpty()) {
+                    errors.append("• Institution name is empty.\n")
+                }
+
+                val type = binding.reqInstiType.text.toString()
+                if (type.isEmpty()) {
+                    errors.append("• Institution type is empty.\n")
+                }
+
+                val loc = binding.reqLocation.text.toString()
+                if (loc.isEmpty()) {
+                    errors.append("• Location is empty.\n")
+                }
+
+                val contact = binding.reqContactNo.text.toString()
+                val contactPattern = "^0\\d{2}-\\d{7,8}$"
+                if (contact.isEmpty()) {
+                    errors.append("• Contact number is empty.\n")
+                } else if (!contact.matches(contactPattern.toRegex())) {
+                    errors.append("• Contact number should be in the format like 012-1234567 or 012-12345678.\n")
+                }
+
+                if (errors.isNotEmpty()) {
+                    showErrorDialog("Validation Error", errors.toString())
+                    it.isEnabled = true
+                    it.text = "Update"
+                    it.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.white))
+
+                    binding.reqInstiName.isEnabled = true
+                    binding.reqInstiType.isEnabled = true
+                    binding.reqLocation.isEnabled = true
+                    binding.reqContactNo.isEnabled = true
+                    return@setOnClickListener
+                }
+                partnershipViewModel.updateRequestDataToFirestore(
+                    userId,
+                    binding.reqInstiName.text.toString(),
+                    binding.reqInstiType.text.toString(),
+                    binding.reqLocation.text.toString(),
+                    binding.reqContactNo.text.toString()
+                )
+            }else {
+                showNoInternetDialog()
             }
-            partnershipViewModel.updateRequestDataToFirestore(userId,
-                binding.reqInstiName.text.toString(),
-                binding.reqInstiType.text.toString(),
-                binding.reqLocation.text.toString(),
-                binding.reqContactNo.text.toString()
-            )
         }
     }
 
@@ -198,6 +215,33 @@ class UpdatePartnershipFragment : Fragment() {
                 }
             }
     }
+    private fun showNoInternetDialog() {
+        // Inflate the layout for the dialog
+        val inflater = layoutInflater
+        val dialogView = inflater.inflate(R.layout.no_internet_dialog, null)
 
+        // Create the AlertDialog
+        val alertDialog = AlertDialog.Builder(requireContext())
+            .setView(dialogView)
+            .create()
+
+        // Set up the click listener for the "OK" button in the dialog
+        val btnOk = dialogView.findViewById<Button>(R.id.btn_ok)
+        btnOk.setOnClickListener {
+            alertDialog.dismiss()
+        }
+
+        alertDialog.show()
+    }
+    override fun onResume() {
+        super.onResume()
+        val filter = IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
+        requireActivity().registerReceiver(networkReceiver, filter)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        requireActivity().unregisterReceiver(networkReceiver)
+    }
 
 }
