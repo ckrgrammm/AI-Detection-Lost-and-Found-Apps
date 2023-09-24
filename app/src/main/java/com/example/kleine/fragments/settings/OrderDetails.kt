@@ -67,56 +67,27 @@ class OrderDetails : Fragment() {
         // Initialize the RecyclerView
         setupRecyclerview()
 
-        // Get the current user's ID (replace this with your user ID retrieval logic)
-        val userId = FirebaseAuth.getInstance().currentUser?.uid
-
-        if (userId != null) {
-            // Initialize a HashSet to store unique course documents
-            val uniqueCourseDocuments = HashSet<CourseDocument>()
-
-            // Query the "enrollments" collection to get material IDs for the user
-            firestore.collection("enrollments")
-                .whereEqualTo("userId", userId)
-                .get()
-                .addOnSuccessListener { enrollmentsQuerySnapshot ->
-                    // Iterate through the enrollments
-                    for (enrollmentDocument in enrollmentsQuerySnapshot.documents) {
-                        val materialId = enrollmentDocument.getString("materialId")
-
-                        if (materialId != null) {
-                            // Query the "Courses" sub-collection for the specific material ID
-                            firestore.collection("Materials")
-                                .document(materialId)
-                                .collection("Courses")
-                                .get()
-                                .addOnSuccessListener { coursesQuerySnapshot ->
-                                    // Iterate through course documents and add them to the HashSet
-                                    coursesQuerySnapshot.documents.mapNotNull { document ->
-                                        document.toObject(CourseDocument::class.java)
-                                    }.forEach { courseDocument ->
-                                        uniqueCourseDocuments.add(courseDocument)
-                                    }
-
-                                    // Update the adapter with the unique CourseDocuments
-                                    productsAdapter.submitList(uniqueCourseDocuments.toList())
-                                }
-                                .addOnFailureListener { exception ->
-                                    // Handle the error appropriately
-                                    Log.e(TAG, "Error fetching courses for material $materialId", exception)
-                                }
-                        }
+        // Fetch all Materials documents
+        firestore.collection("Materials").get().addOnSuccessListener { materialsQuerySnapshot ->
+            val allCourseDocuments = mutableListOf<CourseDocument>()
+            for (materialDocument in materialsQuerySnapshot) {
+                // Fetch Courses sub-collection for each Material document and update the adapter
+                materialDocument.reference.collection("Courses").get().addOnSuccessListener { coursesQuerySnapshot ->
+                    val courseDocuments = coursesQuerySnapshot.documents.mapNotNull { document ->
+                        document.toObject(CourseDocument::class.java)
                     }
-                }
-                .addOnFailureListener { exception ->
+                    allCourseDocuments.addAll(courseDocuments)
+                    // Update the adapter with the fetched CourseDocuments
+                    productsAdapter.submitList(allCourseDocuments)
+                }.addOnFailureListener { exception ->
                     // Handle the error appropriately
-                    Log.e(TAG, "Error fetching enrollments", exception)
+                    Log.e(TAG, "Error fetching courses", exception)
                 }
-        } else {
-            // Handle the case where the user is not logged in
+            }
+        }.addOnFailureListener { exception ->
+            // Handle the error appropriately
+            Log.e(TAG, "Error fetching materials", exception)
         }
-
-
-
     }
 
 
