@@ -107,18 +107,8 @@ class ProfileFragment : Fragment() {
             "${resources.getText(R.string.g_version)} ${BuildConfig.VERSION_NAME}"
 
 
-        onTempCommentClick()
-        onTempRatingClick()
         onPassedQuizzesClick()
         onRewardClick()
-    }
-
-    private fun onTempCommentClick() {
-        binding.linearComment.setOnClickListener {
-            val bundle = Bundle()
-            bundle.putString("documentId", "5VlLkBQaULeJlawqN8Rq")
-            findNavController().navigate(R.id.action_profileFragment_to_tempCommentFragment, bundle)
-        }
     }
 
     private fun onPassedQuizzesClick() {
@@ -130,14 +120,6 @@ class ProfileFragment : Fragment() {
     private fun onRewardClick() {
         binding.linearReward.setOnClickListener {
             findNavController().navigate(R.id.action_profileFragment_to_rewardFragment)
-        }
-    }
-
-    private fun onTempRatingClick() {
-        binding.linearRating.setOnClickListener {
-            val bundle = Bundle()
-            bundle.putString("documentId", "5VlLkBQaULeJlawqN8Rq")
-            findNavController().navigate(R.id.action_profileFragment_to_tempRatingFragment, bundle)
         }
     }
     private fun onHelpClick() {

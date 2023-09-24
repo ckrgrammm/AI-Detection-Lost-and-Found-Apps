@@ -91,10 +91,11 @@ class PartnershipViewMaterialDetailFragment : Fragment(){
 
         commentViewModel.fetchComments(documentId)
         commentViewModel.commentsWithUserDetails.observe(viewLifecycleOwner, Observer { commentsWithUserDetails ->
-            Log.d("TempCommentFragment", "Data received: $commentsWithUserDetails")
-            commentAdapter.setData(commentsWithUserDetails)
+            val sortedComments = commentsWithUserDetails.sortedByDescending {
+                it.comment.commentDate
+            }
+            commentAdapter.setData(sortedComments)
         })
-
         quizDataLiveData.observe(viewLifecycleOwner, Observer { quizData ->
             quizAdapter.setData(quizData)
         })
