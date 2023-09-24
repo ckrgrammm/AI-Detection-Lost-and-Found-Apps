@@ -1,5 +1,6 @@
 package com.example.kleine.fragments.shopping
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -57,6 +58,7 @@ class MaterialPreviewFragment : Fragment() {
         return binding.root
     }
 
+    @SuppressLint("SuspiciousIndentation")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         onEnrollClick()

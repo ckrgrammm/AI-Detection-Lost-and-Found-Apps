@@ -41,7 +41,7 @@ class OrderDetails : Fragment() {
     private lateinit var binding: FragmentOrderDetailsBinding
     private lateinit var viewModel: ShoppingViewModel
     private lateinit var productsAdapter: CartRecyclerAdapter
-
+    private var material: Material? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
