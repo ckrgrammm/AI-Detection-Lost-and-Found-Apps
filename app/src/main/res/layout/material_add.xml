@@ -32,12 +32,24 @@
             android:hint="Requirement"
             android:inputType="text" />
 
-        <EditText
-            android:id="@+id/editTextStatus"
-            android:layout_width="match_parent"
+        <RadioGroup
+            android:id="@+id/radioGroupStatus"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:hint="Status"
-            android:inputType="text" />
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/radioButtonAvailable"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Available" />
+
+            <RadioButton
+                android:id="@+id/radioButtonUnavailable"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Non-available" />
+        </RadioGroup>
 
         <TextView
             android:id="@+id/textViewPartnershipID"
@@ -53,6 +65,7 @@
             android:layout_height="200dp"
             android:layout_marginTop="16dp"
             android:scaleType="centerCrop" />
+
         <TextView
             android:id="@+id/textViewDocumentStatus"
             android:layout_width="wrap_content"
@@ -62,10 +75,9 @@
             android:text="Document not uploaded."
             android:textStyle="italic" />
 
-
         <Button
             android:id="@+id/buttonSelectImage"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="16dp"
@@ -73,7 +85,7 @@
 
         <Button
             android:id="@+id/buttonUploadDocument"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="16dp"
@@ -81,7 +93,7 @@
 
         <Button
             android:id="@+id/buttonSubmit"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="16dp"

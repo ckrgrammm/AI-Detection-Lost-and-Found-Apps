@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.RadioButton
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -64,16 +65,23 @@ class AddMaterialFragment : Fragment() {
             val name = binding.editTextName.text.toString()
             val description = binding.editTextDesc.text.toString()
             val requirement = binding.editTextRequirement.text.toString()
-            val status = binding.editTextStatus.text.toString()
 
-            if (name.isNotEmpty() && description.isNotEmpty() && requirement.isNotEmpty() && status.isNotEmpty()) {
+            // Get the selected status from the RadioGroup
+            val selectedStatusId = binding.radioGroupStatus.checkedRadioButtonId
+            if (selectedStatusId == -1) {
+                Toast.makeText(requireContext(), "Please select a status", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            val selectedRadioButton = view.findViewById<RadioButton>(selectedStatusId)
+            val status = selectedRadioButton.text.toString()
+
+            if (name.isNotEmpty() && description.isNotEmpty() && requirement.isNotEmpty()) {
                 val material = Material(
                     name = name,
                     desc = description,
                     requirement = requirement,
                     status = status,
                     partnershipsID = userDocumentId // Set the user's document ID here
-
                 )
 
                 // Call ViewModel to add material and upload selected files

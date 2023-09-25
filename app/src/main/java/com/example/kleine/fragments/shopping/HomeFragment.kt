@@ -109,8 +109,9 @@ class HomeFragment : Fragment() {
                 }
             }
         }
-
+        onItemClick()
     }
+
     private fun onItemClick() {
         materialAdapter.onItemClick = { material ->
             if (material != null) {
