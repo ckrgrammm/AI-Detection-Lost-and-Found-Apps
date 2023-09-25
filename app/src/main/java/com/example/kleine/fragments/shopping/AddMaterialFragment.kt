@@ -53,7 +53,9 @@ class AddMaterialFragment : Fragment() {
         binding.buttonUploadDocument.setOnClickListener {
             val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
             intent.addCategory(Intent.CATEGORY_OPENABLE)
-            intent.type = "*/*"
+            intent.type = "*/*" // Set type to */*
+            // Use Intent.EXTRA_MIME_TYPES to allow both images and PDFs
+            intent.putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("image/*", "application/pdf"))
             startActivityForResult(intent, REQUEST_CODE_DOCUMENT_PICK)
         }
 
@@ -97,13 +99,21 @@ class AddMaterialFragment : Fragment() {
                     binding.imageViewCourseBanner.setImageURI(selectedImageUri)
                 }
                 REQUEST_CODE_DOCUMENT_PICK -> {
-                    selectedDocumentUri = data?.data
-                    // Show a message that the document has been uploaded
-                    binding.textViewDocumentStatus.text = "Document has been uploaded."
+                    selectedDocumentUri = data?.data // Here, remove the val keyword
+                    val mimeType = context?.contentResolver?.getType(selectedDocumentUri!!)
+                    if (mimeType == "application/pdf" || mimeType?.startsWith("image/") == true) {
+                        // Handle the selected PDF or image
+                        binding.textViewDocumentStatus.text = "Document has been uploaded."
+                    } else {
+                        // Show an error message for unsupported file type
+                        Toast.makeText(context, "Unsupported file type. Please select an image or PDF.", Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
         }
     }
+
+
 
 
     private fun getUserDocumentId(): String {

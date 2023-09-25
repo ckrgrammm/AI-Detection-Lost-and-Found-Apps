@@ -4,11 +4,13 @@ import android.app.DownloadManager
 import android.content.Context
 import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.webkit.MimeTypeMap
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
@@ -74,27 +76,22 @@ class OrderDetails : Fragment() {
         // Initialize the RecyclerView
         setupRecyclerview()
 
-        // Fetch all Materials documents
-        firestore.collection("Materials").get().addOnSuccessListener { materialsQuerySnapshot ->
-            val allCourseDocuments = mutableListOf<CourseDocument>()
-            for (materialDocument in materialsQuerySnapshot) {
-                // Fetch Courses sub-collection for each Material document and update the adapter
-                materialDocument.reference.collection("Courses").get().addOnSuccessListener { coursesQuerySnapshot ->
-                    val courseDocuments = coursesQuerySnapshot.documents.mapNotNull { document ->
-                        document.toObject(CourseDocument::class.java)
-                    }
-                    allCourseDocuments.addAll(courseDocuments)
-                    // Update the adapter with the fetched CourseDocuments
-                    productsAdapter.submitList(allCourseDocuments)
-                }.addOnFailureListener { exception ->
-                    // Handle the error appropriately
-                    Log.e(TAG, "Error fetching courses", exception)
+        // Fetch the user's enrolled courses
+        firestore.collection("Materials").document(materialId).collection("Courses")
+            .get()
+            .addOnSuccessListener { coursesQuerySnapshot ->
+                val courseDocuments = coursesQuerySnapshot.documents.mapNotNull { document ->
+                    document.toObject(CourseDocument::class.java)
                 }
+                // Update the adapter with the fetched CourseDocuments
+                productsAdapter.submitList(courseDocuments)
             }
-        }.addOnFailureListener { exception ->
-            // Handle the error appropriately
-            Log.e(TAG, "Error fetching materials", exception)
-        }
+            .addOnFailureListener { exception ->
+                // Handle the error appropriately
+                Log.e(TAG, "Error fetching courses", exception)
+            }
+
+
         //rating view
         if (userId != "" && materialId != "") {
             val db = FirebaseFirestore.getInstance()
@@ -123,16 +120,25 @@ class OrderDetails : Fragment() {
     }
 
 
-
-
-
     private fun downloadDocument(documentUrl: String) {
         val uri = Uri.parse(documentUrl)
         val request = DownloadManager.Request(uri)
+
+        // Set the MIME type of the file
+        val mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(MimeTypeMap.getFileExtensionFromUrl(documentUrl))
+        request.setMimeType(mimeType)
+
+        // Set the destination path and file name
+        val fileName = "downloaded_file.${MimeTypeMap.getFileExtensionFromUrl(documentUrl)}"
+        request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName)
+
+        // Set the notification to be visible and shows the download progress
         request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+
         val downloadManager = context?.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
         downloadManager.enqueue(request)
     }
+
 
     private fun setupRecyclerview() {
         productsAdapter = CartRecyclerAdapter().apply {
