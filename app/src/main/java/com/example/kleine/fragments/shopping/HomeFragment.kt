@@ -23,7 +23,8 @@ import com.google.android.material.tabs.TabLayoutMediator
 import com.google.firebase.firestore.QuerySnapshot
 import com.example.kleine.model.Material
 import com.example.kleine.resource.Resource
-
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 
 class HomeFragment : Fragment() {
@@ -52,8 +53,31 @@ class HomeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
 
-        binding.frameAdd.setOnClickListener {
-            findNavController().navigate(R.id.action_homeFragment_to_addMaterialFragment)
+        val currentUser = FirebaseAuth.getInstance().currentUser
+
+        if (currentUser != null) {
+            val userId = currentUser.uid
+            val db = FirebaseFirestore.getInstance()
+            db.collection("users").document(userId)
+                .get()
+                .addOnSuccessListener { document ->
+                    if (document != null) {
+                        val status = document.getString("status")
+                        Log.d(TAG, "User Status: $status")
+                        if (status == "ADMINS") {
+                            // Admin user, show the fragment
+                            binding.frameAdd.visibility = View.GONE
+                        }else if(status == "PARTNERS"){
+                            binding.frameAdd.visibility = View.VISIBLE
+                        }else{
+
+                            binding.frameAdd.visibility = View.GONE
+                        }
+                    }
+                }
+            binding.frameAdd.setOnClickListener {
+                findNavController().navigate(R.id.action_homeFragment_to_addMaterialFragment)
+            }
         }
 
         binding.fragmeMicrohpone.setOnClickListener {

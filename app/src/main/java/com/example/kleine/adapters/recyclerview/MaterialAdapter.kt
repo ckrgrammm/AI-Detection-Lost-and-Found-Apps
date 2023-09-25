@@ -85,6 +85,7 @@ class MaterialAdapter : RecyclerView.Adapter<MaterialAdapter.MaterialViewHolder>
                     imageView.setImageResource(R.drawable.default_book_logo)
                 }
             } else {
+                imageView.setImageResource(R.drawable.default_book_logo)
                 Log.e("MaterialAdapter", "Failed to load image because of empty")
             }
         }
