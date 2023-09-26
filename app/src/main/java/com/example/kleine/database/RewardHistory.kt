@@ -5,7 +5,8 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "reward_history")
 data class RewardHistory(
-    @PrimaryKey
+    @PrimaryKey(autoGenerate = true)
+    val id: Int = 0,
     val userDocId: String,
     val redeemedDate: Long, // Store as a timestamp (Long)
     val rewardName: String,

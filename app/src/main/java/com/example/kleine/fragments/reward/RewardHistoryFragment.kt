@@ -10,8 +10,10 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.kleine.R
 import com.example.kleine.adapters.recyclerview.RewardHistoryAdapter
+import com.example.kleine.database.HelpDatabase
 import com.example.kleine.databinding.FragmentRewardHistoryBinding
 import com.example.kleine.viewmodel.reward.RewardHistoryViewModel
+import com.example.kleine.viewmodel.reward.RewardHistoryViewModelFactory
 
 class RewardHistoryFragment : Fragment() {
     private lateinit var binding: FragmentRewardHistoryBinding
@@ -22,7 +24,11 @@ class RewardHistoryFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_reward_history, container, false)
-        viewModel = ViewModelProvider(this).get(RewardHistoryViewModel::class.java)
+        val rewardHistoryDao = HelpDatabase.getDatabase(requireContext()).rewardHistoryDao()
+        val appContext = requireActivity().application
+        val viewModelFactory = RewardHistoryViewModelFactory(rewardHistoryDao, appContext)
+        viewModel = ViewModelProvider(this, viewModelFactory).get(RewardHistoryViewModel::class.java)
+
 
         viewModel.rewardHistory.observe(viewLifecycleOwner, Observer { history ->
             if (history.isNullOrEmpty()) {

@@ -142,7 +142,7 @@
     <string name="voucherTermsCondition">Terms and Conditions</string>
     <string name="labelShippingVoucher">Reward(s) can be selected: </string>
     <string name="voucherCodeHint">Enter Voucher Code</string>
-    <string name="noVoucherMsg">No voucher available!</string>
+    <string name="noVoucherMsg">No reward available!</string>
     <string name="g_difficultyLevel">Level : </string>
     <string name="g_totalChapter">Chapter : </string>
     <string name="g_product_name_label">Material Name</string>

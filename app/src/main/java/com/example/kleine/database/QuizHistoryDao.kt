@@ -10,6 +10,6 @@ interface QuizHistoryDao {
     @Insert
     suspend fun insertQuizHistory(quizHistory: QuizHistory)
 
-    @Query("SELECT * FROM quiz_history ORDER BY date DESC")
-    suspend fun getAllQuizHistory(): List<QuizHistory>
+    @Query("SELECT * FROM quiz_history WHERE userId = :userDocId ORDER BY date DESC")
+    suspend fun getAllQuizHistory(userDocId: String): List<QuizHistory>
 }

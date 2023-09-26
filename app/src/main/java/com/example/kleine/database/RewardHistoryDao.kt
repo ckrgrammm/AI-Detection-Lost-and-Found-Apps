@@ -10,6 +10,6 @@ interface RewardHistoryDao {
     @Insert
     suspend fun insertRewardHistory(rewardHistory: RewardHistory)
 
-    @Query("SELECT * FROM reward_history ORDER BY redeemedDate DESC")
-    suspend fun getAllRewardHistory(): List<RewardHistory>
+    @Query("SELECT * FROM reward_history WHERE userDocId = :userDocId ORDER BY redeemedDate DESC")
+    suspend fun getAllRewardHistory(userDocId: String): List<RewardHistory>
 }

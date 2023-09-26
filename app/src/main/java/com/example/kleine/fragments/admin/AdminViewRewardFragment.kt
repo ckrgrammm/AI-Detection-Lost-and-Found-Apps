@@ -2,10 +2,16 @@ package com.example.kleine.fragments.admin
 
 import android.app.AlertDialog
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.SearchView
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -16,7 +22,8 @@ import com.example.kleine.adapters.recyclerview.RewardAdapter
 import com.example.kleine.databinding.FragmentAdminViewRewardBinding
 import com.example.kleine.model.Reward
 import com.example.kleine.viewmodel.admin.AdminViewRewardViewModel
-import com.example.kleine.viewmodel.quiz.PlayViewModel
+import com.google.firebase.firestore.FirebaseFirestore
+import java.util.Locale
 
 class AdminViewRewardFragment : Fragment() {
 
@@ -29,6 +36,9 @@ class AdminViewRewardFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_admin_view_reward, container, false)
+        val toolbar: Toolbar = binding.toolbar
+        (activity as AppCompatActivity).setSupportActionBar(toolbar)
+        setHasOptionsMenu(true)
         viewModel = ViewModelProvider(this).get(AdminViewRewardViewModel::class.java)
         binding.lifecycleOwner = viewLifecycleOwner
         // Set LayoutManager for the RecyclerView
@@ -63,6 +73,75 @@ class AdminViewRewardFragment : Fragment() {
         return binding.root
     }
 
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        Log.d("Menu", "onCreateOptionsMenu is called")
+        inflater.inflate(R.menu.search, menu)
+        val searchItem = menu.findItem(R.id.search)
+        val searchView = searchItem.actionView as SearchView
+
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                // Handle query submission
+                query?.let {
+                    searchInFirestore(it)
+                }
+                return true
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                // Handle query text change
+                newText?.let {
+                    if (it.isEmpty()) {
+                        fetchAllRecords() // fetch and display all records
+                    } else {
+                        searchInFirestore(it) // perform the search based on input
+                    }
+                }
+                return true
+            }
+        })
+
+    }
+
+    private fun fetchAllRecords() {
+        val rewardsCollection = FirebaseFirestore.getInstance().collection("Rewards")
+        rewardsCollection.get().addOnSuccessListener { snapshot ->
+            val rewardList = mutableListOf<Reward>()
+            for (document in snapshot.documents) {
+                val reward = document.toObject(Reward::class.java)
+                if (reward != null) {
+                    reward.documentId = document.id
+                    rewardList.add(reward)
+                }
+            }
+            viewModel.rewards.value = rewardList
+        }
+    }
+
+
+    private fun searchInFirestore(query: String) {
+        val rewardsCollection = FirebaseFirestore.getInstance().collection("Rewards")
+        val lowerBound = query.toLowerCase(Locale.getDefault())
+        val upperBound = lowerBound + '\uf8ff'
+        rewardsCollection.whereGreaterThanOrEqualTo("rewardName", lowerBound)
+            .whereLessThanOrEqualTo("rewardName", upperBound)
+            .get()
+            .addOnSuccessListener { snapshot ->
+                val rewardList = mutableListOf<Reward>()
+                for (document in snapshot.documents) {
+                    val reward = document.toObject(Reward::class.java)
+                    if (reward != null) {
+                        reward.documentId = document.id
+                        rewardList.add(reward)
+                    }
+                }
+                viewModel.rewards.value = rewardList
+            }
+    }
+
+
     private fun showDeleteConfirmationDialog(documentId: String) {
         AlertDialog.Builder(requireContext())
             .setTitle("Delete Reward")
@@ -74,4 +153,3 @@ class AdminViewRewardFragment : Fragment() {
             .show()
     }
 }
-

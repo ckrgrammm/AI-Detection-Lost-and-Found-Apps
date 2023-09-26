@@ -12,8 +12,11 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.kleine.R
 import com.example.kleine.adapters.recyclerview.PassedQuizzesAdapter
+import com.example.kleine.adapters.recyclerview.RewardHistoryAdapter
+import com.example.kleine.database.HelpDatabase
 import com.example.kleine.databinding.FragmentPassedQuizzesBinding
 import com.example.kleine.viewmodel.quiz.PassedQuizzesViewModel
+import com.example.kleine.viewmodel.quiz.PassedQuizzesViewModelFactory
 
 class PassedQuizzesFragment : Fragment() {
     private lateinit var binding: FragmentPassedQuizzesBinding
@@ -24,7 +27,13 @@ class PassedQuizzesFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_passed_quizzes, container, false)
-        viewModel = ViewModelProvider(this).get(PassedQuizzesViewModel::class.java)
+        // Assuming you have a reference to your QuizHistoryDao and Application
+        val application = requireNotNull(this.activity).application
+        val quizHistoryDao = HelpDatabase.getDatabase(application).quizHistoryDao()
+
+        val viewModelFactory = PassedQuizzesViewModelFactory(quizHistoryDao, application)
+        viewModel = ViewModelProvider(this, viewModelFactory).get(PassedQuizzesViewModel::class.java)
+
         binding.lifecycleOwner = viewLifecycleOwner
 
         val adapter = PassedQuizzesAdapter(mutableListOf())
@@ -33,7 +42,12 @@ class PassedQuizzesFragment : Fragment() {
         binding.passedQuizzesRecyclerview.adapter = adapter
 
         viewModel.passedQuizzes.observe(viewLifecycleOwner, Observer { quizzes ->
-            adapter.updateQuizzes(quizzes)
+            if (quizzes.isNullOrEmpty()) {
+                binding.textViewNoHistoryMsg.visibility = View.VISIBLE
+            } else {
+                binding.textViewNoHistoryMsg.visibility = View.GONE
+                adapter.updateQuizzes(quizzes)
+            }
         })
 
 

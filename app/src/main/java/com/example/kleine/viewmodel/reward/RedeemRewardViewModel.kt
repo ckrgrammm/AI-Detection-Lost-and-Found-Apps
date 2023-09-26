@@ -29,7 +29,7 @@ class RedeemRewardViewModel(application: Application) : AndroidViewModel(applica
         loadUserPoints()
     }
 
-    private fun loadRewards() {
+     fun loadRewards() {
         val rewardsCollection = firestore.collection("Rewards")
 
         rewardsCollection.addSnapshotListener { snapshot, exception ->

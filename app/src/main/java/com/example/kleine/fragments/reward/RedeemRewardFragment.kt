@@ -1,5 +1,8 @@
 package com.example.kleine.fragments.reward
 
+import android.content.Context
+import android.content.IntentFilter
+import android.net.ConnectivityManager
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -14,7 +17,7 @@ import com.example.kleine.R
 import com.example.kleine.adapters.recyclerview.RedeemRewardAdapter
 import com.example.kleine.databinding.FragmentRedeemRewardBinding
 import com.example.kleine.model.Reward
-import com.example.kleine.viewmodel.admin.AdminViewRewardViewModel
+import com.example.kleine.resource.NetworkReceiver
 import com.example.kleine.viewmodel.reward.RedeemRewardViewModel
 
 // TODO: Rename parameter arguments, choose names that match
@@ -30,6 +33,9 @@ private const val ARG_PARAM2 = "param2"
 class RedeemRewardFragment : Fragment() {
     private lateinit var binding: FragmentRedeemRewardBinding
     private lateinit var viewModel: RedeemRewardViewModel
+    private var isNetworkAvailable: Boolean = false
+    private var tryAgainButtonClicked = false
+
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_redeem_reward, container,false)
@@ -39,12 +45,29 @@ class RedeemRewardFragment : Fragment() {
         // This is used so that the binding can observe LiveData updates
         binding.lifecycleOwner = viewLifecycleOwner
 
-        viewModel.rewards.observe(viewLifecycleOwner, Observer{ rewards ->
-            val adapter = RedeemRewardAdapter(rewards) { selectedReward ->
-                handleRedemption(selectedReward)
+        viewModel.rewards.observe(viewLifecycleOwner, Observer { rewards ->
+            if (isNetworkAvailable) {
+                val adapter = RedeemRewardAdapter(rewards) { selectedReward ->
+                    handleRedemption(selectedReward)
+                }
+                binding.voucherRecyclerView.adapter = adapter
+                binding.voucherRecyclerView.visibility = View.VISIBLE
+                binding.textViewTotalPoints.visibility = View.VISIBLE
+                binding.labelShippingVoucherTextView.visibility = View.VISIBLE
+                binding.noInternetLayout.visibility = View.GONE
+            } else {
+                binding.voucherRecyclerView.visibility = View.GONE
+                binding.textViewTotalPoints.visibility = View.GONE
+                binding.labelShippingVoucherTextView.visibility = View.GONE
+                binding.noInternetLayout.visibility = View.VISIBLE
             }
-            binding.voucherRecyclerView.adapter = adapter
         })
+
+        binding.tryAgainButton.setOnClickListener {
+            tryAgainButtonClicked = true
+            checkAndUpdateNetworkAvailability()
+            viewModel.loadRewards()
+        }
 
         viewModel.userPoints.observe(viewLifecycleOwner, Observer { points ->
             binding.textViewTotalPoints.text = getString(R.string.total_points, points)
@@ -68,14 +91,71 @@ class RedeemRewardFragment : Fragment() {
     }
 
     private fun handleRedemption(selectedReward: Reward) {
-        Log.d("RedeemReward", "Handle Redemption called")
+        // Check network availability before redeeming
+        checkAndUpdateNetworkAvailability()
+
+        if (!isNetworkAvailable) {
+            Toast.makeText(context, "No internet connection. Please try again.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         val userPoints = viewModel.userPoints.value ?: 0
         if (userPoints >= selectedReward.rewardPoints) {
-            Log.d("RedeemReward", "Proceeding with redemption")
             viewModel.redeemReward(selectedReward)
         } else {
-            Log.d("RedeemReward", "Not enough points")
             Toast.makeText(context, "You do not have enough points to redeem this reward.", Toast.LENGTH_SHORT).show()
         }
     }
+
+
+    private fun updateLayoutVisibility() {
+        if (isNetworkAvailable) {
+            binding.voucherRecyclerView.visibility = View.VISIBLE
+            binding.textViewTotalPoints.visibility = View.VISIBLE
+            binding.labelShippingVoucherTextView.visibility = View.VISIBLE
+            binding.noInternetLayout.visibility = View.GONE
+        } else {
+            binding.voucherRecyclerView.visibility = View.GONE
+            binding.textViewTotalPoints.visibility = View.GONE
+            binding.labelShippingVoucherTextView.visibility = View.GONE
+            binding.noInternetLayout.visibility = View.VISIBLE
+        }
+    }
+
+    private fun checkAndUpdateNetworkAvailability() {
+        val connectivityManager = context?.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val activeNetwork = connectivityManager.activeNetworkInfo
+
+        isNetworkAvailable = activeNetwork?.isConnectedOrConnecting == true
+        if (tryAgainButtonClicked) {
+            updateLayoutVisibility()
+            tryAgainButtonClicked = false
+        }
+    }
+
+    // Receiver callbacks
+    private val networkReceiver = NetworkReceiver(
+        onNetworkAvailable = {
+            // Update isNetworkAvailable but don't call updateLayoutVisibility() directly.
+            isNetworkAvailable = true
+        },
+        onNetworkUnavailable = {
+            // Update isNetworkAvailable but don't call updateLayoutVisibility() directly.
+            isNetworkAvailable = false
+        }
+    )
+
+    override fun onResume() {
+        super.onResume()
+        val filter = IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
+        requireContext().registerReceiver(networkReceiver, filter)
+        checkAndUpdateNetworkAvailability()
+        updateLayoutVisibility()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        requireContext().unregisterReceiver(networkReceiver)
+    }
+
 }

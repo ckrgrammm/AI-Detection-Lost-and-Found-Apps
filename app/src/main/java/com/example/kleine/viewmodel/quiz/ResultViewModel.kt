@@ -106,11 +106,11 @@ class ResultViewModel(application: Application) : AndroidViewModel(application) 
 
                             // Save quiz data to Room database
                             val quizHistory = QuizHistory(
-                                userId,
-                                materialName,
-                                setName,
-                                formattedScore,
-                                System.currentTimeMillis() // Current timestamp
+                                userId = userId,
+                                materialName = materialName,
+                                setName = setName,
+                                score = formattedScore,
+                                date = System.currentTimeMillis() // Current timestamp
                             )
                             insertQuizHistoryToRoom(quizHistory)
                         }
