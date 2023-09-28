@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.PopupMenu
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -18,6 +19,7 @@ import com.example.kleine.databinding.FragmentPartnershipViewMaterialBinding
 import com.example.kleine.databinding.RecyclerViewMaterialDataBinding
 import com.example.kleine.model.MaterialData
 import com.example.kleine.viewmodel.material.MaterialViewModel
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 
 class PartnershipViewMaterialFragment : Fragment() {
@@ -60,9 +62,11 @@ class PartnershipViewMaterialFragment : Fragment() {
                 }
             }
 
+
+
             onViewMaterialClick(itemBinding, material.id)
             onViewQuizClick(itemBinding, material.id)
-            setupPopupMenu(itemBinding.threeDotsImage)
+            setupPopupMenu(itemBinding.threeDotsImage, material.id,material.status)
         }
     }
 
@@ -98,15 +102,34 @@ class PartnershipViewMaterialFragment : Fragment() {
         }
     }
 
-    private fun setupPopupMenu(threeDotsImageView: ImageView) {
+    private fun setupPopupMenu(threeDotsImageView: ImageView, materialId: String, status: String) {
         threeDotsImageView.setOnClickListener {
             val popupMenu = PopupMenu(requireContext(), it)
             popupMenu.menuInflater.inflate(R.menu.popup, popupMenu.menu)
+
+            // Based on the status, decide which menu items to show or hide
+            if (status == "Available") {
+                popupMenu.menu.findItem(R.id.enable_material).isVisible = false
+            } else if (status == "Non-available") {
+                popupMenu.menu.findItem(R.id.disable_material).isVisible = false
+            }
+
             popupMenu.setOnMenuItemClickListener { item ->
                 when (item.itemId) {
-                    R.id.edit_material -> true
-                    R.id.disable_material -> {
-                        showConfirmationDialog()
+                    R.id.edit_material -> {
+                        // Create a bundle with the materialId
+                        val bundle = Bundle()
+                        bundle.putString("materialId", materialId)
+
+                        // Navigate to EditMaterialFragment with the bundle as arguments
+                        findNavController().navigate(R.id.action_partnershipViewMaterialFragment_to_editMaterialFragment, bundle)
+                        true
+                    }                    R.id.disable_material -> {
+                        showConfirmationDialog(materialId, "Disable Material", "Non-available", "Material disabled successfully")
+                        true
+                    }
+                    R.id.enable_material -> {
+                        showConfirmationDialog(materialId, "Enable Material", "Available", "Material enabled successfully")
                         true
                     }
                     else -> false
@@ -116,14 +139,31 @@ class PartnershipViewMaterialFragment : Fragment() {
         }
     }
 
-    private fun showConfirmationDialog() {
+
+
+    private fun showConfirmationDialog(materialId: String, title: String, newStatus: String, successMessage: String) {
         AlertDialog.Builder(requireContext())
-            .setTitle("Disable Material")
-            .setMessage("Are you sure you want to disable this material?")
+            .setTitle(title)
+            .setMessage("Are you sure you want to $title this material?")
             .setPositiveButton(android.R.string.yes) { _, _ ->
-                // Implement your logic to disable the material here.
+                // Get a reference to the Firestore collection
+                val db = FirebaseFirestore.getInstance()
+                val materialRef = db.collection("Materials").document(materialId)
+
+                // Update the status
+                materialRef.update("status", newStatus)
+                    .addOnSuccessListener {
+                        // Handle success
+                        Toast.makeText(context, successMessage, Toast.LENGTH_SHORT).show()
+                    }
+                    .addOnFailureListener { e ->
+                        // Handle failure
+                        Toast.makeText(context, "Error updating material: $e", Toast.LENGTH_SHORT).show()
+                    }
             }
             .setNegativeButton(android.R.string.no, null)
             .show()
     }
 }
+
+

@@ -10,6 +10,7 @@
 
 
 
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -220,41 +221,7 @@
                 </LinearLayout>
 
 
-                <LinearLayout
-                    android:id="@+id/linear_track_order"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:orientation="horizontal">
 
-                    <ImageView
-                        android:layout_width="@dimen/_30sdp"
-                        android:layout_height="@dimen/_30sdp"
-                        android:layout_gravity="center_vertical"
-                        android:background="@drawable/settings_items_background"
-                        android:backgroundTint="@color/g_hint"
-                        android:src="@drawable/ic_search"
-                        app:tint="@color/white" />
-
-                    <TextView
-                        android:id="@+id/tv_track_order"
-                        style="@style/MediumTextViewThin"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical"
-                        android:layout_marginStart="@dimen/_15sdp"
-                        android:layout_weight="1"
-                        android:text="@string/g__track_order"
-                        android:textColor="@color/g_hint"
-                        android:textStyle="bold" />
-
-                    <ImageView
-                        android:layout_width="@dimen/_15sdp"
-                        android:layout_height="@dimen/_15sdp"
-                        android:layout_gravity="center_vertical"
-                        android:src="@drawable/ic_arrow"
-                        app:tint="@color/g_icon_tint" />
-                </LinearLayout>
 
                 <LinearLayout
                     android:id="@+id/linear_billing"
@@ -413,7 +380,7 @@
                         android:layout_gravity="center_vertical"
                         android:layout_marginStart="@dimen/_15sdp"
                         android:layout_weight="1"
-                        android:text="@string/g_notifications"
+                        android:text="Themes"
                         android:textColor="@color/g_hint"
                         android:textStyle="bold" />
 

@@ -1,5 +1,6 @@
 package com.example.kleine.viewmodel.material
 
+import android.content.ContentValues.TAG
 import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.LiveData
@@ -25,17 +26,22 @@ class MaterialViewModel : ViewModel() {
     fun fetchMaterialsData() {
         val db = FirebaseFirestore.getInstance()
         db.collection("Materials")
-            .get()
-            .addOnSuccessListener { result ->
+            .addSnapshotListener { snapshots, e ->
+                if (e != null) {
+                    Log.w(TAG, "Listen failed.", e)
+                    return@addSnapshotListener
+                }
+
                 val tempList = ArrayList<MaterialData>()
-                for (document in result) {
+                for (document in snapshots!!) {
                     val id = document.id
                     val materialName = document.getString("name") ?: ""
                     val description = document.getString("desc") ?: ""
                     val requirement = document.getString("requirement") ?: ""
                     val rating = document.getDouble("rating") ?: 0.0
                     val imageUrl = document.getString("imageUrl") ?: ""
-                    tempList.add(MaterialData(id, materialName, description, requirement, rating, imageUrl))
+                    val status = document.getString("status") ?: ""
+                    tempList.add(MaterialData(id, materialName, description, requirement, rating, imageUrl, status))
                 }
                 _materialList.value = tempList
             }

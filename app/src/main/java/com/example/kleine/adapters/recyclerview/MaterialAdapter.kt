@@ -1,10 +1,10 @@
 package com.example.kleine.adapters.recyclerview
 
+import android.graphics.Color
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.navigation.NavDirections
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
@@ -33,7 +33,6 @@ class MaterialAdapter : RecyclerView.Adapter<MaterialAdapter.MaterialViewHolder>
             return oldItem == newItem
         }
     }
-
 
     val differ = AsyncListDiffer(this, diffCallback)
 
@@ -69,14 +68,21 @@ class MaterialAdapter : RecyclerView.Adapter<MaterialAdapter.MaterialViewHolder>
             val storage = FirebaseStorage.getInstance()
             val storageRef = storage.reference
 
+            // Set the color and clickability based on the status
+            if (material.status == "Available") {
+                cardView2.setCardBackgroundColor(Color.parseColor("#AAFF00")) // Green color
+                cardView2.isClickable = true
+                cardView2.isFocusable = true
+                productCard.setCardBackgroundColor(Color.WHITE) // Set the main CardView to white
+
+            } else if (material.status == "Non-available") {
+                cardView2.setCardBackgroundColor(Color.parseColor("#FF0000")) // Red color
+                cardView2.isClickable = false
+                cardView2.isFocusable = false
+                productCard.setCardBackgroundColor(Color.parseColor("#D3D3D3")) // Set the main CardView to bright grey
+            }
             if (material.imageUrl.isNotEmpty()) {
-                val pathToImage = "materialImages/${material.imageUrl}"
-                Log.d("MaterialAdapter", "Dynamic Path to image: $pathToImage")
-                Log.d("MaterialAdapter", "Material image URL: ${material.imageUrl}")
-
-
-                val pathReference = storageRef.child(pathToImage)
-
+                val pathReference = storage.getReferenceFromUrl(material.imageUrl)
                 pathReference.downloadUrl.addOnSuccessListener { uri ->
                     Log.d("MaterialAdapter", "Successfully fetched URI: $uri")
                     Glide.with(holder.itemView).load(uri).into(imageView)
@@ -88,13 +94,18 @@ class MaterialAdapter : RecyclerView.Adapter<MaterialAdapter.MaterialViewHolder>
                 imageView.setImageResource(R.drawable.default_book_logo)
                 Log.e("MaterialAdapter", "Failed to load image because of empty")
             }
+
         }
+
         // Set an onClick listener for the item
-        holder.itemView.setDebouncedOnClickListener {
-            Log.d("MaterialAdapter", "Navigating with Material ID: ${material.id}")
-            val action = HomeFragmentDirections.actionHomeFragmentToMaterialDetailsFragment(material)
-            it.findNavController().navigate(action)
+        if (material.status == "Available") {
+            holder.itemView.setDebouncedOnClickListener {
+                Log.d("MaterialAdapter", "Navigating with Material ID: ${material.id}")
+                val action = HomeFragmentDirections.actionHomeFragmentToMaterialDetailsFragment(material)
+                it.findNavController().navigate(action)
+            }
         }
+
     }
 
     override fun getItemCount(): Int {

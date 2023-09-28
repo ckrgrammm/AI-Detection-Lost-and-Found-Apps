@@ -7,4 +7,8 @@
     <item
         android:id="@+id/disable_material"
         android:title="Make it Disabled"/>
+
+    <item
+        android:id="@+id/enable_material"
+        android:title="Make Available"/>
 </menu>

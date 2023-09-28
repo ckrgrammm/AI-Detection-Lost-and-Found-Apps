@@ -31,9 +31,11 @@ data class MaterialData(
     var desc: String = "",
     var requirement: String = "",
     var rating: Double = 0.0,
-    var imageUrl: String = ""
+    var imageUrl: String = "",
+    val status: String // Add this line
+
 ): Parcelable {
-    constructor() : this("", "", "", "", 0.0, "")
+    constructor() : this("", "", "", "", 0.0, "","")
 }
 
 @Parcelize

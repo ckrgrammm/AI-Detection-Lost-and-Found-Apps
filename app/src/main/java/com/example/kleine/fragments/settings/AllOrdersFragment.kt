@@ -1,5 +1,6 @@
 package com.example.kleine.fragments.settings
 
+import android.app.AlertDialog
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -56,6 +57,8 @@ class AllOrdersFragment : Fragment() {
         setupRecyclerView()
         onCloseClick()
         onItemClick()
+        onItemLongClick()
+        setupEnrollmentListener()
     }
 
 
@@ -66,14 +69,21 @@ class AllOrdersFragment : Fragment() {
             val firestore = FirebaseFirestore.getInstance()
             firestore.collection("enrollments")
                 .whereEqualTo("userId", userId)
+                .whereEqualTo("archived", false)
                 .get()
                 .addOnSuccessListener { querySnapshot ->
                     val enrollments = querySnapshot.documents.mapNotNull { document ->
                         document.toObject(Enrollment::class.java)
                     }
-                    fetchMaterialsForEnrollments(enrollments)
-                    Log.d(TAG, "Number of enrollments fetched: ${enrollments.size}")
 
+                    if (enrollments.isEmpty()) {
+                        // If no enrollments, directly show the message and update UI
+                        Toast.makeText(context, "You have not yet enrolled in any course", Toast.LENGTH_SHORT).show()
+                        displayMaterials(emptyList())
+                    } else {
+                        fetchMaterialsForEnrollments(enrollments)
+                        Log.d(TAG, "Number of enrollments fetched: ${enrollments.size}")
+                    }
                 }
                 .addOnFailureListener { exception ->
                     Log.e(TAG, "Error fetching user enrollments", exception)
@@ -93,36 +103,92 @@ class AllOrdersFragment : Fragment() {
         // Log the IDs being used in the query for debugging purposes
         Log.d(TAG, "Attempting to fetch materials with IDs: $materialIds")
 
-        // Only proceed with the query if there are valid IDs to search for
-        if (materialIds.isNotEmpty()) {
+        // Split the materialIds list into chunks of size 10 or fewer
+        val chunks = materialIds.chunked(10)
+
+        // Initialize an empty list to hold the fetched materials
+        val materials = mutableListOf<Material>()
+
+        // Define a counter to keep track of completed queries
+        var completedQueries = 0
+
+        // Iterate over each chunk and perform a query
+        for (chunk in chunks) {
             firestore.collection("Materials")
-                .whereIn(FieldPath.documentId(), materialIds) // Updated line
+                .whereIn(FieldPath.documentId(), chunk)
                 .get()
                 .addOnSuccessListener { querySnapshot ->
-                    val materials = querySnapshot.documents.mapNotNull { document ->
+                    val chunkMaterials = querySnapshot.documents.mapNotNull { document ->
                         val material = document.toObject(Material::class.java)
                         material?.id = document.id // Set the id of the Material object
                         material
                     }
-                    Log.d(TAG, "Materials fetched successfully: $materials")
-                    displayMaterials(materials)
+                    Log.d(TAG, "Materials fetched successfully: $chunkMaterials")
+                    materials.addAll(chunkMaterials)
+
+                    // Check if all queries are completed
+                    completedQueries++
+                    if (completedQueries == chunks.size) {
+                        // All queries are completed, display the materials
+                        displayMaterials(materials)
+                    }
                 }
                 .addOnFailureListener { exception ->
                     Log.e(TAG, "Error fetching materials", exception)
                     // Handle the error appropriately
                 }
-        } else {
-            Log.w(TAG, "No valid material IDs to fetch")
-            // Handle the case where there are no valid material IDs
         }
     }
+
+
+    private fun onItemLongClick() {
+        allOrdersAdapter.onItemLongClick = { material ->
+            // Create an AlertDialog.Builder to build the confirmation dialog
+            val builder = AlertDialog.Builder(context)
+            builder.setTitle("Unenroll Course")
+            builder.setMessage("Are you sure you want to unenroll from this course?")
+            builder.setPositiveButton("Yes") { dialog, _ ->
+                // User confirmed, proceed with unenrollment/archiving
+                val userId = FirebaseAuth.getInstance().currentUser?.uid
+                if (userId != null) {
+                    val firestore = FirebaseFirestore.getInstance()
+                    firestore.collection("enrollments")
+                        .whereEqualTo("userId", userId)
+                        .whereEqualTo("materialId", material.id)
+                        .get()
+                        .addOnSuccessListener { querySnapshot ->
+                            for (document in querySnapshot.documents) {
+                                document.reference.update("archived", true)
+                            }
+                            Toast.makeText(context, "Material archived successfully", Toast.LENGTH_SHORT).show()
+                            // No need to explicitly fetch enrolled materials here,
+                            // the snapshot listener will handle it
+                        }
+                        .addOnFailureListener { exception ->
+                            Log.e(TAG, "Error archiving material", exception)
+                            Toast.makeText(context, "Error archiving material", Toast.LENGTH_SHORT).show()
+                        }
+                }
+                dialog.dismiss()
+            }
+            builder.setNegativeButton("No") { dialog, _ ->
+                // User canceled, dismiss the dialog
+                dialog.dismiss()
+            }
+            // Show the dialog
+            builder.show()
+        }
+    }
+
+
 
 
     private fun displayMaterials(materials: List<Material>) {
         Log.d(TAG, "Displaying materials: ${materials.size}")
         allOrdersAdapter.differ.submitList(materials)
-        allOrdersAdapter.notifyDataSetChanged()
+        binding.rvAllOrders.invalidate()
     }
+
 
     private fun onItemClick() {
         allOrdersAdapter.onItemClick = { material ->
@@ -132,6 +198,38 @@ class AllOrdersFragment : Fragment() {
         }
 
     }
+
+    private fun setupEnrollmentListener() {
+        val userId = FirebaseAuth.getInstance().currentUser?.uid
+        if (userId != null) {
+            val firestore = FirebaseFirestore.getInstance()
+            firestore.collection("enrollments")
+                .whereEqualTo("userId", userId)
+                .whereEqualTo("archived", false)
+                .addSnapshotListener { snapshots, e ->
+                    if (e != null) {
+                        Log.w(TAG, "listen:error", e)
+                        return@addSnapshotListener
+                    }
+
+                    Log.d(TAG, "SnapshotListener triggered")
+
+                    val enrollments = snapshots?.documents?.mapNotNull { document ->
+                        document.toObject(Enrollment::class.java)
+                    } ?: emptyList()
+
+                    Log.d(TAG, "Updated enrollments: $enrollments")
+
+                    if (enrollments.isEmpty()) {
+                        Toast.makeText(context, "You have not yet enrolled in any course", Toast.LENGTH_SHORT).show()
+                        displayMaterials(emptyList())
+                    } else {
+                        fetchMaterialsForEnrollments(enrollments)
+                    }
+                }
+        }
+    }
+
 
 
 

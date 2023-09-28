@@ -321,6 +321,10 @@
         <action
             android:id="@+id/action_partnershipViewMaterialFragment_to_setsFragment"
             app:destination="@id/setsFragment" />
+
+        <action
+            android:id="@+id/action_partnershipViewMaterialFragment_to_editMaterialFragment"
+            app:destination="@id/editMaterialFragment" />
     </fragment>
     <fragment
         android:id="@+id/partnershipViewMaterialDetailFragment"
@@ -407,6 +411,18 @@
             android:id="@+id/action_questionFragment_to_addUpdateQuestionFragment"
             app:destination="@id/addUpdateQuestionFragment" />
     </fragment>
+
+    <fragment
+        android:id="@+id/editMaterialFragment"
+        android:name="com.example.kleine.fragments.partnership.EditMaterialFragment"
+        android:label="Edit Material"
+        tools:layout="@layout/edit_material">
+        <argument
+            android:name="materialId"
+            app:argType="string"
+            app:nullable="false" />
+    </fragment>
+
     <fragment
         android:id="@+id/addUpdateQuestionFragment"
         android:name="com.example.kleine.fragments.quiz.AddUpdateQuestionFragment"
@@ -465,6 +481,8 @@
             android:id="@+id/action_resultFragment_to_orderDetails"
             app:destination="@id/orderDetails" />
     </fragment>
+
+
     <fragment
         android:id="@+id/passedQuizzesFragment"
         android:name="com.example.kleine.fragments.quiz.PassedQuizzesFragment"

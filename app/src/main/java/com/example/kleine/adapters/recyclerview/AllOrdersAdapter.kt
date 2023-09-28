@@ -48,6 +48,12 @@ class AllOrdersAdapter : RecyclerView.Adapter<AllOrdersAdapter.AllOrdersAdapterV
         holder.itemView.setOnClickListener {
             onItemClick?.invoke(material)
         }
+
+        // Adding the long click listener
+        holder.itemView.setOnLongClickListener {
+            onItemLongClick?.invoke(material)
+            true
+        }
     }
 
     override fun getItemCount(): Int {
@@ -55,4 +61,5 @@ class AllOrdersAdapter : RecyclerView.Adapter<AllOrdersAdapter.AllOrdersAdapterV
     }
 
     var onItemClick: ((Material) -> Unit)? = null
+    var onItemLongClick: ((Material) -> Unit)? = null // Added this line
 }

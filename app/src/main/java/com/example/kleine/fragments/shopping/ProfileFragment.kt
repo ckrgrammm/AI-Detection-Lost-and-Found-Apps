@@ -96,7 +96,6 @@ class ProfileFragment : Fragment() {
         onBillingAndAddressesClick()
         onProfileClick()
         onAllOrderClick()
-        onTrackOrderClick()
         onJoinPartnershipCLick()
         onViewPartnershipClick()
         onAdminClick()
@@ -146,83 +145,12 @@ class ProfileFragment : Fragment() {
         }
     }
 
-    private fun onTrackOrderClick() {
-        binding.linearTrackOrder.setOnClickListener {
-            val snackBar = requireActivity().findViewById<CoordinatorLayout>(R.id.snackBar_coordinator)
-            Snackbar.make(snackBar,resources.getText(R.string.g_coming_soon),Snackbar.LENGTH_SHORT).show()
-        }
-    }
-
-
 
     private fun onAllOrderClick() {
         binding.allOrders.setOnClickListener {
-            fetchUserEnrollments()
             findNavController().navigate(R.id.action_profileFragment_to_allOrdersFragment)
         }
     }
-
-
-
-    private fun fetchUserEnrollments() {
-        val userId = FirebaseAuth.getInstance().currentUser?.uid
-        if (userId != null) {
-            val firestore = FirebaseFirestore.getInstance()
-            firestore.collection("enrollments")
-                .whereEqualTo("userId", userId)
-                .get()
-                .addOnSuccessListener { querySnapshot ->
-                    val enrollments = querySnapshot.documents.mapNotNull { document ->
-                        document.toObject(Enrollment::class.java)
-                    }
-                    val materialIds = enrollments.map { it.materialId }
-                    fetchMaterialsInBatches(materialIds)
-                }
-                .addOnFailureListener { exception ->
-                    Log.e(TAG, "Error fetching user enrollments", exception)
-                    // Handle the error appropriately
-                }
-        } else {
-            // Handle the case where the user is not logged in
-        }
-    }
-
-    private fun fetchMaterialsInBatches(materialIds: List<String>) {
-        val batchLimit = 10
-        val batches = (materialIds.size + batchLimit - 1) / batchLimit
-        val firestore = FirebaseFirestore.getInstance()
-
-        for (i in 0 until batches) {
-            val startIndex = i * batchLimit
-            val endIndex = minOf((i + 1) * batchLimit, materialIds.size)
-            val batchIds = materialIds.subList(startIndex, endIndex)
-
-            firestore.collection("Materials")
-                .whereIn("id", batchIds)
-                .get()
-                .addOnSuccessListener { querySnapshot ->
-                    val materials = querySnapshot.documents.mapNotNull { document ->
-                        document.toObject(Material::class.java)
-                    }
-                    displayMaterials(materials)
-                }
-                .addOnFailureListener { exception ->
-                    Log.e(TAG, "Error fetching materials", exception)
-                    // Handle the error appropriately
-                }
-        }
-    }
-
-
-
-
-    private fun displayMaterials(materials: List<Material>) {
-        // Update your UI with the fetched materials
-        // For example, update the RecyclerView Adapter with the materials
-        materialAdapter.differ.submitList(materials)
-    }
-
-
 
 
     private fun onProfileClick() {

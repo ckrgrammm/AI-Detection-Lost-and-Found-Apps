@@ -140,23 +140,38 @@ class MaterialPreviewFragment : Fragment() {
                 return@setOnClickListener
             }
 
-            // Create a new Enrollment object
-            val enrollment = Enrollment(userId = userId, materialId = materialId)
+            // Reference to the material document
+            val materialRef = firestore.collection("Materials").document(materialId)
 
-            // Save the enrollment to Firebase Firestore
-            firestore.collection("enrollments").add(enrollment)
-                .addOnSuccessListener {
-                    Toast.makeText(context, "Successfully enrolled in the course!", Toast.LENGTH_SHORT).show()
+            firestore.runTransaction { transaction ->
+                // Get the current state of the material
+                val snapshot = transaction.get(materialRef)
 
-                    // Navigate back to HomeFragment
-                    findNavController().navigateUp()
-                }
-                .addOnFailureListener { exception ->
-                    Log.w("MaterialPreviewFragment", "Error adding document", exception)
-                    Toast.makeText(context, "Error enrolling in the course!", Toast.LENGTH_SHORT).show()
-                }
+                // Increment the enroll field value
+                val newEnrollValue = snapshot.getLong("enroll")?.plus(1) ?: 1L
+
+                // Update the enroll field
+                transaction.update(materialRef, "enroll", newEnrollValue)
+
+                // Create a new Enrollment object
+                val enrollment = Enrollment(userId = userId, materialId = materialId)
+
+                // Add the enrollment document and return the newEnrollValue for further use if needed
+                transaction.set(firestore.collection("enrollments").document(), enrollment)
+                newEnrollValue
+            }.addOnSuccessListener {
+                Toast.makeText(context, "Successfully enrolled in the course!", Toast.LENGTH_SHORT).show()
+
+                // Navigate back to HomeFragment
+                findNavController().navigateUp()
+            }.addOnFailureListener { exception ->
+                Log.w("MaterialPreviewFragment", "Error adding document", exception)
+                Toast.makeText(context, "Error enrolling in the course!", Toast.LENGTH_SHORT).show()
+            }
         }
     }
+
+
 
 
     override fun onDestroyView() {
