@@ -84,6 +84,11 @@ class ShippingAddressesAdapter(
             }
         }
 
+        // Set up long click listener
+        holder.binding.btnAddress.setOnLongClickListener {
+            onItemLongClick?.invoke(address)
+            true // Return true to indicate that the long click was consumed
+        }
 
     }
 
@@ -92,4 +97,6 @@ class ShippingAddressesAdapter(
     }
 
     var onBtnClick : ((Address)->Unit)?=null
+    var onItemLongClick: ((Address) -> Unit)? = null
+
 }

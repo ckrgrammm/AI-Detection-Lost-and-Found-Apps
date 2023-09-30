@@ -14,11 +14,11 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.RecyclerView
 import com.example.kleine.R
-import com.example.kleine.adapters.recyclerview.RewardAdapter
+import com.example.kleine.database.HelpDatabase
 import com.example.kleine.databinding.FragmentAdminAddRewardBinding
 import com.example.kleine.viewmodel.admin.AdminAddRewardViewModel
+import com.example.kleine.viewmodel.admin.AdminAddRewardViewModelFactory
 
 
 class AdminAddRewardFragment : Fragment() {
@@ -36,7 +36,11 @@ class AdminAddRewardFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_admin_add_reward, container, false)
-        viewModel = ViewModelProvider(this).get(AdminAddRewardViewModel::class.java)
+        val appContext = requireContext().applicationContext
+        val rewardDao = HelpDatabase.getDatabase(requireContext()).rewardDao()
+        val factory = AdminAddRewardViewModelFactory(appContext, rewardDao)
+        viewModel = ViewModelProvider(this, factory).get(AdminAddRewardViewModel::class.java)
+
         binding.lifecycleOwner = viewLifecycleOwner
 
         binding.imgRewardPreview.setOnClickListener {
@@ -55,27 +59,39 @@ class AdminAddRewardFragment : Fragment() {
                 selectedImageUri == null -> {
                     Toast.makeText(context, "Please select an image!", Toast.LENGTH_SHORT).show()
                 }
+
                 rewardName.isEmpty() -> {
                     Toast.makeText(context, "Reward name cannot be empty!", Toast.LENGTH_SHORT).show()
                     binding.txtRewardName.requestFocus()
                 }
+
                 rewardDescription.isEmpty() -> {
                     Toast.makeText(context, "Reward description cannot be empty!", Toast.LENGTH_SHORT).show()
                     binding.txtRewardDescription.requestFocus()
                 }
+
                 rewardPoints == null || rewardPoints <= 0 -> {
                     Toast.makeText(context, "Reward points must be greater than zero!", Toast.LENGTH_SHORT).show()
                     binding.txtRewardPoints.requestFocus()
                 }
+
                 redeemLimit == null || redeemLimit <= 0 -> {
                     Toast.makeText(context, "Redeem limit must be greater than zero!", Toast.LENGTH_SHORT).show()
                     binding.txtRedeemLimit.requestFocus()
                 }
+
                 else -> {
-                    viewModel.saveReward(selectedImageUri, rewardName, rewardDescription, rewardPoints, redeemLimit)
+                    viewModel.checkRewardNameExists(rewardName) { exists ->
+                        if (exists) {
+                            Toast.makeText(context, "Reward name already exists!", Toast.LENGTH_SHORT).show()
+                            binding.txtRewardName.requestFocus()
+                        } else {
+                            //save into database
+                            viewModel.saveReward(selectedImageUri, rewardName, rewardDescription, rewardPoints, redeemLimit)
+                        }
+                    }
                 }
             }
-
         }
 
         // Observe upload success and show a message or navigate

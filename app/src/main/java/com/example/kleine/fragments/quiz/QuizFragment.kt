@@ -45,9 +45,9 @@ class QuizFragment : Fragment() {
             binding.materialName.text = materialName
         })
 
-        viewModel.showToastLiveData.observe(viewLifecycleOwner, Observer{ message ->
-            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
-        })
+//        viewModel.showToastLiveData.observe(viewLifecycleOwner, Observer{ message ->
+//            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+//        })
 
         viewModel.navigateToPlayFragmentLiveData.observe(viewLifecycleOwner, Observer { setId ->
             val materialId = materialDocId ?: return@Observer
@@ -63,6 +63,7 @@ class QuizFragment : Fragment() {
             if (message == "No available sets with sufficient questions") {
                 // Display a toast message
                 Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                viewModel.resetToastLiveData()
             }
         })
 

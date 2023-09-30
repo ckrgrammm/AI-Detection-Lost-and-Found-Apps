@@ -9,6 +9,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.example.kleine.R
 import com.example.kleine.databinding.FragmentRewardBinding
+import com.example.kleine.model.Address
 import com.google.android.material.tabs.TabLayoutMediator
 
 // TODO: Rename parameter arguments, choose names that match
@@ -24,6 +25,9 @@ private const val ARG_PARAM2 = "param2"
 class RewardFragment : Fragment() {
 
     private lateinit var binding: FragmentRewardBinding
+    private val selectedAddress: Address? by lazy {
+        arguments?.getParcelable("address")
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -50,7 +54,15 @@ class RewardFragment : Fragment() {
 
         override fun createFragment(position: Int): Fragment {
             return when (position) {
-                0 -> RedeemRewardFragment() // This is your existing Fragment
+                0 -> {
+                    val redeemRewardFragment = RedeemRewardFragment()
+                    selectedAddress?.let {
+                        val bundle = Bundle()
+                        bundle.putParcelable("address", it)
+                        redeemRewardFragment.arguments = bundle
+                    }
+                    redeemRewardFragment
+                }
                 else -> RewardHistoryFragment() // This is the new Fragment for reward history
             }
         }

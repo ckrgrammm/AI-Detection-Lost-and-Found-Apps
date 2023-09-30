@@ -19,9 +19,11 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.kleine.R
 import com.example.kleine.adapters.recyclerview.RewardAdapter
+import com.example.kleine.database.HelpDatabase
+import com.example.kleine.database.Reward
 import com.example.kleine.databinding.FragmentAdminViewRewardBinding
-import com.example.kleine.model.Reward
 import com.example.kleine.viewmodel.admin.AdminViewRewardViewModel
+import com.example.kleine.viewmodel.admin.AdminViewRewardViewModelFactory
 import com.google.firebase.firestore.FirebaseFirestore
 import java.util.Locale
 
@@ -39,17 +41,20 @@ class AdminViewRewardFragment : Fragment() {
         val toolbar: Toolbar = binding.toolbar
         (activity as AppCompatActivity).setSupportActionBar(toolbar)
         setHasOptionsMenu(true)
-        viewModel = ViewModelProvider(this).get(AdminViewRewardViewModel::class.java)
+        val appContext = requireContext().applicationContext
+        val rewardDao = HelpDatabase.getDatabase(requireContext()).rewardDao()
+        val factory = AdminViewRewardViewModelFactory(appContext, rewardDao)
+        viewModel = ViewModelProvider(this, factory).get(AdminViewRewardViewModel::class.java)
         binding.lifecycleOwner = viewLifecycleOwner
         // Set LayoutManager for the RecyclerView
         binding.rv.layoutManager = LinearLayoutManager(context)
         adapter = RewardAdapter(mutableListOf()).apply {
-            onEditButtonClick = { documentId ->
-                val action = AdminViewRewardFragmentDirections.actionAdminViewRewardFragmentToAdminUpdateRewardFragment(documentId)
+            onEditButtonClick = { rewardName ->
+                val action = AdminViewRewardFragmentDirections.actionAdminViewRewardFragmentToAdminUpdateRewardFragment(rewardName)
                 findNavController().navigate(action)
             }
-            onDeleteButtonClick = { documentId ->
-                showDeleteConfirmationDialog(documentId)
+            onDeleteButtonClick = { rewardName ->
+                showDeleteConfirmationDialog(rewardName)
             }
         }
         binding.rv.adapter = adapter
@@ -112,7 +117,6 @@ class AdminViewRewardFragment : Fragment() {
             for (document in snapshot.documents) {
                 val reward = document.toObject(Reward::class.java)
                 if (reward != null) {
-                    reward.documentId = document.id
                     rewardList.add(reward)
                 }
             }
@@ -133,7 +137,6 @@ class AdminViewRewardFragment : Fragment() {
                 for (document in snapshot.documents) {
                     val reward = document.toObject(Reward::class.java)
                     if (reward != null) {
-                        reward.documentId = document.id
                         rewardList.add(reward)
                     }
                 }
@@ -152,4 +155,10 @@ class AdminViewRewardFragment : Fragment() {
             .setNegativeButton("No", null)
             .show()
     }
+
+//    override fun onResume() {
+//        super.onResume()
+//        viewModel.loadDataBasedOnConnection()
+//    }
+
 }

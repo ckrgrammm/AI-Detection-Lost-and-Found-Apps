@@ -89,4 +89,9 @@ class QuizViewModel : ViewModel() {
         }
     }
 
+    fun resetToastLiveData() {
+        showToastLiveData.value = "null"
+    }
+
+
 }

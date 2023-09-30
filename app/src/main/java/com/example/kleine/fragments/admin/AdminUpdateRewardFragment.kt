@@ -17,10 +17,10 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.example.kleine.R
-import com.example.kleine.databinding.FragmentAdminAddRewardBinding
+import com.example.kleine.database.HelpDatabase
 import com.example.kleine.databinding.FragmentAdminUpdateRewardBinding
-import com.example.kleine.viewmodel.admin.AdminAddRewardViewModel
 import com.example.kleine.viewmodel.admin.AdminUpdateRewardViewModel
+import com.example.kleine.viewmodel.admin.AdminUpdateRewardViewModelFactory
 
 class AdminUpdateRewardFragment : Fragment() {
 
@@ -37,12 +37,15 @@ class AdminUpdateRewardFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_admin_update_reward, container, false)
-        viewModel = ViewModelProvider(this).get(AdminUpdateRewardViewModel::class.java)
+        val appContext = requireContext().applicationContext
+        val rewardDao = HelpDatabase.getDatabase(requireContext()).rewardDao()
+        val factory = AdminUpdateRewardViewModelFactory(appContext, rewardDao)
+        viewModel = ViewModelProvider(this, factory).get(AdminUpdateRewardViewModel::class.java)
         binding.adminUpdateRewardViewModel = viewModel
         binding.lifecycleOwner = viewLifecycleOwner
 
-        val documentId = arguments?.getString("documentId")
-        viewModel.loadRewardDetails(documentId)
+        val oldRewardName = arguments?.getString("rewardName")
+        viewModel.loadRewardDetails(oldRewardName)
 
         viewModel.imageUrl.observe(viewLifecycleOwner, Observer { url ->
             url?.let {
@@ -95,8 +98,15 @@ class AdminUpdateRewardFragment : Fragment() {
                     return@setOnClickListener
                 }
                 else -> {
-                    // All validations passed, proceeding with the submission
-                    viewModel.updateRewardDetailsWithImage(documentId, selectedImageUri)
+                    viewModel.checkRewardNameExists(oldRewardName, rewardName) { exists ->
+                        if (exists) {
+                            Toast.makeText(context, "Reward name already exists!", Toast.LENGTH_SHORT).show()
+                            binding.txtRewardName.requestFocus()
+                        } else {
+                            // All validations passed, proceeding with the submission
+                            viewModel.updateRewardDetailsWithImage(oldRewardName, selectedImageUri)
+                        }
+                    }
                 }
             }
 

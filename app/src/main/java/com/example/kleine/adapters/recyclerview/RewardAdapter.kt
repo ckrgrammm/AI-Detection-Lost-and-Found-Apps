@@ -8,8 +8,9 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.example.kleine.R
-import com.example.kleine.model.Reward
+import com.example.kleine.database.Reward
 
 class RewardAdapter(var rewards: MutableList<Reward>) : RecyclerView.Adapter<RewardAdapter.RewardViewHolder>() {
     var onEditButtonClick: ((String) -> Unit)? = null // Lambda function to handle edit button click
@@ -35,21 +36,36 @@ class RewardAdapter(var rewards: MutableList<Reward>) : RecyclerView.Adapter<Rew
         // Bind the reward data to your views here
         holder.rewardNameText.text = reward.rewardName
         holder.rewardDescriptionText.text = reward.rewardDescription
-        holder.rewardPointsText.text = reward.rewardPoints.toString()
-        holder.redeemLimitText.text = reward.redeemLimit.toString()
-        holder.redeemedCountText.text = reward.redeemedCount.toString()
+        holder.rewardPointsText.text = "Reward Points: " + reward.rewardPoints.toString()
+        holder.redeemLimitText.text = "Redeem Limit: " + reward.redeemLimit.toString()
+        holder.redeemedCountText.text = "Redeemed Count: " + reward.redeemedCount.toString()
 
-        // Load the image from `imageLocation` using Glide
-        Glide.with(holder.itemView.context)
-            .load(reward.imageUrl) // Here, imageLocation is the URL string
-            .into(holder.rewardImage)
+        when {
+            reward.imageBytes != null -> {
+                // If imageBytes is available, load it
+                Glide.with(holder.itemView.context)
+                    .load(reward.imageBytes)
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .into(holder.rewardImage)
+            }
+            reward.imageUrl != null -> {
+                // If imageUrl is available (and imageBytes is not), load the imageUrl
+                Glide.with(holder.itemView.context)
+                    .load(reward.imageUrl)
+                    .into(holder.rewardImage)
+            }
+            else -> {
+                // Handle the case where both imageBytes and imageUrl are null
+                // For example, you can set a placeholder or an error image
+            }
+        }
 
         holder.view.findViewById<Button>(R.id.btnEdit).setOnClickListener {
-            onEditButtonClick?.invoke(reward.documentId) // Invoke the lambda function when edit is clicked
+            onEditButtonClick?.invoke(reward.rewardName) // Invoke the lambda function when edit is clicked
         }
 
         holder.view.findViewById<Button>(R.id.btnDelete).setOnClickListener {
-            onDeleteButtonClick?.invoke(reward.documentId) // Invoke the lambda function when delete is clicked
+            onDeleteButtonClick?.invoke(reward.rewardName) // Invoke the lambda function when delete is clicked
         }
     }
 

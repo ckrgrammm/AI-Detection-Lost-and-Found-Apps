@@ -4,20 +4,24 @@ import android.content.Context
 import android.content.IntentFilter
 import android.net.ConnectivityManager
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import com.example.kleine.R
 import com.example.kleine.adapters.recyclerview.RedeemRewardAdapter
 import com.example.kleine.databinding.FragmentRedeemRewardBinding
+import com.example.kleine.model.Address
 import com.example.kleine.model.Reward
 import com.example.kleine.resource.NetworkReceiver
+import com.example.kleine.util.Constants.Companion.UPDATE_ADDRESS_FLAG
 import com.example.kleine.viewmodel.reward.RedeemRewardViewModel
 
 // TODO: Rename parameter arguments, choose names that match
@@ -45,6 +49,18 @@ class RedeemRewardFragment : Fragment() {
         // This is used so that the binding can observe LiveData updates
         binding.lifecycleOwner = viewLifecycleOwner
 
+        val selectedAddress: Address? = arguments?.getParcelable("address")
+        selectedAddress?.let {
+            binding.addressTextView.text = it.addressTitle + " " + it.street + " " + it.city + " " + it.state
+        }
+
+
+        // Initialize adapter with an empty list and set it to RecyclerView
+        val adapter = RedeemRewardAdapter(emptyList()) { selectedReward ->
+            handleRedemption(selectedReward)
+        }
+        binding.voucherRecyclerView.adapter = adapter
+
         viewModel.rewards.observe(viewLifecycleOwner, Observer { rewards ->
             if (isNetworkAvailable) {
                 val adapter = RedeemRewardAdapter(rewards) { selectedReward ->
@@ -54,11 +70,13 @@ class RedeemRewardFragment : Fragment() {
                 binding.voucherRecyclerView.visibility = View.VISIBLE
                 binding.textViewTotalPoints.visibility = View.VISIBLE
                 binding.labelShippingVoucherTextView.visibility = View.VISIBLE
+                binding.addressBar.visibility = View.VISIBLE
                 binding.noInternetLayout.visibility = View.GONE
             } else {
                 binding.voucherRecyclerView.visibility = View.GONE
                 binding.textViewTotalPoints.visibility = View.GONE
                 binding.labelShippingVoucherTextView.visibility = View.GONE
+                binding.addressBar.visibility = View.GONE
                 binding.noInternetLayout.visibility = View.VISIBLE
             }
         })
@@ -87,6 +105,12 @@ class RedeemRewardFragment : Fragment() {
             }
         })
 
+        binding.addressBar.setOnClickListener {
+            val bundle = Bundle()
+            bundle.putString("clickFlag", UPDATE_ADDRESS_FLAG)
+            findNavController().navigate(R.id.action_rewardFragment_to_billingFragment, bundle)
+        }
+
         return binding.root
     }
 
@@ -95,7 +119,23 @@ class RedeemRewardFragment : Fragment() {
         checkAndUpdateNetworkAvailability()
 
         if (!isNetworkAvailable) {
-            Toast.makeText(context, "No internet connection. Please try again.", Toast.LENGTH_SHORT).show()
+//            Toast.makeText(context, "No internet connection. Please try again.", Toast.LENGTH_SHORT).show()
+            // Inflate the layout for the dialog
+            val inflater = layoutInflater
+            val dialogView = inflater.inflate(R.layout.no_internet_dialog, null)
+
+            // Create the AlertDialog
+            val alertDialog = AlertDialog.Builder(requireContext())
+                .setView(dialogView)
+                .create()
+
+            // Set up the click listener for the "OK" button in the dialog
+            val btnOk = dialogView.findViewById<Button>(R.id.btn_ok)
+            btnOk.setOnClickListener {
+                alertDialog.dismiss()
+            }
+
+            alertDialog.show()
             return
         }
 
@@ -113,11 +153,13 @@ class RedeemRewardFragment : Fragment() {
             binding.voucherRecyclerView.visibility = View.VISIBLE
             binding.textViewTotalPoints.visibility = View.VISIBLE
             binding.labelShippingVoucherTextView.visibility = View.VISIBLE
+            binding.addressBar.visibility = View.VISIBLE
             binding.noInternetLayout.visibility = View.GONE
         } else {
             binding.voucherRecyclerView.visibility = View.GONE
             binding.textViewTotalPoints.visibility = View.GONE
             binding.labelShippingVoucherTextView.visibility = View.GONE
+            binding.addressBar.visibility = View.GONE
             binding.noInternetLayout.visibility = View.VISIBLE
         }
     }

@@ -84,8 +84,19 @@ class BillingFragment : Fragment() {
         observeAddresses()
         onShippingItemClick()
         onPlaceOrderClick()
-
+        onShippingItemLongClick()
         observePlaceOrder()
+    }
+
+    private fun onShippingItemLongClick() {
+        shippingAddressesAdapter.onItemLongClick = { address ->
+            // Create a Bundle to pass the selected address as an argument
+            val bundle = Bundle()
+            bundle.putParcelable("address", address)
+
+            // Navigate back to the Redeem Reward fragment with the selected address
+            findNavController().navigate(R.id.action_billingFragment_to_rewardFragment, bundle)
+        }
     }
 
     private fun observePlaceOrder() {

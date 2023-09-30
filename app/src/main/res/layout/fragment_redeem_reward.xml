@@ -8,7 +8,42 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+        <RelativeLayout
+            android:id="@+id/addressBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:background="@color/g_white"
+            android:padding="8dp"
+            android:clickable="true"
+            android:focusable="true"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
         <TextView
+            android:id="@+id/addressTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:text="Select Address"
+            android:drawablePadding="8dp"
+            android:drawableStart="@drawable/ic_location"
+        android:ellipsize="end"
+        android:maxLines="1" />
+
+        <ImageView
+            android:id="@+id/addressArrow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/baseline_arrow_forward_ios_24" />
+
+    </RelativeLayout>
+
+
+    <TextView
             android:id="@+id/textViewTotalPoints"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -16,7 +51,7 @@
             android:layout_marginTop="16dp"
             android:text="Total Points: 0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@+id/addressBar"/>
 
         <TextView
             android:id="@+id/labelShippingVoucherTextView"
