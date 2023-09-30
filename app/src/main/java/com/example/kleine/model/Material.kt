@@ -14,7 +14,7 @@ data class Material(
     val name: String = "", // Course name
     val pass: Int = 0, // Number of students who passed this course/subject
     val rating: Float = 0f, // Rating (1 - 5)
-    val requirement: String = "", // Requirement (e.g., Free)
+    val category: String = "",
     val status: String = "", // Status (Available/Unavailable)
     var view: Long = 0,
     var enroll: Long = 0,
@@ -29,7 +29,7 @@ data class MaterialData(
     var id: String = "",
     var name: String = "",
     var desc: String = "",
-    var requirement: String = "",
+    val category: String = "",
     var rating: Double = 0.0,
     var imageUrl: String = "",
     val status: String // Add this line

@@ -55,7 +55,13 @@ class EditMaterialFragment : Fragment() {
                 material?.let {
                     binding.editTextName.setText(it.name)
                     binding.editTextDesc.setText(it.desc)
-                    binding.editTextRequirement.setText(it.requirement)
+                    val categoryId = when (it.category) {
+                        "Easy" -> R.id.radioButtonEasy
+                        "Medium" -> R.id.radioButtonMedium
+                        "Advanced" -> R.id.radioButtonAdvanced
+                        else -> -1
+                    }
+                    binding.radioGroupCategory.check(categoryId)
                     binding.textViewMaterialID.text = "Material ID: ${materialId}"
                     val radioButtonId = if (it.status == "Available") R.id.radioButtonAvailable else R.id.radioButtonUnavailable
                     binding.radioGroupStatus.check(radioButtonId)
@@ -84,12 +90,14 @@ class EditMaterialFragment : Fragment() {
     private fun updateMaterial() {
         val name = binding.editTextName.text.toString()
         val description = binding.editTextDesc.text.toString()
-        val requirement = binding.editTextRequirement.text.toString()
+        val selectedCategoryId = binding.radioGroupCategory.checkedRadioButtonId
+        val selectedCategoryButton = view?.findViewById<RadioButton>(selectedCategoryId)
+        val category = selectedCategoryButton?.text.toString() ?: ""
         val selectedStatusId = binding.radioGroupStatus.checkedRadioButtonId
         val selectedRadioButton = view?.findViewById<RadioButton>(selectedStatusId)
         val status = selectedRadioButton?.text.toString()
 
-        if (name.isBlank() || description.isBlank() || requirement.isBlank() || status.isBlank()) {
+        if (name.isBlank() || description.isBlank() || category.isBlank() || status.isBlank()) {
             Toast.makeText(context, "Please fill all fields", Toast.LENGTH_SHORT).show()
             return
         }
@@ -98,7 +106,7 @@ class EditMaterialFragment : Fragment() {
             id = materialId!!,
             name = name,
             desc = description,
-            requirement = requirement,
+            category = category,
             status = status
         )
 

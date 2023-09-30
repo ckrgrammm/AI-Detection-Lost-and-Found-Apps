@@ -37,7 +37,6 @@ class AllOrdersFragment : Fragment() {
         super.onCreate(savedInstanceState)
 
         viewModel = (activity as ShoppingActivity).viewModel
-        viewModel.getUserOrders()
     }
 
     override fun onCreateView(

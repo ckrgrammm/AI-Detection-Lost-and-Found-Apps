@@ -33,6 +33,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 
 
+
 class MaterialPreviewFragment : Fragment() {
     private var _binding: FragmentProductPreviewBinding? = null
     private val binding get() = _binding!!
@@ -63,45 +64,27 @@ class MaterialPreviewFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         onEnrollClick()
 
-
-        // Set up the ViewPager2
-        binding.viewpager2Images.adapter = viewPagerAdapter
-
         // Retrieve the passed argument
         material = arguments?.getParcelable("material")
 
         material?.let { mat ->
             binding.productModel = mat
 
-            // Convert the single imageUrl into a list and submit to the adapter
-            viewPagerAdapter.differ.submitList(listOf(mat.imageUrl))
+            // Load the image using Glide
+            Glide.with(this)
+                .load(mat.imageUrl)
+                .into(binding.materialImage)
 
         } ?: run {
             Log.e("MaterialPreviewFragment", "Material is null!")
         }
-
-        // Assuming you have one image per material for now
-        // If there are multiple images, then update this value accordingly
-        // binding.circleIndicator.indicatorItemCount = 1
-        // Update: Commented the above line as it might not be available based on the library version.
-
-        binding.viewpager2Images.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
-            override fun onPageSelected(position: Int) {
-                super.onPageSelected(position)
-                // Update the CircleIndicator's selected position
-                // You might need to check if such a method is available in your library version
-                // binding.circleIndicator.setSelection(position)
-                // Update: Commented the above line as it might not be available based on the library version.
-            }
-        })
-
 
         //comment use
         val adapter = CommentsAdapter(listOf())
         binding.allMaterialComment.materialCommentData.adapter = adapter
 
         val materialId = material?.id
-            commentViewModel.fetchComments(materialId.toString())
+        commentViewModel.fetchComments(materialId.toString())
 
         commentViewModel.commentsWithUserDetails.observe(viewLifecycleOwner, Observer { commentsWithUserDetails ->
             val sortedComments = commentsWithUserDetails.sortedByDescending {
@@ -111,15 +94,12 @@ class MaterialPreviewFragment : Fragment() {
             adapter.setData(sortedComments)
         })
 
-        // Set OnClickListener on them
         binding.allMaterialComment.commentTitle.setOnClickListener {
             toggleComments()
         }
         binding.allMaterialComment.downArrowComment.setOnClickListener {
             toggleComments()
         }
-        Log.e("MaterialPreviewFragment", "end null!")
-
     }
 
 
@@ -252,6 +232,9 @@ class MaterialPreviewFragment : Fragment() {
                 holder.replyCommentDate.visibility = View.GONE
             }
         }
+
+
+
 
         override fun getItemCount(): Int {
             return commentsWithUserDetails.size

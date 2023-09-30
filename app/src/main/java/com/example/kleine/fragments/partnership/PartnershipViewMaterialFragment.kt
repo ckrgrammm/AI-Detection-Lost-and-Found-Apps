@@ -50,7 +50,7 @@ class PartnershipViewMaterialFragment : Fragment() {
         fun bind(material: MaterialData) {
             itemBinding.materialName.text = material.name
             itemBinding.materialDesc.text = material.desc
-            itemBinding.materialRequirement.text = "Requirement: ${material.requirement}"
+            itemBinding.materialRequirement.text = "Category: ${material.category}"
             itemBinding.ratingBar.rating = material.rating.toFloat()
 
             if (material.imageUrl.isNotEmpty()) {

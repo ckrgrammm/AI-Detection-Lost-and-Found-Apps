@@ -31,8 +31,6 @@ class ShoppingActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_shopping)
 
-
-
         cartViewModel = CartViewModel()
 //        supportActionBar!!.hide()
 

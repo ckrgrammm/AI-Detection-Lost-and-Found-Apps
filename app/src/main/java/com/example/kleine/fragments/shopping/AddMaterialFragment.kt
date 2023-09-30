@@ -64,7 +64,15 @@ class AddMaterialFragment : Fragment() {
             // Validate and get data from UI elements
             val name = binding.editTextName.text.toString()
             val description = binding.editTextDesc.text.toString()
-            val requirement = binding.editTextRequirement.text.toString()
+
+            val selectedCategoryId = binding.radioGroupCategory.checkedRadioButtonId
+            if (selectedCategoryId == -1) {
+                Toast.makeText(requireContext(), "Please select a category", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            val selectedCategoryButton = view.findViewById<RadioButton>(selectedCategoryId)
+            val category = selectedCategoryButton.text.toString()
+
 
             // Get the selected status from the RadioGroup
             val selectedStatusId = binding.radioGroupStatus.checkedRadioButtonId
@@ -75,11 +83,11 @@ class AddMaterialFragment : Fragment() {
             val selectedRadioButton = view.findViewById<RadioButton>(selectedStatusId)
             val status = selectedRadioButton.text.toString()
 
-            if (name.isNotEmpty() && description.isNotEmpty() && requirement.isNotEmpty()) {
+            if (name.isNotEmpty() && description.isNotEmpty() && category.isNotEmpty()) {
                 val material = Material(
                     name = name,
                     desc = description,
-                    requirement = requirement,
+                    category = category,
                     status = status,
                     partnershipsID = userDocumentId // Set the user's document ID here
                 )
