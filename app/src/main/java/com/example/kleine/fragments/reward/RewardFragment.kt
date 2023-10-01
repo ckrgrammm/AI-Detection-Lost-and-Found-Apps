@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
+import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.example.kleine.R
 import com.example.kleine.databinding.FragmentRewardBinding
@@ -45,6 +46,11 @@ class RewardFragment : Fragment() {
                 else -> "Reward History"
             }
         }.attach()
+
+        binding.closeButton.setOnClickListener {
+            // Handle the back navigation to profile fragment.
+            findNavController().navigate(R.id.action_rewardFragment_to_profileFragment) // or findNavController().popBackStack()
+        }
 
         return binding.root
     }

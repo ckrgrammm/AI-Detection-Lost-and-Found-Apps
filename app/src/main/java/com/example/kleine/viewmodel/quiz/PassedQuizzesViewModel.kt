@@ -101,7 +101,8 @@ class PassedQuizzesViewModel(
 
                 CoroutineScope(Dispatchers.Main).launch {
                     val results = deferreds.awaitAll()
-                    _passedQuizzes.value = results.filterNotNull()
+                    val sortedResults = results.filterNotNull().sortedByDescending { it.date }
+                    _passedQuizzes.value = sortedResults
                 }
             }.addOnFailureListener { exception ->
                 Log.e("PassedQuizzesViewModel", "Error fetching quiz history", exception)

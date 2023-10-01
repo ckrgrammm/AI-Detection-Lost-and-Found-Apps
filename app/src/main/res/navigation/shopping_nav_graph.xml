@@ -533,6 +533,9 @@
         <action
             android:id="@+id/action_rewardFragment_to_billingFragment"
             app:destination="@id/billingFragment" />
+        <action
+            android:id="@+id/action_rewardFragment_to_profileFragment"
+            app:destination="@id/profileFragment" />
     </fragment>
 <!--    end reward-->
 </navigation>

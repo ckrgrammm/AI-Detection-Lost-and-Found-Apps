@@ -141,7 +141,11 @@ class RedeemRewardFragment : Fragment() {
 
         val userPoints = viewModel.userPoints.value ?: 0
         if (userPoints >= selectedReward.rewardPoints) {
-            viewModel.redeemReward(selectedReward)
+            if (binding.addressTextView.text == "Select Address"){
+                Toast.makeText(context, "Please select address", Toast.LENGTH_SHORT).show()
+            } else {
+                viewModel.redeemReward(selectedReward)
+            }
         } else {
             Toast.makeText(context, "You do not have enough points to redeem this reward.", Toast.LENGTH_SHORT).show()
         }

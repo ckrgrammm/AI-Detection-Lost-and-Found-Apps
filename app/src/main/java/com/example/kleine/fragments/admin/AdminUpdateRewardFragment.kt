@@ -56,6 +56,15 @@ class AdminUpdateRewardFragment : Fragment() {
             }
         })
 
+        viewModel.imageBytes.observe(viewLifecycleOwner, Observer { url ->
+            url?.let {
+                val imageView: ImageView = binding.imgRewardPreview
+                Glide.with(this@AdminUpdateRewardFragment)
+                    .load(it)
+                    .into(imageView)
+            }
+        })
+
         binding.imgRewardPreview.setOnClickListener {
             val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
             startActivityForResult(intent, REQUEST_CODE_SELECT_IMAGE)
@@ -68,7 +77,7 @@ class AdminUpdateRewardFragment : Fragment() {
             val redeemLimit = binding.txtRedeemLimit.text.toString().toIntOrNull()
 
             when {
-                selectedImageUri == null && viewModel.imageUrl.value.isNullOrEmpty() -> {
+                selectedImageUri == null && viewModel.imageUrl.value.isNullOrEmpty() && viewModel.imageBytes.value?.isEmpty() ?: true -> {
                     Toast.makeText(context, "Please select an image!", Toast.LENGTH_SHORT).show()
                     // Preventing submission by returning early
                     return@setOnClickListener

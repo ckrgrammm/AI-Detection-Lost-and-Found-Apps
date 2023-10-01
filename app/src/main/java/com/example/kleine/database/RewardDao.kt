@@ -17,7 +17,7 @@ interface RewardDao {
     @Query("SELECT * FROM reward WHERE rewardName = :name")
     suspend fun getRewardByName(name: String): Reward?
 
-    @Query("SELECT * FROM reward")
+    @Query("SELECT * FROM reward WHERE isDeleted = 0")
     suspend fun getAllRewards(): List<Reward>
 
     @Query("SELECT COUNT(*) FROM reward WHERE rewardName = :rewardName")
@@ -29,6 +29,11 @@ interface RewardDao {
     @Query("SELECT * FROM reward WHERE isAdded = :isAdded")
     suspend fun getUnsyncedRewards(isAdded: Int): List<Reward>
 
+    @Query("SELECT * FROM reward WHERE isUpdated = :isUpdated")
+    suspend fun getModifiedRewards(isUpdated: Int): List<Reward>
+
+    @Query("UPDATE reward SET redeemedCount = redeemedCount + 1 WHERE rewardName = :rewardName")
+    suspend fun incrementRedeemedCount(rewardName: String)
 
     // Add other queries or operations as needed.
 }

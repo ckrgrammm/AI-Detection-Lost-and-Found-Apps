@@ -106,6 +106,9 @@ class RedeemRewardViewModel(application: Application) : AndroidViewModel(applica
         }.addOnSuccessListener {
             // Handle success
             redemptionSuccessful.value = true
+
+            // Update redeemed count in Room database
+            updateRedeemedCountInRoom(selectedReward.rewardName)
         }.addOnFailureListener { exception ->
             // Handle failure
             Log.e("RedeemReward", "Redemption Failed", exception)
@@ -114,6 +117,14 @@ class RedeemRewardViewModel(application: Application) : AndroidViewModel(applica
             }
         }
     }
+
+    private fun updateRedeemedCountInRoom(rewardName: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val dao = HelpDatabase.getDatabase(getApplication()).rewardDao()
+            dao.incrementRedeemedCount(rewardName)
+        }
+    }
+
 
     private fun insertRewardHistory(rewardHistory: RewardHistory) {
         viewModelScope.launch(Dispatchers.IO) {

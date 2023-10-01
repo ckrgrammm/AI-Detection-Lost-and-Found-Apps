@@ -12,6 +12,7 @@ import com.example.kleine.database.RewardHistoryDao
 import com.example.kleine.resource.NetworkReceiver
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 import kotlinx.coroutines.launch
 
 class RewardHistoryViewModel(
@@ -51,7 +52,9 @@ class RewardHistoryViewModel(
         userId?.let {
             if (isNetworkAvailable) {
                 val rewardHistoryCollection = firestore.collection("users").document(it).collection("rewardHistory")
-                rewardHistoryCollection.addSnapshotListener { snapshot, exception ->
+                rewardHistoryCollection
+                    .orderBy("redeemedDate", Query.Direction.DESCENDING)
+                    .addSnapshotListener { snapshot, exception ->
                     if (exception != null || snapshot == null) {
                         return@addSnapshotListener
                     }

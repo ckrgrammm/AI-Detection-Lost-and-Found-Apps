@@ -67,7 +67,7 @@ class AdminViewRewardFragment : Fragment() {
             if (success) {
                 Toast.makeText(context, "Reward successfully deleted", Toast.LENGTH_SHORT).show()
             } else {
-                Toast.makeText(context, "Failed to delete reward", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Failed to delete reward! Pls check your connection", Toast.LENGTH_SHORT).show()
             }
         }
 
