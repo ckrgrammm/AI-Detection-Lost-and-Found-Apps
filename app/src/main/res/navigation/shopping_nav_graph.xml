@@ -277,6 +277,9 @@
                 android:name="materialDocId"
                 app:argType="string" />
         </action>
+        <action
+            android:id="@+id/action_orderDetails_to_profileFragment"
+            app:destination="@id/profileFragment" />
 
     </fragment>
     <fragment

@@ -73,6 +73,10 @@ class OrderDetails : Fragment() {
         // Reference to the Firestore database
         val firestore = FirebaseFirestore.getInstance()
 
+        binding.imgCloseOrder.setOnClickListener{
+            findNavController().navigate(R.id.action_orderDetails_to_profileFragment)
+        }
+
         // Initialize the RecyclerView
         setupRecyclerview()
 

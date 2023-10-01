@@ -47,7 +47,10 @@ class ResultFragment : Fragment() {
             showCongratsDialog()
             binding.btnRestart.text = "Go to Profile"
             binding.btnRestart.setOnClickListener {
-                findNavController().navigate(R.id.action_resultFragment_to_orderDetails)
+                val bundle = Bundle().apply {
+                    putString("materialDocId", materialDocId)
+                }
+                findNavController().navigate(R.id.action_resultFragment_to_orderDetails, bundle)
             }
         } else {
             binding.btnRestart.text = "Restart"

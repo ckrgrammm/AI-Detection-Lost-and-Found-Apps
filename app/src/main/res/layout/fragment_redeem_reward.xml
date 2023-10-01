@@ -85,7 +85,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <RelativeLayout
+        <ScrollView
             android:id="@+id/noInternetLayout"
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -93,52 +93,56 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            android:visibility="gone">
+            android:visibility="gone"
+            android:fillViewport="true">
+            <RelativeLayout
+                android:id="@+id/noInternetRelativeLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
 
-            <ImageView
-                android:id="@+id/no_internet_image"
-                android:layout_width="wrap_content"
-                android:layout_height="300dp"
-                android:layout_marginTop="128dp"
-                android:src="@drawable/no_connection" />
+                <ImageView
+                    android:id="@+id/no_internet_image"
+                    android:layout_width="wrap_content"
+                    android:layout_height="300dp"
+                    android:layout_marginTop="128dp"
+                    android:src="@drawable/no_connection" />
 
-            <TextView
-                android:id="@+id/no_internet_heading"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/no_internet_image"
-                android:layout_centerHorizontal="true"
-                android:text="No Internet Connection"
-                android:textAllCaps="true"
-                android:textAppearance="@style/TextAppearance.AppCompat.Large"
-                android:textStyle="bold" />
+                <TextView
+                    android:id="@+id/no_internet_heading"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/no_internet_image"
+                    android:layout_centerHorizontal="true"
+                    android:text="No Internet Connection"
+                    android:textAllCaps="true"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Large"
+                    android:textStyle="bold" />
 
-            <TextView
-                android:id="@+id/no_internet_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/no_internet_heading"
-                android:layout_centerHorizontal="true"
-                android:layout_marginHorizontal="64dp"
-                android:layout_marginVertical="32dp"
-                android:gravity="center"
-                android:text="Check your Internet Connection and Try Again"
-                android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+                <TextView
+                    android:id="@+id/no_internet_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/no_internet_heading"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginHorizontal="64dp"
+                    android:layout_marginVertical="32dp"
+                    android:gravity="center"
+                    android:text="Check your Internet Connection and Try Again"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/try_again_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/no_internet_text"
-                android:layout_centerHorizontal="true"
-                android:backgroundTint="@color/black"
-                android:paddingHorizontal="32dp"
-                android:text="Try Again"
-                android:textAllCaps="false"
-                app:cornerRadius="16dp" />
-
-
-        </RelativeLayout>
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/try_again_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/no_internet_text"
+                    android:layout_centerHorizontal="true"
+                    android:backgroundTint="@color/black"
+                    android:paddingHorizontal="32dp"
+                    android:text="Try Again"
+                    android:textAllCaps="false"
+                    app:cornerRadius="16dp" />
+            </RelativeLayout>
+        </ScrollView>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
