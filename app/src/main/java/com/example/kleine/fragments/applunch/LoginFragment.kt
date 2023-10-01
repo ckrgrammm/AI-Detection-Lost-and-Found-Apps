@@ -16,6 +16,7 @@ import br.com.simplepass.loadingbutton.customViews.CircularProgressButton
 import com.example.kleine.activities.LunchActivity
 import com.example.kleine.R
 import com.example.kleine.activities.ShoppingActivity
+import com.example.kleine.database.SharedPreferencesHelper
 import com.example.kleine.databinding.FragmentLoginBinding
 import com.example.kleine.resource.Resource
 import com.example.kleine.viewmodel.lunchapp.KleineViewModel
@@ -25,6 +26,7 @@ import com.google.android.gms.common.api.ApiException
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.auth.FirebaseAuth
 
 
 class LoginFragment : Fragment() {
@@ -33,6 +35,8 @@ class LoginFragment : Fragment() {
     private lateinit var binding: FragmentLoginBinding
     private lateinit var btnLogin: CircularProgressButton
     private lateinit var viewModel: KleineViewModel
+    private lateinit var sharedPreferencesHelper: SharedPreferencesHelper
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,6 +55,7 @@ class LoginFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        sharedPreferencesHelper = SharedPreferencesHelper(requireContext())
         btnLogin = view.findViewById(R.id.btn_login_fragment)
 
         onLoginClick()
@@ -156,6 +161,12 @@ class LoginFragment : Fragment() {
     private fun observerLogin() {
         viewModel.login.observe(viewLifecycleOwner, Observer {
             if (it == true) {
+                // Get the user ID
+                val userId = FirebaseAuth.getInstance().currentUser?.uid
+                if (userId != null) {
+                    // Save user ID to SharedPreferences
+                    sharedPreferencesHelper.saveUserId(userId)
+                }
                 btnLogin.revertAnimation()
                 val intent = Intent(activity, ShoppingActivity::class.java)
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -163,6 +174,8 @@ class LoginFragment : Fragment() {
             }
         })
     }
+
+
 
     private fun onLoginClick() {
         btnLogin.setOnClickListener {
@@ -211,8 +224,6 @@ class LoginFragment : Fragment() {
             }
             return null
         }
-
-
         if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             binding.edEmailLogin.apply {
                 error = resources.getString(R.string.valid_email)

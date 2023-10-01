@@ -70,10 +70,6 @@ class FirebaseDb {
         productsCollection.whereEqualTo(CATEGORY,category).limit(page).get()
 
 
-    fun getMostRequestedProducts(category: String,page:Long) =
-        productsCollection.whereEqualTo(CATEGORY, category)
-            .orderBy(ORDERS, Query.Direction.DESCENDING).limit(page).get()
-
 
     fun createNewUser(
         email: String, password: String
@@ -92,26 +88,6 @@ class FirebaseDb {
         email: String,
         password: String
     ) = firebaseAuth.signInWithEmailAndPassword(email, password)
-
-    fun getClothesProducts(pagingPage: Long) =
-        productsCollection.whereEqualTo(CATEGORY, CLOTHES).limit(pagingPage).get()
-
-    fun getBestDealsProducts(pagingPage: Long) =
-        productsCollection.whereEqualTo(CATEGORY, BEST_DEALS).limit(pagingPage).get()
-
-    fun getHomeProducts(pagingPage: Long) =
-        productsCollection.limit(pagingPage).get()
-
-    //add order by orders
-    fun getMostOrderedCupboard(pagingPage: Long) =
-        productsCollection.whereEqualTo(CATEGORY, CUPBOARD_CATEGORY).limit(pagingPage)
-            .orderBy(ORDERS, Query.Direction.DESCENDING).limit(pagingPage).get()
-
-    fun getCupboards(pagingPage: Long) =
-        productsCollection.whereEqualTo(CATEGORY, CUPBOARD_CATEGORY).limit(pagingPage)
-            .limit(pagingPage).get()
-
-    fun addProductToCart(product: CartProduct) = userCartCollection?.document()!!.set(product)
 
     fun getProductInCart(product: CartProduct) = userCartCollection!!
         .whereEqualTo(ID, product.id)
@@ -174,13 +150,6 @@ class FirebaseDb {
     fun deleteProductFromCart(documentId: String) =
         userCartCollection!!.document(documentId).delete()
 
-
-    fun searchProducts(searchQuery: String) = productsCollection
-        .orderBy("title")
-        .startAt(searchQuery)
-        .endAt("\u03A9+$searchQuery")
-        .limit(5)
-        .get()
 
     fun getCategories() = categoriesCollection.orderBy("rank").get()
 
@@ -359,57 +328,12 @@ class FirebaseDb {
         }
 
 
-    fun getUserOrders() = usersCollectionRef
-        .document(FirebaseAuth.getInstance().currentUser!!.uid)
-        .collection(ORDERS)
-        .orderBy("date", Query.Direction.DESCENDING)
-        .get()
 
     fun resetPassword(email: String) = firebaseAuth.sendPasswordResetEmail(email)
 
-    fun getOrderAddressAndProducts(
-        order: Order,
-        address: (Address?, String?) -> Unit,
-        products: (List<CartProduct>?, String?) -> Unit
-    ) {
-        usersCollectionRef
-            .document(Firebase.auth.currentUser!!.uid).collection(ORDERS)
-            .whereEqualTo("id", order.id)
-            .get().addOnCompleteListener {
-                if (it.isSuccessful) {
-                    val id = it.result?.documents?.get(0)?.id
-                    usersCollectionRef.document(Firebase.auth.currentUser!!.uid)
-                        .collection(ORDERS).document(id!!).collection(ADDRESS_COLLECTION).get()
-                        .addOnCompleteListener { it2 ->
-                            if (it2.isSuccessful) {
-                                val address2 = it2.result?.toObjects(Address::class.java)
-                                Log.d("test", address2!!.size.toString())
-                                address(address2?.get(0), null)
-                            } else
-                                address(null, it2.exception.toString())
-                        }
-
-                    usersCollectionRef.document(Firebase.auth.currentUser!!.uid)
-                        .collection(ORDERS).document(id).collection(PRODUCTS_COLLECTION).get()
-                        .addOnCompleteListener { it2 ->
-                            if (it2.isSuccessful) {
-                                val products2 = it2.result?.toObjects(CartProduct::class.java)
-                                Log.d("test", products2!!.size.toString())
-                                products(products2, null)
-                            } else
-                                products(null, it2.exception.toString())
-                        }
 
 
-                } else {
-                    address(null, it.exception.toString())
-                    products(null, it.exception.toString())
-                }
-            }
-    }
 
-    //true -> already existed account
-    //false -> new account
     fun checkUserByEmail(email: String, onResult: (String?, Boolean?) -> Unit) {
         usersCollectionRef.whereEqualTo("email", email).get()
             .addOnCompleteListener {

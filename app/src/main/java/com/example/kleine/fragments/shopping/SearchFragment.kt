@@ -56,13 +56,9 @@ class SearchFragment : Fragment() {
         setupSearchRecyclerView()
         showKeyboardAutomatically()
         onHomeClick()
-
         searchMaterials()
         observeSearchResults()
-
-
         onSearchTextClick()
-
         onCancelTvClick()
 
 
@@ -92,9 +88,6 @@ class SearchFragment : Fragment() {
             val bundle = Bundle()
             bundle.putParcelable("material", material)
 
-            /**
-             * Hide the keyboard
-             */
             val imm =
                 activity?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager?
             imm!!.hideSoftInputFromWindow(requireView().windowToken, 0)
@@ -113,12 +106,6 @@ class SearchFragment : Fragment() {
             layoutManager = LinearLayoutManager(context)
         }
     }
-
-
-
-
-
-
 
     private fun showCancelTv() {
         binding.tvCancel.visibility = View.VISIBLE

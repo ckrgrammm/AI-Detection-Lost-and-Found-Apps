@@ -14,6 +14,7 @@ import com.example.kleine.R
 import com.example.kleine.databinding.ProductLayoutRowBinding
 import com.example.kleine.fragments.shopping.HomeFragmentDirections
 import com.example.kleine.model.Material
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 
 class MaterialAdapter : RecyclerView.Adapter<MaterialAdapter.MaterialViewHolder>() {
@@ -100,12 +101,32 @@ class MaterialAdapter : RecyclerView.Adapter<MaterialAdapter.MaterialViewHolder>
         // Set an onClick listener for the item
         if (material.status == "Available") {
             holder.itemView.setDebouncedOnClickListener {
+                // Increment view count
+                incrementViewCount(material.id)
+
                 Log.d("MaterialAdapter", "Navigating with Material ID: ${material.id}")
                 val action = HomeFragmentDirections.actionHomeFragmentToMaterialDetailsFragment(material)
                 it.findNavController().navigate(action)
             }
         }
 
+
+    }
+
+
+    private fun incrementViewCount(materialId: String) {
+        val firestore = FirebaseFirestore.getInstance()
+        val materialRef = firestore.collection("Materials").document(materialId)
+
+        firestore.runTransaction { transaction ->
+            val snapshot = transaction.get(materialRef)
+            val newViewValue = snapshot.getLong("view")?.plus(1) ?: 1L
+            transaction.update(materialRef, "view", newViewValue)
+        }.addOnSuccessListener {
+            Log.d("MaterialAdapter", "Successfully incremented view count.")
+        }.addOnFailureListener { exception ->
+            Log.w("MaterialAdapter", "Error incrementing view count.", exception)
+        }
     }
 
     override fun getItemCount(): Int {

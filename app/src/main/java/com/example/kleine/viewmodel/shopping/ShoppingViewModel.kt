@@ -241,19 +241,19 @@ class ShoppingViewModel(
     fun searchMaterials(query: String) {
         searchResults.postValue(Resource.Loading())
 
-        // Using the collection called "Materials" and assuming the field for the material name is "name"
-        val searchQuery = firestore.collection("Materials")
-            .orderBy("name")
-            .startAt(query)
-            .endAt(query + "\uf8ff")
+        // Fetch all materials
+        firestore.collection("Materials")
+            .get().addOnSuccessListener { documents ->
+                val allMaterials = documents.map { document -> document.toObject(Material::class.java) }
 
-        searchQuery.get().addOnSuccessListener { documents ->
-            val results = documents.map { document -> document.toObject(Material::class.java) }
-            searchResults.postValue(Resource.Success(results))
-        }.addOnFailureListener { exception ->
-            searchResults.postValue(Resource.Error("Error fetching data"))
-            Log.e(TAG, "Error getting documents: ", exception)
-        }
+                // Filter materials based on the name containing the query
+                val results = allMaterials.filter { it.name.contains(query, ignoreCase = true) }
+
+                searchResults.postValue(Resource.Success(results))
+            }.addOnFailureListener { exception ->
+                searchResults.postValue(Resource.Error("Error fetching data"))
+                Log.e(TAG, "Error getting documents: ", exception)
+            }
     }
 
 

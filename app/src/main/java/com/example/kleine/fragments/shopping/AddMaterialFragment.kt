@@ -49,6 +49,11 @@ class AddMaterialFragment : Fragment() {
             val intent = Intent(Intent.ACTION_PICK)
             intent.type = "image/*"
             startActivityForResult(intent, REQUEST_CODE_IMAGE_PICK)
+
+            if (selectedImageUri == null) {
+                Toast.makeText(requireContext(), "Please select an image", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
         }
 
         binding.buttonUploadDocument.setOnClickListener {
@@ -66,30 +71,31 @@ class AddMaterialFragment : Fragment() {
             val description = binding.editTextDesc.text.toString()
 
             val selectedCategoryId = binding.radioGroupCategory.checkedRadioButtonId
-            if (selectedCategoryId == -1) {
-                Toast.makeText(requireContext(), "Please select a category", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
             val selectedCategoryButton = view.findViewById<RadioButton>(selectedCategoryId)
             val category = selectedCategoryButton.text.toString()
 
-
-            // Get the selected status from the RadioGroup
             val selectedStatusId = binding.radioGroupStatus.checkedRadioButtonId
-            if (selectedStatusId == -1) {
-                Toast.makeText(requireContext(), "Please select a status", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
             val selectedRadioButton = view.findViewById<RadioButton>(selectedStatusId)
             val status = selectedRadioButton.text.toString()
 
-            if (name.isNotEmpty() && description.isNotEmpty() && category.isNotEmpty()) {
+            // Check if image and document are selected
+            if (selectedImageUri == null) {
+                Toast.makeText(requireContext(), "Please select an image", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            if (selectedDocumentUri == null) {
+                Toast.makeText(requireContext(), "Please upload a document", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            if (name.isNotEmpty() && description.isNotEmpty() && category.isNotEmpty() && selectedCategoryId != -1 && selectedStatusId != -1) {
                 val material = Material(
                     name = name,
                     desc = description,
                     category = category,
                     status = status,
-                    partnershipsID = userDocumentId // Set the user's document ID here
+                    partnershipsID = userDocumentId
                 )
 
                 // Call ViewModel to add material and upload selected files
@@ -112,7 +118,15 @@ class AddMaterialFragment : Fragment() {
             when (requestCode) {
                 REQUEST_CODE_IMAGE_PICK -> {
                     selectedImageUri = data?.data
-                    binding.imageViewCourseBanner.setImageURI(selectedImageUri)
+
+                    // Check MIME type
+                    val mimeType = context?.contentResolver?.getType(selectedImageUri!!)
+                    if (mimeType != null && (mimeType == "image/jpeg" || mimeType == "image/png")) {
+                        binding.imageViewCourseBanner.setImageURI(selectedImageUri)
+                    } else {
+                        Toast.makeText(context, "Please select a valid image type (JPEG or PNG)", Toast.LENGTH_SHORT).show()
+                        selectedImageUri = null // Reset the URI since it's not valid
+                    }
                 }
                 REQUEST_CODE_DOCUMENT_PICK -> {
                     selectedDocumentUri = data?.data // Here, remove the val keyword

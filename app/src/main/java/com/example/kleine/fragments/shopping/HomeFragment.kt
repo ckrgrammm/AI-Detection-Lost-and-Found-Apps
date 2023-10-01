@@ -8,20 +8,16 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.kleine.R
 import com.example.kleine.activities.ShoppingActivity
 import com.example.kleine.adapters.recyclerview.MaterialAdapter
-import com.example.kleine.adapters.viewpager.HomeViewpagerAdapter
+import com.example.kleine.database.SharedPreferencesHelper
 import com.example.kleine.databinding.FragmentHomeBinding
 
 import com.example.kleine.viewmodel.shopping.ShoppingViewModel
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.snackbar.Snackbar
-import com.google.android.material.tabs.TabLayoutMediator
-import com.google.firebase.firestore.QuerySnapshot
-import com.example.kleine.model.Material
 import com.example.kleine.resource.Resource
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -32,6 +28,8 @@ class HomeFragment : Fragment() {
     private lateinit var viewModel: ShoppingViewModel
     private lateinit var binding: FragmentHomeBinding
     private lateinit var materialAdapter: MaterialAdapter
+    private val sharedPreferencesHelper by lazy { SharedPreferencesHelper(requireContext()) }
+
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,7 +50,7 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-
+        sharedPreferencesHelper.printSharedPreferences()
         val currentUser = FirebaseAuth.getInstance().currentUser
 
         if (currentUser != null) {

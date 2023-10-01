@@ -46,6 +46,11 @@
         android:id="@+id/materialDetailsFragment"
         android:name="com.example.kleine.fragments.shopping.MaterialPreviewFragment"
         tools:layout="@layout/fragment_product_preview">
+
+        <action
+            android:id="@+id/action_materialDetailsFragment_to_homeFragment"
+            app:destination="@id/homeFragment" />
+
         <argument
             android:name="material"
             app:argType="com.example.kleine.model.Material"

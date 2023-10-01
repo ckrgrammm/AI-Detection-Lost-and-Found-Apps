@@ -143,13 +143,14 @@ class MaterialPreviewFragment : Fragment() {
                 Toast.makeText(context, "Successfully enrolled in the course!", Toast.LENGTH_SHORT).show()
 
                 // Navigate back to HomeFragment
-                findNavController().navigateUp()
+                findNavController().navigate(R.id.action_materialDetailsFragment_to_homeFragment)
             }.addOnFailureListener { exception ->
                 Log.w("MaterialPreviewFragment", "Error adding document", exception)
                 Toast.makeText(context, "Error enrolling in the course!", Toast.LENGTH_SHORT).show()
             }
         }
     }
+
 
 
 
