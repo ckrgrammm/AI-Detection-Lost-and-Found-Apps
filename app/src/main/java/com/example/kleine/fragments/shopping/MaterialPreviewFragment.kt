@@ -120,36 +120,53 @@ class MaterialPreviewFragment : Fragment() {
                 return@setOnClickListener
             }
 
-            // Reference to the material document
-            val materialRef = firestore.collection("Materials").document(materialId)
+            // Check if the user has already enrolled
+            firestore.collection("enrollments")
+                .whereEqualTo("userId", userId)
+                .whereEqualTo("materialId", materialId)
+                .get()
+                .addOnSuccessListener { documents ->
+                    if (!documents.isEmpty) {
+                        Toast.makeText(context, "You have already enrolled in this course!", Toast.LENGTH_SHORT).show()
+                        return@addOnSuccessListener
+                    }
 
-            firestore.runTransaction { transaction ->
-                // Get the current state of the material
-                val snapshot = transaction.get(materialRef)
+                    // If the user hasn't enrolled yet, proceed with the enrollment process
+                    val materialRef = firestore.collection("Materials").document(materialId)
 
-                // Increment the enroll field value
-                val newEnrollValue = snapshot.getLong("enroll")?.plus(1) ?: 1L
+                    firestore.runTransaction { transaction ->
+                        // Get the current state of the material
+                        val snapshot = transaction.get(materialRef)
 
-                // Update the enroll field
-                transaction.update(materialRef, "enroll", newEnrollValue)
+                        // Increment the enroll field value
+                        val newEnrollValue = snapshot.getLong("enroll")?.plus(1) ?: 1L
 
-                // Create a new Enrollment object
-                val enrollment = Enrollment(userId = userId, materialId = materialId)
+                        // Update the enroll field
+                        transaction.update(materialRef, "enroll", newEnrollValue)
 
-                // Add the enrollment document and return the newEnrollValue for further use if needed
-                transaction.set(firestore.collection("enrollments").document(), enrollment)
-                newEnrollValue
-            }.addOnSuccessListener {
-                Toast.makeText(context, "Successfully enrolled in the course!", Toast.LENGTH_SHORT).show()
+                        // Create a new Enrollment object
+                        val enrollment = Enrollment(userId = userId, materialId = materialId)
 
-                // Navigate back to HomeFragment
-                findNavController().navigate(R.id.action_materialDetailsFragment_to_homeFragment)
-            }.addOnFailureListener { exception ->
-                Log.w("MaterialPreviewFragment", "Error adding document", exception)
-                Toast.makeText(context, "Error enrolling in the course!", Toast.LENGTH_SHORT).show()
-            }
+                        // Add the enrollment document and return the newEnrollValue for further use if needed
+                        transaction.set(firestore.collection("enrollments").document(), enrollment)
+                        newEnrollValue
+                    }.addOnSuccessListener {
+                        Toast.makeText(context, "Successfully enrolled in the course!", Toast.LENGTH_SHORT).show()
+
+                        // Navigate back to HomeFragment
+                        findNavController().navigate(R.id.action_materialDetailsFragment_to_homeFragment)
+                    }.addOnFailureListener { exception ->
+                        Log.w("MaterialPreviewFragment", "Error adding document", exception)
+                        Toast.makeText(context, "Error enrolling in the course!", Toast.LENGTH_SHORT).show()
+                    }
+                }
+                .addOnFailureListener { exception ->
+                    Log.w("MaterialPreviewFragment", "Error checking enrollment", exception)
+                    Toast.makeText(context, "Error checking enrollment status!", Toast.LENGTH_SHORT).show()
+                }
         }
     }
+
 
 
 
