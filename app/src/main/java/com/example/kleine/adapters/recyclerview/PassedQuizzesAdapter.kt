@@ -32,25 +32,25 @@ class PassedQuizzesAdapter(private var quizzes: MutableList<PassedQuiz> = mutabl
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val quiz = quizzes[position]
         holder.materialNameTextView.text = quiz.materialName
-        holder.dateTextView.text = formatDate(quiz.date)
+        holder.dateTextView.text = quiz.date
         holder.setNameTextView.text = quiz.setName
         holder.scoreTextView.text = quiz.score
     }
 
-    private fun formatDate(dateStr: String): String? {
-        val outputFormat = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
-
-        // If the date string matches the pattern "01-10-2023" (i.e., dd-MM-yyyy)
-        if (dateStr.matches(Regex("\\d{2}-\\d{2}-\\d{4}"))) {
-            return dateStr
-        }
-
-        // Pattern to match "Sun Sep 24 18:06:24 GMT 2023"
-        val firestoreSDF = SimpleDateFormat("EEE MMM dd HH:mm:ss 'GMT' yyyy", Locale.ENGLISH)
-        val firestoreDate: Date? = firestoreSDF.parse(dateStr)
-
-        return firestoreDate?.let { outputFormat.format(it) }
-    }
+//    private fun formatDate(dateStr: String): String? {
+//        val outputFormat = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
+//
+//        // If the date string matches the pattern "01-10-2023" (i.e., dd-MM-yyyy)
+//        if (dateStr.matches(Regex("\\d{2}-\\d{2}-\\d{4}"))) {
+//            return dateStr
+//        }
+//
+//        // Pattern to match "Sun Sep 24 18:06:24 GMT 2023"
+//        val firestoreSDF = SimpleDateFormat("MMMM d, yyyy 'at' h:mm:ss a 'UTC+8'", Locale.ENGLISH)
+//        val firestoreDate: Date? = firestoreSDF.parse(dateStr)
+//
+//        return firestoreDate?.let { outputFormat.format(it) }
+//    }
 
 
 

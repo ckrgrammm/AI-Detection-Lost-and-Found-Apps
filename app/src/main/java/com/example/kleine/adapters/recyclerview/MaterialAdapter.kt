@@ -76,12 +76,19 @@ class MaterialAdapter : RecyclerView.Adapter<MaterialAdapter.MaterialViewHolder>
                 cardView2.isFocusable = true
                 productCard.setCardBackgroundColor(Color.WHITE) // Set the main CardView to white
 
+                cardView2.invalidate() // force redraw for cardView2
+                productCard.invalidate() // force redraw for productCard
+
             } else if (material.status == "Non-available") {
                 cardView2.setCardBackgroundColor(Color.parseColor("#FF0000")) // Red color
                 cardView2.isClickable = false
                 cardView2.isFocusable = false
                 productCard.setCardBackgroundColor(Color.parseColor("#D3D3D3")) // Set the main CardView to bright grey
+
+                cardView2.invalidate() // force redraw for cardView2
+                productCard.invalidate() // force redraw for productCard
             }
+
             if (material.imageUrl.isNotEmpty()) {
                 val pathReference = storage.getReferenceFromUrl(material.imageUrl)
                 pathReference.downloadUrl.addOnSuccessListener { uri ->
@@ -91,8 +98,10 @@ class MaterialAdapter : RecyclerView.Adapter<MaterialAdapter.MaterialViewHolder>
                     Log.e("MaterialAdapter", "Failed to load image", exception)
                     imageView.setImageResource(R.drawable.default_book_logo)
                 }
+                imageView.invalidate() // force redraw for imageView
             } else {
                 imageView.setImageResource(R.drawable.default_book_logo)
+                imageView.invalidate() // force redraw for imageView
                 Log.e("MaterialAdapter", "Failed to load image because of empty")
             }
 
@@ -109,9 +118,8 @@ class MaterialAdapter : RecyclerView.Adapter<MaterialAdapter.MaterialViewHolder>
                 it.findNavController().navigate(action)
             }
         }
-
-
     }
+
 
 
     private fun incrementViewCount(materialId: String) {

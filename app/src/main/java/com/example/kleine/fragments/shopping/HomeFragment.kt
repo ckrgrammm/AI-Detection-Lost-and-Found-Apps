@@ -96,7 +96,9 @@ class HomeFragment : Fragment() {
                 Resource.Status.SUCCESS -> {
                     Log.d(TAG, "Fetched materials successfully. Item count: ${resource.data?.size}")
                     materialAdapter.differ.submitList(resource.data)
+                    binding.productListRecycler.invalidate()
                 }
+
 
                 Resource.Status.ERROR -> {
                     Log.e(TAG, "Error fetching materials: ${resource.message}")
