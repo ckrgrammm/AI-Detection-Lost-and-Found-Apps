@@ -5,7 +5,7 @@
     <data>
         <variable
             name="courseDocument"
-            type="com.example.kleine.model.CourseDocument" />
+            type="com.example.fyps.model.CourseDocument" />
     </data>
 
 

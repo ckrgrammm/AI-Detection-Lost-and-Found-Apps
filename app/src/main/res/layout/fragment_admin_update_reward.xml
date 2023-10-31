@@ -5,7 +5,7 @@
     <data>
         <variable
             name="adminUpdateRewardViewModel"
-            type="com.example.kleine.viewmodel.admin.AdminUpdateRewardViewModel" />
+            type="com.example.fyps.viewmodel.admin.AdminUpdateRewardViewModel" />
     </data>
 
     <ScrollView

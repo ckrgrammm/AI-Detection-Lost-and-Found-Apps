@@ -30,7 +30,7 @@
         <item name="android:fontFamily">@font/nunito_sans_semi_bold</item>
         <item name="android:letterSpacing">0.1</item>
         <item name="android:textAllCaps">true</item>
-        <item name="android:textColor">@color/colorPrimaryDark</item>
+        <item name="android:textColor">@color/primary</item>
         <item name="android:textSize">34sp</item>
         <item name="android:textStyle">bold</item>
     </style>
@@ -87,7 +87,7 @@
     </style>
 
     <style name="style_primaryColor_bold" parent="regular_style">
-        <item name="android:textColor">@color/colorPrimary</item>
+        <item name="android:textColor">@color/primary</item>
         <item name="android:textSize">@dimen/_16ssp</item>
         <item name="android:textStyle">bold</item>
     </style>

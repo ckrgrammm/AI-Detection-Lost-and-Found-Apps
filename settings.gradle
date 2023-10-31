@@ -8,5 +8,5 @@ dependencyResolutionManagement {
 
     }
 }
-rootProject.name = "BAIT2073"
+rootProject.name = "FYPs"
 include ':app'

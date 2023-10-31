@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.kleine">
+    package="com.example.fyps">
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <application
         android:allowBackup="true"
-        android:icon="@mipmap/ic_help_launcher"
+        android:icon="@mipmap/ic_lf_launcher"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_help_launcher_foreground"
+        android:roundIcon="@mipmap/ic_lf_launcher_foreground"
         android:supportsRtl="true"
         android:theme="@style/Theme.Kleine"
         >
 
-        <activity android:name=".activities.ShoppingActivity"
+        <activity android:name="com.example.fyps.activities.ShoppingActivity"
             android:exported="true"
             android:windowSoftInputMode="stateVisible|adjustPan"
             >
@@ -20,7 +20,7 @@
         </activity>
 
         <activity
-            android:name=".activities.LunchActivity"
+            android:name="com.example.fyps.activities.LunchActivity"
             android:exported="true"
             android:windowSoftInputMode="stateVisible|adjustPan">
             <intent-filter>

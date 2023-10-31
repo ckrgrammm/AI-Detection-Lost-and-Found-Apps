@@ -1,65 +1,26 @@
 {
   "project_info": {
-    "project_number": "285167169028",
-    "project_id": "bait2073-634c0",
-    "storage_bucket": "bait2073-634c0.appspot.com"
+    "project_number": "1020228366793",
+    "project_id": "lostandfound-3790a",
+    "storage_bucket": "lostandfound-3790a.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:285167169028:android:aefc806e921d65235d4f51",
+        "mobilesdk_app_id": "1:1020228366793:android:5328e7fb6a2d87a0887818",
         "android_client_info": {
           "package_name": "com.example.kleine"
         }
       },
-      "oauth_client": [
-        {
-          "client_id": "285167169028-re32btba4qtsbsctbtmsfoguefrj8jtk.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
+      "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyB39EqeGxEBXqc4loN-J-5AjJ5-91lUYkM"
+          "current_key": "AIzaSyDeK91_c9-OiMUfg-B3T9sql-XSVcBv_TI"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "285167169028-re32btba4qtsbsctbtmsfoguefrj8jtk.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:285167169028:android:22c7adb5815174695d4f51",
-        "android_client_info": {
-          "package_name": "com.example.never"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "285167169028-re32btba4qtsbsctbtmsfoguefrj8jtk.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyB39EqeGxEBXqc4loN-J-5AjJ5-91lUYkM"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "285167169028-re32btba4qtsbsctbtmsfoguefrj8jtk.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
+          "other_platform_oauth_client": []
         }
       }
     }

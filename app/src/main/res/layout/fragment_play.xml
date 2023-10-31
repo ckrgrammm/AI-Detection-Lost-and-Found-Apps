@@ -6,7 +6,7 @@
     <data>
         <variable
             name="playViewModel"
-            type="com.example.kleine.viewmodel.quiz.PlayViewModel" />
+            type="com.example.fyps.viewmodel.quiz.PlayViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
