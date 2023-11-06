@@ -1,5 +1,7 @@
 package com.example.fyps.viewmodel.lunchapp
 
+import android.content.ContentValues.TAG
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.fyps.firebaseDatabase.FirebaseDb
@@ -11,6 +13,7 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import androidx.lifecycle.LiveData
+import com.example.fyps.model.Status
 import com.google.android.gms.tasks.Task
 import com.google.firebase.firestore.DocumentSnapshot
 
@@ -137,6 +140,28 @@ class KleineViewModel(
         return usersCollectionRef.document(userId).get()
     }
 
+    fun getUserStatus(userId: String, callback: (String?) -> Unit) {
+        usersCollectionRef.document(userId).get()
+            .addOnSuccessListener { document ->
+                if (document != null && document.exists()) {
+                    val status = document.getString("status") // Assuming the field is named "status"
+                    callback(status)
+                } else {
+                    Log.d(TAG, "No such document")
+                    callback(null)
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.d(TAG, "get failed with ", exception)
+                callback(null)
+            }
+    }
+
+
+
+    fun updateUserRole(userId: String, newRole: Status): Task<Void> {
+        return usersCollectionRef.document(userId).update("status", newRole.name)
+    }
 
 
 

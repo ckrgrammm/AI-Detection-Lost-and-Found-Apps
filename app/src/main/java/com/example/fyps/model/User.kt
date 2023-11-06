@@ -4,7 +4,7 @@ import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
 enum class Status {
-    USERS, PARTNERS, ADMINS
+    USERS, FINDERS, REPORTERS,PARTNERS, ADMINS
 }
 
 @Parcelize
@@ -13,9 +13,8 @@ data class User(
     var lastName: String,
     var email: String,
     var imagePath: String = "",
-    var status: Status = Status.USERS
+    var status: Status = Status.USERS // Default status set to USERS
 ): Parcelable {
-
     constructor() : this("","","","")
 }
 
@@ -23,4 +22,3 @@ data class UserDetails(
     val userName: String,
     val userImage: String?
 )
-

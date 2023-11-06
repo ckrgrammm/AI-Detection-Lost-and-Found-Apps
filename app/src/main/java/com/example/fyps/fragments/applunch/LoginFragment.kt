@@ -15,9 +15,12 @@ import androidx.navigation.fragment.findNavController
 import br.com.simplepass.loadingbutton.customViews.CircularProgressButton
 import com.example.fyps.activities.LunchActivity
 import com.example.fyps.R
+import com.example.fyps.activities.RequestRolesActivity
 import com.example.fyps.activities.ShoppingActivity
 import com.example.fyps.database.SharedPreferencesHelper
 import com.example.fyps.databinding.FragmentLoginBinding
+import com.example.fyps.model.Status
+import com.example.fyps.model.User
 import com.example.fyps.resource.Resource
 import com.example.fyps.viewmodel.lunchapp.KleineViewModel
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -158,21 +161,41 @@ class LoginFragment : Fragment() {
     }
 
     private fun observerLogin() {
-        viewModel.login.observe(viewLifecycleOwner, Observer {
-            if (it == true) {
+        viewModel.login.observe(viewLifecycleOwner, Observer { isLoggedIn ->
+            if (isLoggedIn) {
                 // Get the user ID
                 val userId = FirebaseAuth.getInstance().currentUser?.uid
-                if (userId != null) {
-                    // Save user ID to SharedPreferences
-                    sharedPreferencesHelper.saveUserId(userId)
+                userId?.let { uid ->
+                    viewModel.getUser(uid).addOnSuccessListener { documentSnapshot ->
+                        val user = documentSnapshot.toObject(User::class.java)
+                        user?.let {
+                            when (it.status) {
+                                Status.USERS -> {
+                                    // If user status is USERS, navigate to RequestRolesActivity
+                                    val intent = Intent(activity, RequestRolesActivity::class.java)
+                                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
+                                    startActivity(intent)
+                                }
+                                else -> {
+                                    // For any other status, proceed to the main activity (e.g., ShoppingActivity)
+                                    val intent = Intent(activity, ShoppingActivity::class.java)
+                                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
+                                    startActivity(intent)
+                                }
+                            }
+                        }
+                    }.addOnFailureListener { exception ->
+                        // Handle the error here
+                        Log.e(TAG, "Error getting user details: ", exception)
+                    }
                 }
-                btnLogin.revertAnimation()
-                val intent = Intent(activity, ShoppingActivity::class.java)
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
-                startActivity(intent)
             }
         })
     }
+
+
+
+
 
 
 

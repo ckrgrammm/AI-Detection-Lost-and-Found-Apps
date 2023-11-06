@@ -185,4 +185,12 @@
     </string-array>
 
 
+
+    <!-- Roles Status Selection -->
+    <string name="genderTitle">What\'s your roles ?\n</string>
+    <string name="subGenderTitle">Let Us Know You Better!</string>
+    <string name="next">Next\n</string>
+    <string name="female">Reporters\n</string>
+    <string name="male">Finders\n</string>
+
 </resources>

@@ -54,4 +54,26 @@
     <color name="lavender">#8692f7</color>
 
 
+
+    <!-- Roles Selectoin -->
+
+    <color name="gray">#808080</color>
+    <color name="error">#ffcc0000</color>
+    <color name="secondary">#517FEE</color>
+    <color name="buttonEvent">#0c94ec</color>
+    <color name="ligth_text">#b4b4b4</color>
+    <color name="border_color">#FF000000</color>
+    <color name="logintext">#373737</color>
+    <color name="symptomCard">#DCCACA</color>
+    <color name="transparent">#00000000</color>
+    <color name="deleteButton">#FF5656</color>
+    <color name="editButton">#6D97B6</color>
+    <color name="okButton">#35AF77</color>
+    <color name="dialog_color_1">#FDD736</color>
+    <color name="dialog_color_2">#385796</color>
+    <color name="max_blue">#30d9ef</color>
+    <color name="min_blue">#96e8f3</color>
+    <color name="card_yellow">#ffc42c</color>
+    <color name="card_green">#40bc5c</color>
+    <color name="card_light_blue">#43b8e2</color>
 </resources>

@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:textAlignment="center"
+        tools:context="com.example.bait2073mobileapplicationdevelopment.screens.profile.Gender.RequestGenderActivity">
+
+        <TextView
+            android:id="@+id/profile_title"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:layout_marginLeft="@dimen/profile_margin_left"
+            android:layout_marginTop="@dimen/profile_margin_top"
+            android:fontFamily="@font/poppins_bold"
+            android:text="@string/genderTitle"
+            android:textSize="@dimen/titleFont" />
+
+        <TextView
+            android:id="@+id/subtitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/profile_margin_left"
+            android:fontFamily="@font/poppins_medium"
+            android:text="@string/subGenderTitle"
+            android:textColor="@color/gray"
+            android:textSize="@dimen/titleSubFont"
+            />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="60dp"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/maleImage"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.5"
+                app:srcCompat="@drawable/gender_male" />
+
+            <ImageView
+                android:id="@+id/femaleImage"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.5"
+                app:srcCompat="@drawable/gender_male_click" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/male_text"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.5"
+                android:gravity="center"
+                android:fontFamily="@font/poppins_medium"
+                android:text="@string/male"
+                android:textColor="@color/gray"
+                android:textSize="@dimen/titleSubFont"
+                />
+
+            <TextView
+                android:id="@+id/female_text"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.5"
+
+                android:gravity="center"
+                android:fontFamily="@font/poppins_medium"
+                android:text="@string/female"
+                android:textColor="@color/gray"
+                android:textSize="@dimen/titleSubFont"
+                />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/next_button"
+            style="@style/Widget.AppCompat.Button.Colored"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginStart="50dp"
+            android:layout_marginTop="60dp"
+            android:layout_marginEnd="50dp"
+            android:gravity="center"
+            android:paddingTop="@dimen/btn_padding"
+            android:text="@string/next"
+            android:textSize="17sp" />
+
+    </LinearLayout>
+</ScrollView>
