@@ -37,6 +37,9 @@ class RequestRolesActivity : AppCompatActivity() {
         binding.maleImage.setOnClickListener {
             selectedRole = Status.FINDERS
             binding.maleImage.setImageResource(R.drawable.gender_male_click)
+
+            binding.maleText.setTextColor(resources.getColor(android.R.color.holo_blue_dark))
+
             // Reset female image and text
             binding.femaleImage.setImageResource(R.drawable.gender_female)
             binding.femaleText.setTextColor(resources.getColor(android.R.color.black))
@@ -45,9 +48,13 @@ class RequestRolesActivity : AppCompatActivity() {
         binding.femaleImage.setOnClickListener {
             selectedRole = Status.REPORTERS
             binding.femaleImage.setImageResource(R.drawable.gender_male_click)
+            binding.femaleText.setTextColor(resources.getColor(android.R.color.holo_blue_dark))
+
+
             // Reset male image and text
             binding.maleImage.setImageResource(R.drawable.gender_male)
             binding.maleText.setTextColor(resources.getColor(android.R.color.black))
+
         }
 
         // Set up click listener for the next button
