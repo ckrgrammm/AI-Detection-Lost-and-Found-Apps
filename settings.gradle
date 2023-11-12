@@ -10,3 +10,4 @@ dependencyResolutionManagement {
 }
 rootProject.name = "FYPs"
 include ':app'
+include ':openCVLibrary3413'

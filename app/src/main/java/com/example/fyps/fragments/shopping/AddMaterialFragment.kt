@@ -6,6 +6,7 @@ import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
@@ -13,6 +14,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
 import android.widget.RadioButton
 import android.widget.Toast
 import androidx.fragment.app.Fragment
@@ -25,6 +27,7 @@ import com.google.firebase.auth.FirebaseAuth
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+import com.example.fyps.activities.CameraActivity
 
 
 class AddMaterialFragment : Fragment() {
@@ -35,6 +38,10 @@ class AddMaterialFragment : Fragment() {
 
     private val REQUEST_CODE_IMAGE_PICK = 1
     private val REQUEST_CODE_DOCUMENT_PICK = 2
+
+
+    // Define a request code for CameraActivity
+    private val REQUEST_CODE_CAMERA_ACTIVITY = 100
 
     private var selectedImageUri: Uri? = null
     private var selectedDocumentUri: Uri? = null
@@ -50,9 +57,6 @@ class AddMaterialFragment : Fragment() {
 
         viewModel = ViewModelProvider(this).get(MaterialViewModel::class.java)
         // Retrieve the user's document ID (replace with your actual method)
-        val userDocumentId = getUserDocumentId()
-        binding.textViewPartnershipID.text = "Partnership ID: $userDocumentId"
-
 
         // Set up the OnClickListener for the EditText
         binding.editTextDateTime.setOnClickListener {
@@ -60,10 +64,10 @@ class AddMaterialFragment : Fragment() {
         }
 
         // Setup Spinner for Item Category
-        val categories = arrayOf("Electronics", "Clothing", "Personal Items", "Other") // Customize as needed
+        val categories = arrayOf("Electronics", "Clothing", "Personal Items", "Other")
         val adapter = ArrayAdapter(requireContext(), R.layout.simple_spinner_item, categories)
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        binding.spinnerItemCategory.adapter = adapter
+        val autoCompleteTextView = binding.spinnerItemCategory as AutoCompleteTextView
+        autoCompleteTextView.setAdapter(adapter)
 
         binding.buttonSelectImage.setOnClickListener {
             val intent = Intent(Intent.ACTION_PICK)
@@ -76,13 +80,10 @@ class AddMaterialFragment : Fragment() {
             }
         }
 
+
         binding.buttonOpenCamera.setOnClickListener {
-            val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-            if (takePictureIntent.resolveActivity(requireContext().packageManager) != null) {
-                startActivityForResult(takePictureIntent, REQUEST_CODE_IMAGE_CAPTURE)
-            } else {
-                Toast.makeText(requireContext(), "Unable to open camera", Toast.LENGTH_SHORT).show()
-            }
+            val intent = Intent(context, CameraActivity::class.java)
+            startActivityForResult(intent, REQUEST_CODE_CAMERA_ACTIVITY)
         }
 
 
@@ -91,19 +92,21 @@ class AddMaterialFragment : Fragment() {
             // Validate and get data from UI elements
             val name = binding.editTextItemName.text.toString()
             val description = binding.editTextItemDescription.text.toString()
-            val category = binding.spinnerItemCategory.selectedItem.toString()
-            val status = binding.textViewStatus.text.toString()
+            val category = binding.spinnerItemCategory.text.toString() // Change here
 
             if (name.isEmpty() || description.isEmpty() || category.isEmpty()) {
                 Toast.makeText(requireContext(), "Please fill all required fields", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
+            // Set the status to "Lost" by default
+            val status = "Status Lost"
+
             val material = Material(
                 name = name,
                 desc = description,
                 category = category,
-                status = status,
+                status = status, // Use the default "Lost" status
                 partnershipsID = getUserDocumentId()
             )
 
@@ -161,6 +164,32 @@ class AddMaterialFragment : Fragment() {
                     binding.imageViewCourseBanner.setImageBitmap(imageBitmap)
 
                     // If you want to save this image or do more processing, you'll need additional code here.
+                }
+
+            }
+            if (resultCode == Activity.RESULT_OK) {
+                when (requestCode) {
+                    REQUEST_CODE_CAMERA_ACTIVITY -> {
+                        // Handle the detected object name
+                        val detectedObjectName = data?.getStringExtra("DetectedObjectName")
+                        binding.editTextItemName.setText(detectedObjectName)
+
+                        // Handle the captured image
+                        val filename = data?.getStringExtra("CapturedImageFilename")
+                        if (filename != null) {
+                            try {
+                                val fis = requireContext().openFileInput(filename)
+                                val capturedBitmap = BitmapFactory.decodeStream(fis)
+                                fis.close()
+
+                                // Display the image
+                                binding.imageViewCourseBanner.setImageBitmap(capturedBitmap)
+                            } catch (e: Exception) {
+                                e.printStackTrace()
+                            }
+                        }
+                    }
+                    // Handle other request codes if necessary
                 }
             }
         }

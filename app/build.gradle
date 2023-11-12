@@ -30,6 +30,7 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
+
     }
     kotlinOptions {
         jvmTarget = '1.8'
@@ -38,6 +39,22 @@ android {
     buildFeatures{
         viewBinding true
         dataBinding true
+    }
+
+    sourceSets {
+        main {
+            jni {
+                srcDirs 'src\\main\\jni', 'src\\main\\jnilibs'
+            }
+        }
+    }
+
+    aaptOptions {
+        noCompress "tflite"
+        noCompress "lite"
+    }
+    buildFeatures {
+        mlModelBinding true
     }
 }
 
@@ -124,6 +141,16 @@ dependencies {
     kapt "com.google.dagger:hilt-compiler:2.38.1"
 
     
+
+    //Tensor Flow Lite
+    implementation 'org.tensorflow:tensorflow-lite-metadata:0.1.0'
+    implementation 'org.tensorflow:tensorflow-lite-gpu:2.2.0'
+    implementation 'org.tensorflow:tensorflow-lite-support:0.1.0'
+    implementation 'org.tensorflow:tensorflow-lite-task-vision:0.1.0'
+    implementation 'org.tensorflow:tensorflow-lite-task-text:0.1.0'
+    implementation project(path: ':openCVLibrary3413')
+
+
 
 
 
