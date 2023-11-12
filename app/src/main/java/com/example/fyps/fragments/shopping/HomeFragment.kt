@@ -65,7 +65,7 @@ class HomeFragment : Fragment() {
                         if (status == "ADMINS") {
                             // Admin user, show the fragment
                             binding.frameAdd.visibility = View.GONE
-                        }else if(status == "PARTNERS"){
+                        }else if(status == "REPORTERS"){
                             binding.frameAdd.visibility = View.VISIBLE
                         }else{
 
