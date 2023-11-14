@@ -70,7 +70,7 @@ class MaterialAdapter : RecyclerView.Adapter<MaterialAdapter.MaterialViewHolder>
             val storageRef = storage.reference
 
             // Set the color and clickability based on the status
-            if (material.status == "Available") {
+            if (material.status == "Status : Lost") {
                 cardView2.setCardBackgroundColor(Color.parseColor("#AAFF00")) // Green color
                 cardView2.isClickable = true
                 cardView2.isFocusable = true
@@ -79,7 +79,7 @@ class MaterialAdapter : RecyclerView.Adapter<MaterialAdapter.MaterialViewHolder>
                 cardView2.invalidate() // force redraw for cardView2
                 productCard.invalidate() // force redraw for productCard
 
-            } else if (material.status == "Non-available") {
+            } else if (material.status == "Status : Claimed") {
                 cardView2.setCardBackgroundColor(Color.parseColor("#FF0000")) // Red color
                 cardView2.isClickable = false
                 cardView2.isFocusable = false
@@ -108,7 +108,7 @@ class MaterialAdapter : RecyclerView.Adapter<MaterialAdapter.MaterialViewHolder>
         }
 
         // Set an onClick listener for the item
-        if (material.status == "Available") {
+        if (material.status == "Status : Lost") {
             holder.itemView.setDebouncedOnClickListener {
                 // Increment view count
                 incrementViewCount(material.id)

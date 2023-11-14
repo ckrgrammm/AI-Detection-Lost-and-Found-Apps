@@ -98,7 +98,7 @@ class AddMaterialFragment : Fragment() {
             name = name,
             desc = description,
             category = category,
-            status = "Lost",
+            status = "Status : Lost",
             partnershipsID = getUserDocumentId()
         )
 

@@ -16,7 +16,7 @@ data class Material(
     val category: String = "",
     val status: String = "", // Status (Available/Unavailable)
     var view: Long = 0,
-    var enroll: Long = 0,
+    var claimed: Long = 0,
     var imageUrl: String = "", // URL for the course banner
     val partnershipsID: String = ""  // User's document ID
 

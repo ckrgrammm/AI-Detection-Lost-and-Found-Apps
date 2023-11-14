@@ -1,6 +1,7 @@
 package com.example.fyps.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatButton;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
@@ -11,11 +12,17 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Matrix;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.SurfaceView;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.example.fyps.R;
 
@@ -143,6 +150,8 @@ public class CameraActivity extends Activity implements CameraBridgeViewBase.CvC
     }
 
 
+    private boolean isDialogShown = false; // Flag to track if the dialog is already shown
+
     @Override
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
         mRgba = inputFrame.rgba();
@@ -150,56 +159,84 @@ public class CameraActivity extends Activity implements CameraBridgeViewBase.CvC
 
         Mat out = objectDetectorClass.recognizeImage(mRgba);
 
-        // Check if an object is detected
         String detectedObjectName = objectDetectorClass.getDetectedObjectName();
-        if (detectedObjectName != null && !detectedObjectName.isEmpty()) {
-            runOnUiThread(() -> onObjectDetected(detectedObjectName,mRgba));
+        if (detectedObjectName != null && !detectedObjectName.isEmpty() && !isDialogShown) {
+            isDialogShown = true;
+            runOnUiThread(() -> onObjectDetected(detectedObjectName, mRgba));
         }
 
-        return out; // return the processed frame
+        return out;
     }
 
     private void onObjectDetected(String detectedObjectName, Mat capturedFrame) {
-        // Capitalize the first letter of the detected object's name
-        final String finalDetectedObjectName;
-        if (detectedObjectName != null && !detectedObjectName.isEmpty()) {
-            finalDetectedObjectName = detectedObjectName.substring(0, 1).toUpperCase() + detectedObjectName.substring(1);
-        } else {
-            finalDetectedObjectName = detectedObjectName;
-        }
+        final String finalDetectedObjectName = detectedObjectName != null && !detectedObjectName.isEmpty()
+                ? detectedObjectName.substring(0, 1).toUpperCase() + detectedObjectName.substring(1)
+                : detectedObjectName;
 
-        new AlertDialog.Builder(this)
-                .setTitle("Object Detected")
-                .setMessage("Detected object: " + finalDetectedObjectName + ". Use this object?")
-                .setPositiveButton("Yes", (dialog, which) -> {
-                    Bitmap capturedBitmap = convertMatToBitmap(capturedFrame);
+        // Inflate the custom dialog layout
+        LayoutInflater inflater = getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.custom_dialog, null);
 
-                    // Save the bitmap to a temporary file
-                    String filename = "temp_image";
-                    try {
-                        FileOutputStream stream = this.openFileOutput(filename, Context.MODE_PRIVATE);
-                        capturedBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
 
-                        // Cleanup
-                        stream.close();
-                        capturedBitmap.recycle();
+        // Find the ImageView and set the icon (if needed)
+        ImageView iconImageView = dialogView.findViewById(R.id.imageView);
+        iconImageView.setImageResource(R.drawable.icon_warning); // Make sure this drawable exists
 
-                        // Put file name and detected object name in intent
-                        Intent resultIntent = new Intent();
-                        resultIntent.putExtra("DetectedObjectName", finalDetectedObjectName);
-                        resultIntent.putExtra("CapturedImageFilename", filename);
-                        setResult(Activity.RESULT_OK, resultIntent);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    finish(); // Close CameraActivity
-                })
-                .setNegativeButton("No", (dialog, which) -> {
-                    // User cancelled, just close the dialog and continue detection
-                })
-                .show();
+
+        // Access the dialog elements to set properties or add listeners
+        TextView titleTextView = dialogView.findViewById(R.id.textView);
+        titleTextView.setText("Object Detected");
+        TextView messageTextView = dialogView.findViewById(R.id.textView2);
+        messageTextView.setText("Detected object: " + finalDetectedObjectName + ". Use this object?");
+
+        // Set up buttons
+        AppCompatButton cancelButton = dialogView.findViewById(R.id.btn_cancel);
+        AppCompatButton okayButton = dialogView.findViewById(R.id.btn_okay);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setView(dialogView);
+
+        AlertDialog dialog = builder.create();
+
+        // Set up button listeners with delay
+        cancelButton.setOnClickListener(v -> {
+            new Handler().postDelayed(() -> {
+                dialog.dismiss();
+                isDialogShown = false; // Reset the flag to allow new detections
+                // User cancelled, continue with your logic after delay
+            }, 500); // Delay in milliseconds
+        });
+
+        okayButton.setOnClickListener(v -> {
+            new Handler().postDelayed(() -> {
+                Bitmap capturedBitmap = convertMatToBitmap(capturedFrame);
+
+            // Save the bitmap to a temporary file
+            String filename = "temp_image";
+            try {
+                FileOutputStream stream = this.openFileOutput(filename, Context.MODE_PRIVATE);
+                capturedBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+
+                // Cleanup
+                stream.close();
+                capturedBitmap.recycle();
+
+                // Put file name and detected object name in intent
+                Intent resultIntent = new Intent();
+                resultIntent.putExtra("DetectedObjectName", finalDetectedObjectName);
+                resultIntent.putExtra("CapturedImageFilename", filename);
+                setResult(Activity.RESULT_OK, resultIntent);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            dialog.dismiss();
+            finish(); // Close CameraActivity
+            }, 500); // Delay in milliseconds
+
+        });
+
+        dialog.show();
     }
-
 
 
 
@@ -207,14 +244,21 @@ public class CameraActivity extends Activity implements CameraBridgeViewBase.CvC
         Bitmap bmp = null;
         Mat tmp = new Mat(mat.height(), mat.width(), CvType.CV_8U, new Scalar(4));
         try {
+            // Convert the Mat to Bitmap
             Imgproc.cvtColor(mat, tmp, Imgproc.COLOR_RGB2BGRA);
             bmp = Bitmap.createBitmap(tmp.cols(), tmp.rows(), Bitmap.Config.ARGB_8888);
             Utils.matToBitmap(tmp, bmp);
+
+            // Rotate the Bitmap to the correct orientation
+            Matrix matrix = new Matrix();
+            matrix.postRotate(90); // Rotate 90 degrees
+            bmp = Bitmap.createBitmap(bmp, 0, 0, bmp.getWidth(), bmp.getHeight(), matrix, true);
         }
         catch (CvException e) {
             Log.d(TAG, e.getMessage());
         }
         return bmp;
     }
+
 
 }
