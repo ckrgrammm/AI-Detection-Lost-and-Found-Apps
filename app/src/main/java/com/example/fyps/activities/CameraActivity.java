@@ -21,6 +21,7 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -43,6 +44,9 @@ import java.io.IOException;
 
 public class CameraActivity extends Activity implements CameraBridgeViewBase.CvCameraViewListener2{
     private static final String TAG="MainActivity";
+    private boolean inCaptureMode = false; // New variable to track capture mode
+
+
 
     private Mat mRgba;
     private Mat mGray;
@@ -83,25 +87,32 @@ public class CameraActivity extends Activity implements CameraBridgeViewBase.CvC
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-        int MY_PERMISSIONS_REQUEST_CAMERA=0;
-        // if camera permission is not given it will ask for it on device
+        int MY_PERMISSIONS_REQUEST_CAMERA = 0;
         if (ContextCompat.checkSelfPermission(CameraActivity.this, Manifest.permission.CAMERA)
-                == PackageManager.PERMISSION_DENIED){
+                == PackageManager.PERMISSION_DENIED) {
             ActivityCompat.requestPermissions(CameraActivity.this, new String[] {Manifest.permission.CAMERA}, MY_PERMISSIONS_REQUEST_CAMERA);
         }
 
         setContentView(R.layout.activity_camera);
 
-        mOpenCvCameraView=(CameraBridgeViewBase) findViewById(R.id.frame_Surface);
+        // Initialize the capture button after setting the content view
+        Button captureButton = findViewById(R.id.btn_capture);
+        captureButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                inCaptureMode = true; // Switch to capture mode
+            }
+        });
+
+        mOpenCvCameraView = (CameraBridgeViewBase) findViewById(R.id.frame_Surface);
         mOpenCvCameraView.setVisibility(SurfaceView.VISIBLE);
         mOpenCvCameraView.setCvCameraViewListener(this);
-        try{
-            // input size is 300 for this model
-            objectDetectorClass=new objectDetectorClass(getAssets(),"ssd_mobilenet.tflite","labelmap.txt",300);
-            Log.d("MainActivity","Model is successfully loaded");
-        }
-        catch (IOException e){
-            Log.d("MainActivity","Getting some error");
+
+        try {
+            objectDetectorClass = new objectDetectorClass(getAssets(), "ssd_mobilenet.tflite", "labelmap.txt", 300);
+            Log.d("MainActivity", "Model is successfully loaded");
+        } catch (IOException e) {
+            Log.d("MainActivity", "Getting some error");
             e.printStackTrace();
         }
     }
@@ -157,15 +168,20 @@ public class CameraActivity extends Activity implements CameraBridgeViewBase.CvC
         mRgba = inputFrame.rgba();
         mGray = inputFrame.gray();
 
-        Mat out = objectDetectorClass.recognizeImage(mRgba);
-
-        String detectedObjectName = objectDetectorClass.getDetectedObjectName();
-        if (detectedObjectName != null && !detectedObjectName.isEmpty() && !isDialogShown) {
-            isDialogShown = true;
-            runOnUiThread(() -> onObjectDetected(detectedObjectName, mRgba));
+        if (inCaptureMode) {
+            Mat out = objectDetectorClass.recognizeImage(mRgba);
+            String detectedObjectName = objectDetectorClass.getDetectedObjectName();
+            if (detectedObjectName != null && !detectedObjectName.isEmpty() && !isDialogShown) {
+                isDialogShown = true;
+                inCaptureMode = false; // Reset capture mode
+                runOnUiThread(() -> onObjectDetected(detectedObjectName, mRgba));
+            }
+            return out;
+        } else {
+            return mRgba; // Return the unprocessed frame in preview mode
         }
 
-        return out;
+
     }
 
     private void onObjectDetected(String detectedObjectName, Mat capturedFrame) {
