@@ -20,7 +20,7 @@
             android:layout_marginLeft="@dimen/profile_margin_left"
             android:layout_marginTop="@dimen/profile_margin_top"
             android:fontFamily="@font/poppins_bold"
-            android:text="@string/genderTitle"
+            android:text="Your Preferences."
             android:textSize="@dimen/titleFont" />
 
         <TextView

@@ -16,6 +16,7 @@ import android.widget.EditText
 import android.widget.RatingBar
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -26,6 +27,7 @@ import com.example.fyps.adapters.recyclerview.CartRecyclerAdapter
 import com.example.fyps.databinding.FragmentOrderDetailsBinding
 import com.example.fyps.model.CourseDocument
 import com.example.fyps.viewmodel.shopping.ShoppingViewModel
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import java.text.SimpleDateFormat
@@ -104,11 +106,12 @@ class OrderDetails : Fragment() {
             showReviewDialog(materialId)
         }
 
-        binding.btnStartQuiz.setOnClickListener {
-            val action = OrderDetailsDirections.actionOrderDetailsToQuizFragment(materialId)
-            Log.d(TAG, "Navigating to QuizFragment with Material ID: ${materialId}") // Log the navigation
-            findNavController().navigate(action)
+        binding.btnChat.setOnClickListener {
+            val snackBar = requireActivity().findViewById<CoordinatorLayout>(R.id.snackBar_coordinator)
+            Snackbar.make(snackBar,resources.getText(R.string.g_coming_soon), Snackbar.LENGTH_SHORT).show()
         }
+
+
     }
 
 
@@ -138,11 +141,7 @@ class OrderDetails : Fragment() {
                 downloadDocument(documentUrl)
             }
         }
-        binding.rvProducts.apply {
-            adapter = productsAdapter
-            layoutManager = LinearLayoutManager(context)
-            addItemDecoration(VerticalSpacingItemDecorator(23))
-        }
+
     }
 
 
