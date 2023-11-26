@@ -6,6 +6,8 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
@@ -19,15 +21,22 @@ import com.bumptech.glide.Glide
 import com.example.fyps.R
 import com.example.fyps.adapters.viewpager.ViewPager2Images
 import com.example.fyps.databinding.FragmentProductPreviewBinding
+import com.example.fyps.databinding.RecyclerViewMaterialCommentBinding
+import com.example.fyps.model.Comment
 import com.example.fyps.model.CommentWithUserDetails
 import com.example.fyps.model.Enrollment
 import com.example.fyps.model.Material
+import com.example.fyps.model.User
 import com.example.fyps.viewmodel.comment.CommentViewModel
 import com.example.fyps.viewmodel.user.UserViewModel
 import com.google.android.material.card.MaterialCardView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 import com.google.firebase.storage.FirebaseStorage
+import java.text.SimpleDateFormat
+import java.util.Locale
+import java.util.Date
 
 
 
@@ -91,14 +100,30 @@ class MaterialPreviewFragment : Fragment() {
             adapter.setData(sortedComments)
         })
 
+        // Initialize comments visibility
+        areCommentsVisible = false
+        binding.allMaterialComment.materialCommentData.visibility = if (areCommentsVisible) View.VISIBLE else View.GONE
+        binding.allMaterialComment.downArrowComment.rotation = if (areCommentsVisible) 180f else 0f
+
         binding.allMaterialComment.commentTitle.setOnClickListener {
             toggleComments()
         }
         binding.allMaterialComment.downArrowComment.setOnClickListener {
             toggleComments()
         }
-    }
 
+
+
+        // Ensuring the view is completely created before accessing its elements
+        binding.allMaterialComment.root.post {
+            val addCommentButton = binding.allMaterialComment.root.findViewById<Button>(R.id.addCommentButton)
+            addCommentButton?.setOnClickListener {
+                submitComment()
+            }
+        }
+
+
+    }
 
 
     private fun onEnrollClick() {
@@ -165,7 +190,153 @@ class MaterialPreviewFragment : Fragment() {
     }
 
 
+    private fun toggleComments() {
+        areCommentsVisible = !areCommentsVisible
+        binding.allMaterialComment.materialCommentData.visibility = if (areCommentsVisible) View.VISIBLE else View.GONE
+        binding.allMaterialComment.downArrowComment.animate().rotation(if (areCommentsVisible) 180f else 0f).setDuration(300).start()
+    }
 
+
+
+    private fun submitComment() {
+        // Correctly accessing the EditText from included layout
+        val commentEditText = binding.allMaterialComment.root.findViewById<EditText>(R.id.addCommentEditText)
+        val commentText = commentEditText.text.toString().trim()
+
+        if (commentText.isNotEmpty()) {
+            val userId = firebaseAuth.currentUser?.uid ?: return
+            val newComment = Comment(
+                comment = commentText,
+                userId = userId,
+                commentDate = getCurrentDateTime(),
+                materialId = material?.id ?: return
+            )
+            firestore.collection("Comments").add(newComment)
+                .addOnSuccessListener {
+                    commentEditText.text.clear()
+                    loadComments(material?.id ?: return@addOnSuccessListener)
+                }
+                .addOnFailureListener {
+                    Toast.makeText(context, "Failed to add comment", Toast.LENGTH_SHORT).show()
+                }
+        } else {
+            Toast.makeText(context, "Please enter a comment", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+
+    private fun loadComments(materialId: String) {
+        firestore.collection("Comments")
+            .whereEqualTo("materialId", materialId)
+            .orderBy("commentDate", Query.Direction.DESCENDING)
+            .get()
+            .addOnSuccessListener { documents ->
+                val commentsList = documents.toObjects(CommentWithUserDetails::class.java)
+                updateCommentsAdapter(commentsList)
+            }
+            .addOnFailureListener { exception ->
+                Log.e("MaterialPreviewFragment", "Error getting comments", exception)
+            }
+    }
+
+    private fun updateCommentsAdapter(comments: List<CommentWithUserDetails>) {
+        val adapter = binding.allMaterialComment.materialCommentData.adapter as? CommentsAdapter
+        adapter?.setData(comments)
+    }
+
+    private fun loadUserDetails(userId: String, callback: (User?) -> Unit) {
+        firestore.collection("users").document(userId).get()
+            .addOnSuccessListener { document ->
+                val user = document.toObject(User::class.java)
+                callback(user)
+            }
+            .addOnFailureListener {
+                Log.e("MaterialPreviewFragment", "Error getting user details", it)
+                callback(null)
+            }
+    }
+
+
+    private fun getCurrentDateTime(): String {
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+        return dateFormat.format(Date())
+    }
+    inner class CommentsAdapter(
+            private var commentsWithUserDetails: List<CommentWithUserDetails>
+    ) : RecyclerView.Adapter<CommentsAdapter.CommentViewHolder>() {
+
+        inner class CommentViewHolder(val binding: RecyclerViewMaterialCommentBinding) : RecyclerView.ViewHolder(binding.root)
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CommentViewHolder {
+            val layoutInflater = LayoutInflater.from(parent.context)
+            val binding = RecyclerViewMaterialCommentBinding.inflate(layoutInflater, parent, false)
+            return CommentViewHolder(binding)
+        }
+
+        override fun onBindViewHolder(holder: CommentViewHolder, position: Int) {
+            val commentWithDetails = commentsWithUserDetails[position]
+            val context = holder.itemView.context
+
+            // Check if there are comments available
+            if (commentsWithUserDetails.isEmpty()) {
+                // Show the "No comments" text if there are no comments
+                holder.binding.noCommentsTextView.visibility = View.VISIBLE
+                Log.d("CommentsAdapter", "No comments available")
+            } else {
+                // Hide the "No comments" text if there are comments
+                holder.binding.noCommentsTextView.visibility = View.GONE
+            }
+
+
+            // Load user details
+            loadUserDetails(commentWithDetails.comment.userId) { user ->
+                user?.let {
+                    holder.binding.userName.text = "${user.firstName} ${user.lastName}"
+                    Glide.with(context)
+                        .load(user.imagePath)
+                        .placeholder(R.drawable.user)
+                        .into(holder.binding.userImage)
+                }
+            }
+
+            // Set the comment and timestamp
+            holder.binding.userComment.text = commentWithDetails.comment.comment
+            holder.binding.commentTimestamp.text = commentWithDetails.comment.commentDate
+
+            // Check if there is an admin reply
+            commentWithDetails.comment.replyComment?.let { reply ->
+                holder.binding.adminReply.visibility = View.VISIBLE
+                holder.binding.adminReply.text = reply
+                holder.binding.replyTimestamp.visibility = View.VISIBLE
+                holder.binding.replyTimestamp.text = commentWithDetails.comment.replyDate ?: ""
+
+                // Set the admin name if available
+//                holder.binding.adminName.text = commentWithDetails.adminName ?: "Admin"
+
+                // Load the admin image if available
+                commentWithDetails.adminImage?.let { imageUrl ->
+                    Glide.with(context)
+                        .load(imageUrl)
+                        .placeholder(R.drawable.user)
+                        .into(holder.binding.partnerImage)
+                } ?: holder.binding.partnerImage.setImageResource(R.drawable.user)
+            } ?: run {
+                // Hide the reply section if there is no reply
+                holder.binding.adminReply.visibility = View.GONE
+                holder.binding.replyTimestamp.visibility = View.GONE
+                holder.binding.partnerImage.visibility = View.GONE
+//                holder.binding.adminName.visibility = View.GONE // Hide admin name if no reply
+            }
+        }
+
+
+        override fun getItemCount(): Int = commentsWithUserDetails.size
+
+        fun setData(newCommentsWithUserDetails: List<CommentWithUserDetails>) {
+            this.commentsWithUserDetails = newCommentsWithUserDetails
+            notifyDataSetChanged()
+        }
+    }
 
 
 
@@ -175,89 +346,10 @@ class MaterialPreviewFragment : Fragment() {
     }
 
 
-    //comment use
-    private fun toggleComments() {
-        // Toggle the visibility of the RecyclerView
-        if (areCommentsVisible) {
-            binding.allMaterialComment.materialCommentData.visibility = View.GONE
-            binding.allMaterialComment.downArrowComment.animate().rotation(0f).setDuration(300).start() // Rotate to initial position
-        } else {
-            binding.allMaterialComment.materialCommentData.visibility = View.VISIBLE
-            binding.allMaterialComment.downArrowComment.animate().rotation(180f).setDuration(300).start() // Rotate 180 degrees
-        }
-        // Update the state
-        areCommentsVisible = !areCommentsVisible
-    }
-
-    inner class CommentsAdapter(
-        private var commentsWithUserDetails: List<CommentWithUserDetails>
-    ) : RecyclerView.Adapter<CommentsAdapter.CommentViewHolder>() {
-        inner class CommentViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-            val commentTextView: TextView = view.findViewById(R.id.userComment)
-            val commentDateTextView: TextView = view.findViewById(R.id.userCommentDate)
-            val userNameTextView: TextView = view.findViewById(R.id.commentUserTextTitle)
-            val userImageView: ImageView = view.findViewById(R.id.userImage)
-            val replyTextView: TextView = view.findViewById(R.id.userReplyText)
-            val replyDateTextView: TextView = view.findViewById(R.id.replyCommentDate)
-            val partnerNameTextView: TextView = view.findViewById(R.id.commentReplyUserTextTitle)
-            val partnerImageView: ImageView = view.findViewById(R.id.partnerImage)
-            val ratingTextView: TextView = view.findViewById(R.id.rating)
-            val replyCommentDate: TextView = view.findViewById(R.id.replyCommentDate)
-            val arrow: MaterialCardView = view.findViewById(R.id.firstReplyCommentArrowImg)
-            val firstReplyCommentImg: MaterialCardView = view.findViewById(R.id.firstReplyCommentImg)
-            val userReplyCommentCard: ConstraintLayout = view.findViewById(R.id.userReplyCommentCard)
-        }
-
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CommentViewHolder {
-            val view = LayoutInflater.from(parent.context).inflate(R.layout.recycler_view_material_comment, parent, false)
-            return CommentViewHolder(view)
-        }
-
-        override fun onBindViewHolder(holder: CommentViewHolder, position: Int) {
-            val commentWithUserDetails = commentsWithUserDetails[position]
-            val comment = commentWithUserDetails.comment
-            holder.commentTextView.text = comment.comment
-            holder.commentDateTextView.text = comment.commentDate
-            holder.userNameTextView.text = commentWithUserDetails.userName
-            holder.ratingTextView.text = comment.rating.toString()
-            if (commentWithUserDetails.userImage != null) {
-                val storageReference = FirebaseStorage.getInstance().getReferenceFromUrl(commentWithUserDetails.userImage)
-                storageReference.downloadUrl.addOnSuccessListener { uri ->
-                    Glide.with(holder.userImageView.context)
-                        .load(uri.toString())
-                        .into(holder.userImageView)
-                }
-            }
-            if (commentWithUserDetails.partnerName != null) {
-                holder.replyTextView.text = comment.replyComment
-                holder.replyDateTextView.text = comment.replyDate
-                holder.partnerNameTextView.text = commentWithUserDetails.partnerName
-                if (commentWithUserDetails.partnerImage != null) {
-                    val storageReference = FirebaseStorage.getInstance().getReferenceFromUrl(commentWithUserDetails.partnerImage)
-                    storageReference.downloadUrl.addOnSuccessListener { uri ->
-                        Glide.with(holder.partnerImageView.context)
-                            .load(uri.toString())
-                            .into(holder.partnerImageView)
-                    }
-                }
-            } else {
-                holder.arrow.visibility = View.GONE
-                holder.firstReplyCommentImg.visibility = View.GONE
-                holder.userReplyCommentCard.visibility = View.GONE
-                holder.replyCommentDate.visibility = View.GONE
-            }
-        }
 
 
 
 
-        override fun getItemCount(): Int {
-            return commentsWithUserDetails.size
-        }
 
-        fun setData(newCommentsWithUserDetails: List<CommentWithUserDetails>) {
-            this.commentsWithUserDetails = newCommentsWithUserDetails
-            notifyDataSetChanged()
-        }
-    }
+
 }
