@@ -97,22 +97,24 @@
             </androidx.constraintlayout.widget.ConstraintLayout>
 
 
+
             <TextView
-                android:id="@+id/admin_orders"
+                android:id="@+id/item_setting"
                 style="@style/MediumTextViewThin"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:text="@string/g_admin"
+                android:layout_marginTop="30dp"
+                android:text="Settings"
                 android:textColor="@color/g_hint"
                 android:textStyle="normal"
                 android:visibility="gone"
                 app:layout_constraintStart_toStartOf="@id/guideline1"
                 app:layout_constraintTop_toBottomOf="@id/constraint_profile" />
 
+
             <LinearLayout
                 android:visibility="gone"
-                android:id="@+id/linear_admin"
+                android:id="@+id/linear_item_setting"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
@@ -120,15 +122,51 @@
                 android:orientation="vertical"
                 app:layout_constraintEnd_toEndOf="@id/guideline2"
                 app:layout_constraintStart_toStartOf="@id/guideline1"
-                app:layout_constraintTop_toBottomOf="@id/admin_orders">
+                app:layout_constraintTop_toBottomOf="@id/item_setting">
 
+
+                <LinearLayout
+                    android:id="@+id/linear_setting"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="10dp">
+
+                    <ImageView
+                        android:layout_width="@dimen/_30sdp"
+                        android:layout_height="@dimen/_30sdp"
+                        android:layout_gravity="center_vertical"
+                        android:background="@drawable/settings_items_background"
+                        android:backgroundTint="#ff5823"
+                        android:src="@drawable/baseline_quiz_24"
+                        app:tint="@color/white" />
+
+                    <TextView
+                        android:id="@+id/setting"
+                        style="@style/MediumTextViewThin"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginStart="@dimen/_15sdp"
+                        android:layout_weight="1"
+                        android:text="Item Settings"
+                        android:textColor="@color/g_hint"
+                        android:textStyle="bold" />
+
+                    <ImageView
+                        android:layout_width="@dimen/_15sdp"
+                        android:layout_height="@dimen/_15sdp"
+                        android:layout_gravity="center_vertical"
+                        android:src="@drawable/ic_arrow"
+                        app:tint="@color/g_icon_tint" />
+                </LinearLayout>
 
                 <LinearLayout
                     android:id="@+id/linear_dashboard"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    android:padding="10dp">
 
                     <ImageView
                         android:layout_width="@dimen/_30sdp"
@@ -160,7 +198,16 @@
                 </LinearLayout>
 
 
+
             </LinearLayout>
+
+
+
+
+
+
+
+
 
             <TextView
                 android:id="@+id/tv_orders"
@@ -172,7 +219,8 @@
                 android:textColor="@color/g_hint"
                 android:textStyle="normal"
                 app:layout_constraintStart_toStartOf="@id/guideline1"
-                app:layout_constraintTop_toBottomOf="@id/linear_admin" />
+                app:layout_constraintTop_toBottomOf="@id/linear_item_setting" />
+
 
 
             <LinearLayout
@@ -220,6 +268,45 @@
                         app:tint="@color/g_icon_tint" />
                 </LinearLayout>
 
+
+
+                <LinearLayout
+                    android:id="@+id/history_orders"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="10dp"
+                    >
+
+
+                    <ImageView
+                        android:layout_width="@dimen/_30sdp"
+                        android:layout_height="@dimen/_30sdp"
+                        android:layout_gravity="center_vertical"
+                        android:background="@drawable/settings_items_background"
+                        android:src="@drawable/ic_save"
+                        android:backgroundTint="#FF5733"
+                        app:tint="@color/white" />
+
+                    <TextView
+                        android:id="@+id/tv_history_orders"
+                        style="@style/MediumTextViewThin"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginStart="@dimen/_15sdp"
+                        android:layout_weight="1"
+                        android:text="History Claimed"
+                        android:textColor="@color/g_hint"
+                        android:textStyle="bold" />
+
+                    <ImageView
+                        android:layout_width="@dimen/_15sdp"
+                        android:layout_height="@dimen/_15sdp"
+                        android:layout_gravity="center_vertical"
+                        android:src="@drawable/ic_arrow"
+                        app:tint="@color/g_icon_tint" />
+                </LinearLayout>
 
 
 

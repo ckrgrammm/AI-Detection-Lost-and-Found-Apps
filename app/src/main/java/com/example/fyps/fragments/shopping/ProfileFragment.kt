@@ -36,19 +36,12 @@ class ProfileFragment : Fragment() {
 
 
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        viewModel = (activity as ShoppingActivity).viewModel
-        viewModel.getUser()
-    }
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentProfileBinding.inflate(inflater, container, false)
         val currentUser = FirebaseAuth.getInstance().currentUser
-
         if (currentUser != null) {
             val userId = currentUser.uid
             val db = FirebaseFirestore.getInstance()
@@ -57,34 +50,59 @@ class ProfileFragment : Fragment() {
                 .addOnSuccessListener { document ->
                     if (document != null) {
                         val status = document.getString("status")
-                        Log.d(TAG, "User Status: $status")
-                        if (status == "ADMINS") {
-                            // Admin user, show the fragment
-                            binding.adminOrders.visibility = View.VISIBLE
-                            binding.linearAdmin.visibility = View.VISIBLE
-                            binding.linearJoinPartnership.visibility = View.GONE
-                        }else if(status == "PARTNERS"){
-                            binding.adminOrders.visibility = View.GONE
-                            binding.linearAdmin.visibility = View.GONE
-                            binding.linearJoinPartnership.visibility = View.GONE
-                            binding.linearViewPartnership.visibility = View.VISIBLE
-                        }else{
-                            binding.linearJoinPartnership.visibility = View.VISIBLE
-                            binding.linearViewPartnership.visibility = View.GONE
-                            binding.adminOrders.visibility = View.GONE
-                            binding.linearAdmin.visibility = View.GONE
-                        }
+                        handleUserStatus(status)
                     }
                 }
         }
 
         return binding.root
+
+    }
+
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        viewModel = (activity as ShoppingActivity).viewModel
+        viewModel.getUser()
+    }
+
+
+
+
+    private fun handleUserStatus(status: String?) {
+        when (status) {
+            "ADMINS" -> {
+//                binding.adminOrders.visibility = View.VISIBLE
+                binding.linearDashboard.visibility = View.VISIBLE
+                binding.linearJoinPartnership.visibility = View.GONE
+            }
+            "PARTNERS" -> {
+//                binding.adminOrders.visibility = View.GONE
+                binding.linearDashboard.visibility = View.GONE
+                binding.linearJoinPartnership.visibility = View.GONE
+                binding.linearViewPartnership.visibility = View.VISIBLE
+            }
+            else -> {
+                binding.linearJoinPartnership.visibility = View.VISIBLE
+                binding.linearViewPartnership.visibility = View.GONE
+                binding.linearDashboard.visibility = View.GONE
+//                binding.linearAdmin.visibility = View.GONE
+            }
+        }
+
+        // Call after handling user status to avoid overriding visibility
+        checkPartnershipAndDisplaySettings()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+
+
         materialAdapter = MaterialAdapter()
+
+
 
         onHomeClick()
         onLogoutClick()
@@ -101,9 +119,52 @@ class ProfileFragment : Fragment() {
             "${resources.getText(R.string.g_version)} ${BuildConfig.VERSION_NAME}"
 
 
+        checkPartnershipAndDisplaySettings()
+
+
         onPassedQuizzesClick()
         onRewardClick()
     }
+
+
+    private fun checkPartnershipAndDisplaySettings() {
+        val currentUserID = FirebaseAuth.getInstance().currentUser?.uid
+        val db = FirebaseFirestore.getInstance()
+
+        if (currentUserID != null) {
+            Log.d(TAG, "Checking for Materials with partnershipsID: $currentUserID")
+            db.collection("Materials")
+                .whereEqualTo("partnershipsID", currentUserID)
+                .limit(1)
+                .get()
+                .addOnSuccessListener { documents ->
+                    if (!documents.isEmpty) {
+                        Log.d(TAG, "Document with partnershipsID found")
+                        binding.linearItemSetting.visibility = View.VISIBLE
+                        binding.itemSetting.visibility = View.VISIBLE
+
+                    } else {
+                        Log.d(TAG, "No document with partnershipsID found")
+                        binding.linearItemSetting.visibility = View.GONE
+                        binding.itemSetting.visibility = View.GONE
+
+                    }
+                }
+                .addOnFailureListener { e ->
+                    Log.e(TAG, "Error checking for partnership ID: ", e)
+                    binding.linearItemSetting.visibility = View.GONE
+                    binding.itemSetting.visibility = View.GONE
+
+                }
+        } else {
+            Log.d(TAG, "No user ID found")
+            binding.linearItemSetting.visibility = View.GONE
+            binding.itemSetting.visibility = View.GONE
+
+        }
+    }
+
+
 
     private fun onPassedQuizzesClick() {
         binding.linearPassedQuizzes.setOnClickListener {
@@ -123,7 +184,7 @@ class ProfileFragment : Fragment() {
     }
 
     private fun onAdminClick() {
-        binding.linearAdmin.setOnClickListener {
+        binding.linearDashboard.setOnClickListener {
             findNavController().navigate(R.id.action_profileFragment_to_adminDashboardFragment)
         }
     }
