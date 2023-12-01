@@ -18,8 +18,10 @@ import com.example.fyps.R
 import com.example.fyps.activities.ShoppingActivity
 import com.example.fyps.adapters.recyclerview.MaterialAdapter
 import com.example.fyps.adapters.recyclerview.MenuAdapter
+import com.example.fyps.adapters.recyclerview.NewsAdapter
 import com.example.fyps.database.SharedPreferencesHelper
 import com.example.fyps.databinding.FragmentHomeBinding
+import com.example.fyps.model.News
 
 import com.example.fyps.viewmodel.shopping.ShoppingViewModel
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -100,7 +102,21 @@ class HomeFragment : Fragment() {
         binding.recyclerViewMenu.apply {
             binding.recyclerViewMenu.layoutManager = GridLayoutManager(context, 2)
 
+            binding.recyclerViewNews.layoutManager = LinearLayoutManager(context)
+
+            binding.recyclerViewNews.addItemDecoration(
+                DividerItemDecoration(
+                    context,
+                    DividerItemDecoration.VERTICAL
+                )
+            )
         }
+
+
+        viewModel.getListNews().observe(viewLifecycleOwner, Observer {
+            val items: List<News> = it
+            binding.recyclerViewNews.adapter = NewsAdapter(items, requireContext())
+        })
     }
 
 

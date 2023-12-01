@@ -46,7 +46,7 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
         android:adjustViewBounds="true"
-        android:src="@drawable/news1" />
+        android:src="@drawable/poster" />
 
 
 </RelativeLayout>

@@ -1,12 +1,17 @@
 package com.example.fyps.fragments.shopping
 
+import android.content.ContentValues.TAG
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.Navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.fyps.R
 import com.example.fyps.adapters.recyclerview.MaterialAdapter
 import com.example.fyps.databinding.FragmentCategoryDetailBinding
 import com.example.fyps.model.Material
@@ -49,11 +54,15 @@ class FragmentCategoryDetails : Fragment() {
         // Initialize your RecyclerView adapter
         materialAdapter = MaterialAdapter()
 
+
+
         // Setup RecyclerView
         binding.productListRecycler.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = materialAdapter
         }
+
+
 
         val args = FragmentCategoryDetailsArgs.fromBundle(requireArguments())
         val category = args.category
@@ -83,8 +92,25 @@ class FragmentCategoryDetails : Fragment() {
             if (materialsData != null) {
                 binding.progressBar.visibility = View.GONE
             }
+
+
+        }
+        onItemClick()
+    }
+
+    private fun onItemClick() {
+        materialAdapter.onItemClick = { material ->
+            if (material != null) {
+                val bundle = Bundle()
+                bundle.putParcelable("material", material)
+                findNavController().navigate(R.id.action_fragmentCategoryDetails_to_materialDetailsFragment, bundle)
+            } else {
+                Log.e(TAG, "Material object is null")
+            }
         }
     }
+
+
 
 
     override fun onDestroyView() {

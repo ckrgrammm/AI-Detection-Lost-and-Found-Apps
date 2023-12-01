@@ -58,7 +58,17 @@
         <argument
             android:name="category"
             app:argType="string" />
+
+        <!-- Add this action -->
+        <action
+            android:id="@+id/action_fragmentCategoryDetails_to_materialDetailsFragment"
+            app:destination="@id/materialDetailsFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim"/>
     </fragment>
+
 
 
     <fragment

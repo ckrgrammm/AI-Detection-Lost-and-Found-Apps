@@ -61,7 +61,7 @@ class AddMaterialFragment : Fragment() {
     }
 
     private fun setupCategorySpinner() {
-        val categories = arrayOf("Electronics", "Clothing", "Personal Items", "Other")
+        val categories = arrayOf("Electronics", "Fashion", "Personal Items", "Sports", "Books", "Fitness","Stationery","Other")
         val adapter = ArrayAdapter(requireContext(), R.layout.simple_spinner_item, categories)
         val autoCompleteTextView = binding.spinnerItemCategory as AutoCompleteTextView
         autoCompleteTextView.setAdapter(adapter)

@@ -14,8 +14,10 @@ private const val TAG = "ShoppingViewModel"
 
 class ShoppingViewModel(
     private val firebaseDatabase: FirebaseDb
+
 ) : ViewModel() {
 
+    private val listNews = MutableLiveData<List<News>>()
 
     private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
     val materials: MutableLiveData<Resource<List<Material>>> = MutableLiveData()
@@ -58,6 +60,19 @@ class ShoppingViewModel(
             }
     }
 
+    fun getListNews(): LiveData<List<News>> {
+        listNews.value = listOf(
+            News(),
+            News(),
+            News(),
+            News(),
+            News(),
+            News(),
+            News(),
+            News()
+        )
+        return listNews
+    }
 
 
     private fun shouldPaging(category: String, listSize: Int, onSuccess: (Boolean) -> Unit) {

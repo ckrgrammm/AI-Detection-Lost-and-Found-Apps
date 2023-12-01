@@ -12,6 +12,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.fyps.R
 import com.example.fyps.databinding.ProductLayoutRowBinding
+import com.example.fyps.fragments.shopping.FragmentCategoryDetails
+import com.example.fyps.fragments.shopping.FragmentCategoryDetailsDirections
 import com.example.fyps.fragments.shopping.HomeFragmentDirections
 import com.example.fyps.model.Material
 import com.google.firebase.firestore.FirebaseFirestore
@@ -24,6 +26,7 @@ class MaterialAdapter : RecyclerView.Adapter<MaterialAdapter.MaterialViewHolder>
     inner class MaterialViewHolder(val binding: ProductLayoutRowBinding) : RecyclerView.ViewHolder(binding.root) {
 
     }
+
 
     private val diffCallback = object : DiffUtil.ItemCallback<Material>() {
         override fun areItemsTheSame(oldItem: Material, newItem: Material): Boolean {
@@ -38,7 +41,6 @@ class MaterialAdapter : RecyclerView.Adapter<MaterialAdapter.MaterialViewHolder>
     val differ = AsyncListDiffer(this, diffCallback)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MaterialViewHolder {
-        Log.d("MaterialAdapter", "onCreateViewHolder called")
         return MaterialViewHolder(
             ProductLayoutRowBinding.inflate(
                 LayoutInflater.from(parent.context),
@@ -61,6 +63,8 @@ class MaterialAdapter : RecyclerView.Adapter<MaterialAdapter.MaterialViewHolder>
 
     override fun onBindViewHolder(holder: MaterialViewHolder, position: Int) {
         Log.d("MaterialAdapter", "onBindViewHolder called for position $position")
+
+
 
         val material = differ.currentList[position]
         holder.binding.apply {
@@ -112,10 +116,10 @@ class MaterialAdapter : RecyclerView.Adapter<MaterialAdapter.MaterialViewHolder>
             holder.itemView.setDebouncedOnClickListener {
                 // Increment view count
                 incrementViewCount(material.id)
-
-                Log.d("MaterialAdapter", "Navigating with Material ID: ${material.id}")
-                val action = HomeFragmentDirections.actionHomeFragmentToMaterialDetailsFragment(material)
+                val action = FragmentCategoryDetailsDirections.actionFragmentCategoryDetailsToMaterialDetailsFragment(material)
                 it.findNavController().navigate(action)
+                Log.d("MaterialAdapter", "Navigating with Material ID: ${material.id}")
+
             }
         }
     }

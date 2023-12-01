@@ -18,6 +18,12 @@ class PokemonColorUtil(var context: Context) {
         val color = when (lowerCaseCategory) {
             "personal items" -> R.color.lightTeal
             "electronics" -> R.color.lightRed
+            "fashion" -> R.color.lightBlue
+            "sports" -> R.color.lightBrown
+            "books" -> R.color.lightGray
+            "fitness" -> R.color.lightpink
+            "stationery" -> R.color.lightPurple
+
             "other" -> R.color.lightYellow
             // Add more categories as needed
             else -> R.color.lightPurple // default color
