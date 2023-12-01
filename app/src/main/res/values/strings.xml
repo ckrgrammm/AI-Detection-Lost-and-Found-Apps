@@ -193,4 +193,13 @@
     <string name="female">Reporters\n</string>
     <string name="male">Finders\n</string>
 
+
+    <!-- Main Activity -->
+    <string name="main_title">What Item\nare you looking for?</string>
+    <string name="main_search">Search Telephone, Smart Watches, etc</string>
+    <string name="pokemon_news">News</string>
+    <string name="view_all">View All</string>
+    <string name="news_title">Pokémon Rumble Rush Arrives Soon</string>
+    <string name="news_date">15 May 2019</string>
+
 </resources>

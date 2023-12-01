@@ -12,14 +12,15 @@ data class Material(
     val desc: String = "",
     val name: String = "", // Course name
     val pass: Int = 0, // Number of students who passed this course/subject
-    val rating: Float = 0f, // Rating (1 - 5)
+    var rating: Double = 0.0,
     val category: String = "",
     val status: String = "", // Status (Available/Unavailable)
     var view: Long = 0,
     var claimed: Long = 0,
     var imageUrl: String = "", // URL for the course banner
     val partnershipsID: String = "",  // User's document ID
-    val verificationQuestions: List<String> = listOf() // New field for verification questions
+    val verificationQuestions: List<String> = listOf(), // New field for verification questions
+    val requirement: String = "" // Add this property
 
 ): Parcelable
 

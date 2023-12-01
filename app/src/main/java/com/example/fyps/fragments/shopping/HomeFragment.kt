@@ -4,14 +4,20 @@ import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
+import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.fyps.R
 import com.example.fyps.activities.ShoppingActivity
 import com.example.fyps.adapters.recyclerview.MaterialAdapter
+import com.example.fyps.adapters.recyclerview.MenuAdapter
 import com.example.fyps.database.SharedPreferencesHelper
 import com.example.fyps.databinding.FragmentHomeBinding
 
@@ -19,6 +25,7 @@ import com.example.fyps.viewmodel.shopping.ShoppingViewModel
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.snackbar.Snackbar
 import com.example.fyps.resource.Resource
+import com.example.fyps.util.PokemonColorUtil
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -50,67 +57,52 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        sharedPreferencesHelper.printSharedPreferences()
-        val currentUser = FirebaseAuth.getInstance().currentUser
+        // Initialize RecyclerView for displaying categories
+        setupRecyclerView()
 
-        if (currentUser != null) {
-            val userId = currentUser.uid
-            val db = FirebaseFirestore.getInstance()
-            db.collection("users").document(userId)
-                .get()
-                .addOnSuccessListener { document ->
-                    if (document != null) {
-                        val status = document.getString("status")
-                        Log.d(TAG, "User Status: $status")
-                        if (status == "ADMINS") {
-                            // Admin user, show the fragment
-                            binding.frameAdd.visibility = View.GONE
-                        }else if(status == "REPORTERS"){
-                            binding.frameAdd.visibility = View.VISIBLE
-                        }else{
+        // Call getMaterials() to fetch materials
+        viewModel.getMaterials()
 
-                            binding.frameAdd.visibility = View.GONE
-                        }
+        // Observe the materialsLiveData to get the materials data
+        viewModel.materialsLiveData.observe(viewLifecycleOwner, Observer { resource ->
+            when (resource) {
+                is Resource.Success -> {
+                    resource.data?.let { materials ->
+                        // Extract unique categories
+                        val uniqueCategories = materials.map { it.category }.distinct()
+                        binding.recyclerViewMenu.adapter =
+                            MenuAdapter(uniqueCategories, requireContext(), this::onCategoryClick)
                     }
                 }
-            binding.frameAdd.setOnClickListener {
-                findNavController().navigate(R.id.action_homeFragment_to_addMaterialFragment)
-            }
-        }
-
-        binding.fragmeMicrohpone.setOnClickListener {
-            val snackBar = requireActivity().findViewById<CoordinatorLayout>(R.id.snackBar_coordinator)
-            Snackbar.make(snackBar,resources.getText(R.string.g_coming_soon),Snackbar.LENGTH_SHORT).show()
-        }
-
-        // Initialize RecyclerView and Adapter
-        materialAdapter = MaterialAdapter()  // No arguments here
-        binding.productListRecycler.adapter = materialAdapter
-        binding.productListRecycler.layoutManager = LinearLayoutManager(context)
-
-        // Fetch materials from ViewModel and observe LiveData
-        viewModel.getMaterials()  // This will update LiveData in ViewModel
-
-        viewModel.materialsLiveData.observe(viewLifecycleOwner) { resource ->
-            when (resource.status) {
-                Resource.Status.SUCCESS -> {
-                    Log.d(TAG, "Fetched materials successfully. Item count: ${resource.data?.size}")
-                    materialAdapter.differ.submitList(resource.data)
-                    binding.productListRecycler.invalidate()
+                is Resource.Loading -> {
+                    // Handle loading state
                 }
-
-
-                Resource.Status.ERROR -> {
-                    Log.e(TAG, "Error fetching materials: ${resource.message}")
-                }
-
-                Resource.Status.LOADING -> {
-                    Log.d(TAG, "Loading materials")
+                is Resource.Error -> {
+                    // Handle error state
                 }
             }
-        }
-        onItemClick()
+        })
     }
+
+
+    // Define the onItemClick method
+    private fun onCategoryClick(category: String) {
+        // Implement what happens when a category is clicked
+        // For example, navigate to another fragment or show a toast message
+        Log.d(TAG, "Category clicked: $category")
+        val action = HomeFragmentDirections.actionHomeFragmentToCategoryDetails(category)
+        findNavController().navigate(action)
+    }
+
+
+    private fun setupRecyclerView() {
+        // Ensure your RecyclerView's ID matches with your layout
+        binding.recyclerViewMenu.apply {
+            binding.recyclerViewMenu.layoutManager = GridLayoutManager(context, 2)
+
+        }
+    }
+
 
     private fun onItemClick() {
         materialAdapter.onItemClick = { material ->

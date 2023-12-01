@@ -118,6 +118,8 @@ class MaterialPreviewFragment : Fragment() {
         binding.allMaterialComment.root.post {
             val addCommentButton = binding.allMaterialComment.root.findViewById<Button>(R.id.addCommentButton)
             addCommentButton?.setOnClickListener {
+                Log.d("Mate", "add button clicked")
+
                 submitComment()
             }
         }

@@ -6,6 +6,7 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.fyps.model.CourseDocument
 import com.example.fyps.model.Material
 import com.example.fyps.model.MaterialData
@@ -19,6 +20,7 @@ class MaterialViewModel : ViewModel() {
     val materialEngageData = MutableLiveData<MaterialEngageData?>()
     private val _materialList = MutableLiveData<List<MaterialData>>()
     val materialList: LiveData<List<MaterialData>> = _materialList
+
 
     private val storageRef = FirebaseStorage.getInstance().reference
     private val db = FirebaseFirestore.getInstance()
@@ -64,6 +66,36 @@ class MaterialViewModel : ViewModel() {
             }
 
     }
+
+    fun fetchMaterialsByCategory(category: String) {
+        db.collection("Materials")
+            .whereEqualTo("category", category)
+            .addSnapshotListener { snapshots, e ->
+                if (e != null) {
+                    Log.w(TAG, "Listen failed.", e)
+                    return@addSnapshotListener
+                }
+
+                val tempList = ArrayList<MaterialData>()
+                for (document in snapshots!!) {
+                    val id = document.id
+                    val materialName = document.getString("name") ?: ""
+                    val description = document.getString("desc") ?: ""
+                    val rating = document.getDouble("rating") ?: 0.0
+                    val imageUrl = document.getString("imageUrl") ?: ""
+                    val status = document.getString("status") ?: ""
+
+                    // Create a MaterialData object
+                    val materialData = MaterialData(id, materialName, description, category, rating, imageUrl, status)
+                    tempList.add(materialData)
+                }
+
+                // Update the LiveData with the list of materials
+                _materialList.postValue(tempList)
+            }
+    }
+
+
 
     fun addMaterial(material: Material, imageUri: Uri?, documentUri: Uri?) {
         val materialRef = db.collection("Materials").document()

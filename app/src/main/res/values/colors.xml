@@ -76,4 +76,26 @@
     <color name="card_yellow">#ffc42c</color>
     <color name="card_green">#40bc5c</color>
     <color name="card_light_blue">#43b8e2</color>
+
+
+
+    <!-- Main Activity -->
+    <color name="colorPrimaryDark">#00574B</color>
+    <color name="colorAccent">@color/red</color>
+
+    <color name="backgroundLight">#F5F5F5</color>
+
+    <color name="brown">#B1736C</color>
+    <color name="grey">#303943</color>
+    <color name="indigo">#6C79DB</color>
+    <color name="lightBlue">#58ABF6</color>
+    <color name="lightBrown">#CA8179</color>
+    <color name="lighterGrey">#F4F5F4</color>
+    <color name="lightGrey">#F5F5F5</color>
+    <color name="lightPurple">#9F5BBA</color>
+    <color name="lightRed">#F7786B</color>
+    <color name="lightTeal">#2CDAB1</color>
+    <color name="lightYellow">#FFCE4B</color>
+    <color name="purple">#7C538C</color>
+    <color name="teal">#4FC1A6</color>
 </resources>
