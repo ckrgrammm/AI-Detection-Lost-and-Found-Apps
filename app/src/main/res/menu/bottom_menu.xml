@@ -5,9 +5,11 @@
         android:icon="@drawable/ic_home"
         android:id="@+id/homeFragment"/>
 
-    <item android:title="@string/g_search"
-        android:icon="@drawable/ic_search"
-        android:id="@+id/searchFragment"/>
+
+    <!-- New Add item -->
+    <item android:title="Report"
+        android:icon="@drawable/ic_add"
+        android:id="@+id/addMaterialFragment"/>
 
     <item android:title="@string/g_cart"
         android:icon="@drawable/ic_cart"

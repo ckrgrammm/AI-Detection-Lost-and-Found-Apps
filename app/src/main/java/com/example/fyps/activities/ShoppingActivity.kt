@@ -42,36 +42,12 @@ class ShoppingActivity : AppCompatActivity() {
     }
 
 
+
+
     private fun observeCartProductsCount(bottomNavigation: BottomNavigationView) {
 
-        cartViewModel.cartItemsCount.observe(this, Observer { response ->
-            when (response) {
-                is Resource.Loading -> {
-                    return@Observer
-                }
 
-                is Resource.Success -> {
-                    if (response.data != 0)
-                        bottomNavigation.getOrCreateBadge(R.id.cartFragment).apply {
-                            backgroundColor = resources.getColor(R.color.g_dark_blue)
-                            number = response.data!!
-                        }
-                    else {
-                        bottomNavigation.getOrCreateBadge(R.id.cartFragment).apply {
-                            backgroundColor = resources.getColor(R.color.g_white)
-                            number = response.data
-                        }
-                    }
-                    return@Observer
-                }
-
-                is Resource.Error -> {
-                    Log.e(TAG, response.message.toString())
-                    Toast.makeText(this, "Oops error occurred", Toast.LENGTH_SHORT).show()
-                    return@Observer
-                }
-            }
-        })
+        Log.d("SHpping activity","Display btom nav")
     }
 
 
