@@ -154,6 +154,7 @@ class EditMaterialFragment : Fragment() {
             name = name,
             desc = description,
             category = category,
+            isUnique = category == "Electronics", // Set isUnique true if category is Electronics
             venue = venue,
             dateTime = dateTime,
             status = "Status : Lost",

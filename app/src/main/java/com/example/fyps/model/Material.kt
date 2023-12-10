@@ -21,7 +21,8 @@ data class Material(
     val partnershipsID: String = "",  // User's document ID
     val requirement: String = "", // Add this property
     val dateTime: String = "", // Add this line for the dateTime field
-    val venue: String = "" // Add this line for the venue field
+    val venue: String = "", // Add this line for the venue field
+    var isUnique: Boolean = false // This will be set based on the category
 
 
 

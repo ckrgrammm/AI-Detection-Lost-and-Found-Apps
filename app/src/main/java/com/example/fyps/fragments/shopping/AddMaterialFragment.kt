@@ -67,6 +67,8 @@ class AddMaterialFragment : Fragment() {
         autoCompleteTextView.setAdapter(adapter)
     }
 
+
+
     private fun setupButtonListeners() {
         binding.buttonSelectImage.setOnClickListener {
             val intent = Intent(Intent.ACTION_PICK)
@@ -103,6 +105,7 @@ class AddMaterialFragment : Fragment() {
             name = name,
             desc = description,
             category = category,
+            isUnique = category == "Electronics", // Set isUnique true if category is Electronics
             status = "Status : Lost",
             partnershipsID = getUserDocumentId(),
             venue = venue,
