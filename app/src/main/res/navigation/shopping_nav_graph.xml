@@ -108,18 +108,29 @@
         android:name="com.example.fyps.fragments.settings.ItemSettingFragment"
         android:label="fragment_item_setting"
         tools:layout="@layout/fragment_item_setting">
-
         <action
-            android:id="@+id/action_profileFragment_to_itemSettingFragment_to_editMaterialFragment"
+            android:id="@+id/action_itemSettingMainFragment_to_itemSettingFragment_to_editMaterialFragment"
             app:destination="@id/editMaterialFragment"
             app:enterAnim="@anim/from_right"
             app:exitAnim="@anim/to_left"
             app:popEnterAnim="@anim/from_left"
             app:popExitAnim="@anim/to_right"/>
-
-
     </fragment>
 
+
+    <fragment
+        android:id="@+id/itemSettingMainFragment"
+        android:name="com.example.fyps.fragments.settings.ItemSettingMainFragment"
+        android:label="fragment_dashboard"
+        tools:layout="@layout/fragment_dashboard">
+        <action
+            android:id="@+id/action_profileFragment_to_itemSettingMainFragment_to_itemSettingFragment"
+            app:destination="@id/itemSettingFragment"
+            app:enterAnim="@anim/from_right"
+            app:exitAnim="@anim/to_left"
+            app:popEnterAnim="@anim/from_left"
+            app:popExitAnim="@anim/to_right"/>
+    </fragment>
 
 
     <fragment
@@ -129,8 +140,8 @@
         tools:layout="@layout/fragment_profile">
 
         <action
-            android:id="@+id/action_profileFragment_to_itemSettingFragment"
-            app:destination="@id/itemSettingFragment"
+            android:id="@+id/action_profileFragment_to_itemSettingMainFragment"
+            app:destination="@id/itemSettingMainFragment"
             app:enterAnim="@anim/from_right"
             app:exitAnim="@anim/to_left"
             app:popEnterAnim="@anim/from_left"

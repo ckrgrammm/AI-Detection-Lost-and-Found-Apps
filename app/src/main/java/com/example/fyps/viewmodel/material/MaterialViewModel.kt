@@ -122,9 +122,19 @@ class MaterialViewModel : ViewModel() {
             })
         } ?: Log.d(TAG, "No image URI provided")
 
+        // Prepare a map with only the fields you want to update
+        val updatedFields: Map<String, Any> = mapOf(
+            "name" to material.name,
+            "desc" to material.desc,
+            "category" to material.category,
+            "venue" to material.venue,
+            "dateTime" to material.dateTime
+            // Add other fields you want to update, but NOT 'view' or 'claimed'
+        )
+
         Tasks.whenAllSuccess<Any>(uploadTasks).addOnSuccessListener {
             Log.d(TAG, "All upload tasks successful, updating Firestore document")
-            materialRef.set(material)
+            materialRef.update(updatedFields)
                 .addOnSuccessListener {
                     Log.d(TAG, "Material updated successfully in Firestore")
                 }

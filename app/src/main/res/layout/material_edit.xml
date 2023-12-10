@@ -221,6 +221,14 @@
             android:text="Save Edited Item" />
 
         <Button
+            android:id="@+id/buttonClaimed"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="16dp"
+            android:text="Item Claimed" />
+
+        <Button
             android:id="@+id/buttonDelete"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

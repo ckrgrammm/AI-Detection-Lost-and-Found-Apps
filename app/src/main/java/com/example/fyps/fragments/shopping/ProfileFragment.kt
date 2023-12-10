@@ -238,7 +238,7 @@ class ProfileFragment : Fragment() {
 
     private fun onItemSettingClick() {
         binding.linearSetting.setOnClickListener {
-            findNavController().navigate(R.id.action_profileFragment_to_itemSettingFragment)
+            findNavController().navigate(R.id.action_profileFragment_to_itemSettingMainFragment)
 
             Log.d("Profile Fragment","Button Item Pressed")
         }

@@ -31,7 +31,7 @@ class ItemSettingFragment : Fragment() {
         adapter = ItemSettingAdapter(materialItems) { material ->
             // Here you can handle the item click event
             // For example, navigate to another fragment with the selected material
-            val action = ItemSettingFragmentDirections.actionProfileFragmentToItemSettingFragmentToEditMaterialFragment(material.id)
+            val action = ItemSettingFragmentDirections.actionItemSettingMainFragmentToItemSettingFragmentToEditMaterialFragment(material.id)
             findNavController().navigate(action)
         }
         recyclerView.adapter = adapter
