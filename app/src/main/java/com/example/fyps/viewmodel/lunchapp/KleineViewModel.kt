@@ -31,6 +31,8 @@ class KleineViewModel(
 
     val saveUserInformationGoogleSignIn = MutableLiveData<Resource<String>>()
     val register = MutableLiveData<Resource<User>>()
+    val profile = MutableLiveData<Resource<User>>()
+    private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
 
 
 
@@ -78,6 +80,28 @@ class KleineViewModel(
     }
 
 
+    // Function to fetch the current user's information from Firestore
+    fun fetchUserProfile() {
+        val userId = FirebaseAuth.getInstance().currentUser?.uid
+        if (userId != null) {
+            profile.postValue(Resource.Loading())
+            firestore.collection("users").document(userId)
+                .get()
+                .addOnSuccessListener { documentSnapshot ->
+                    val user = documentSnapshot.toObject(User::class.java)
+                    if (user != null) {
+                        profile.postValue(Resource.Success(user))
+                    } else {
+                        profile.postValue(Resource.Error("User not found"))
+                    }
+                }
+                .addOnFailureListener { exception ->
+                    profile.postValue(Resource.Error(exception.message ?: "Error fetching user profile"))
+                }
+        } else {
+            profile.postValue(Resource.Error("User not logged in"))
+        }
+    }
 
     fun loginUser(
         email: String,
@@ -162,6 +186,7 @@ class KleineViewModel(
     fun updateUserRole(userId: String, newRole: Status): Task<Void> {
         return usersCollectionRef.document(userId).update("status", newRole.name)
     }
+
 
 
 

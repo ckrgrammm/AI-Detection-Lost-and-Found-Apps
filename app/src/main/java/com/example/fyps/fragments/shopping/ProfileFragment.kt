@@ -3,11 +3,11 @@ package com.example.fyps.fragments.shopping
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.example.fyps.BuildConfig
@@ -17,12 +17,14 @@ import com.example.fyps.activities.ShoppingActivity
 import com.example.fyps.adapters.recyclerview.MaterialAdapter
 import com.example.fyps.databinding.FragmentProfileBinding
 import com.example.fyps.model.Material
+import com.example.fyps.model.Status
 import com.example.fyps.model.User
 import com.example.fyps.resource.Resource
 import com.example.fyps.util.Constants.Companion.UPDATE_ADDRESS_FLAG
 import com.example.fyps.viewmodel.shopping.ShoppingViewModel
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 
 
@@ -36,29 +38,84 @@ class ProfileFragment : Fragment() {
 
 
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentProfileBinding.inflate(inflater, container, false)
+        viewModel = (activity as ShoppingActivity).viewModel
+
+        fetchAndHandleUserStatus()
+
+        return binding.root
+    }
+//    private fun observeUserProfile() {
+//        viewModel.profile.observe(viewLifecycleOwner) { response ->
+//            when (response) {
+//                is Resource.Loading -> showLoading()
+//                is Resource.Success -> {
+//                    hideLoading()
+//                    val user = response.data
+//                    updateUserUI(user)
+//                }
+//                is Resource.Error -> {
+//                    hideLoading()
+//                    Toast.makeText(activity, resources.getText(R.string.error_occurred), Toast.LENGTH_SHORT).show()
+//                    Log.e(TAG, response.message.toString())
+//                }
+//            }
+//        }
+//    }
+
+//    private fun updateUserUI(user: User?) {
+//        user?.let {
+//            binding.tvUserName.text = "${it.firstName} ${it.lastName}"
+//            Glide.with(requireView()).load(it.imagePath).error(R.drawable.ic_default_profile_picture).into(binding.imgUser)
+//            handleUserStatus(it.status)
+//        }
+//    }
+
+    private fun handleUserStatus(status: Status) {
+        when (status) {
+            Status.ADMINS -> setupAdminUI()
+            Status.PARTNERS -> setupPartnersUI()
+            else -> setupRegularUserUI()
+        }
+    }
+    private fun fetchAndHandleUserStatus() {
         val currentUser = FirebaseAuth.getInstance().currentUser
-        if (currentUser != null) {
-            val userId = currentUser.uid
+        currentUser?.let {
+            val userId = it.uid
             val db = FirebaseFirestore.getInstance()
             db.collection("users").document(userId)
                 .get()
                 .addOnSuccessListener { document ->
-                    if (document != null) {
-                        val status = document.getString("status")
-                        handleUserStatus(status)
-                    }
+                    val status = document.getString("status")
+                    handleUserStatus(Status.valueOf(status ?: "USERS"))
+                }
+                .addOnFailureListener { e ->
+                    Log.e(TAG, "Error fetching user status: ", e)
+                    // Handle error
                 }
         }
-
-        return binding.root
-
     }
 
+    private fun setupAdminUI() {
+        binding.linearJoinPartnership.visibility = View.GONE
+        binding.linearViewPartnership.visibility = View.GONE
+        binding.linearDashboard.visibility = View.VISIBLE
+        binding.linearItemSetting.visibility = View.VISIBLE
+        binding.itemSetting.visibility = View.VISIBLE
+    }
+
+    private fun setupPartnersUI() {
+        binding.linearDashboard.visibility = View.GONE
+        binding.linearJoinPartnership.visibility = View.GONE
+        binding.linearViewPartnership.visibility = View.VISIBLE
+    }
+
+    private fun setupRegularUserUI() {
+        binding.linearJoinPartnership.visibility = View.VISIBLE
+        binding.linearViewPartnership.visibility = View.GONE
+        binding.linearDashboard.visibility = View.GONE
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -70,30 +127,7 @@ class ProfileFragment : Fragment() {
 
 
 
-    private fun handleUserStatus(status: String?) {
-        when (status) {
-            "ADMINS" -> {
-//                binding.adminOrders.visibility = View.VISIBLE
-                binding.linearDashboard.visibility = View.VISIBLE
-                binding.linearJoinPartnership.visibility = View.GONE
-            }
-            "PARTNERS" -> {
-//                binding.adminOrders.visibility = View.GONE
-                binding.linearDashboard.visibility = View.GONE
-                binding.linearJoinPartnership.visibility = View.GONE
-                binding.linearViewPartnership.visibility = View.VISIBLE
-            }
-            else -> {
-                binding.linearJoinPartnership.visibility = View.VISIBLE
-                binding.linearViewPartnership.visibility = View.GONE
-                binding.linearDashboard.visibility = View.GONE
-//                binding.linearAdmin.visibility = View.GONE
-            }
-        }
 
-        // Call after handling user status to avoid overriding visibility
-        checkPartnershipAndDisplaySettings()
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -113,6 +147,7 @@ class ProfileFragment : Fragment() {
         onViewPartnershipClick()
         onAdminClick()
         onHelpClick()
+        onItemSettingClick()
 
         observeProfile()
         binding.tvVersionCode.text =
@@ -198,6 +233,14 @@ class ProfileFragment : Fragment() {
     private fun onViewPartnershipClick() {
         binding.linearViewPartnership.setOnClickListener {
             findNavController().navigate(R.id.action_profileFragment_to_viewPartnershipFragment)
+        }
+    }
+
+    private fun onItemSettingClick() {
+        binding.linearSetting.setOnClickListener {
+            findNavController().navigate(R.id.action_profileFragment_to_itemSettingFragment)
+
+            Log.d("Profile Fragment","Button Item Pressed")
         }
     }
 

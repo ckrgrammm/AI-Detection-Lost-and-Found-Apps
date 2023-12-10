@@ -60,6 +60,15 @@ android {
 
 dependencies {
 
+    //meili code
+    implementation 'com.github.bumptech.glide:glide:4.12.0'
+    implementation 'com.google.android.gms:play-services-location:21.0.1'
+    implementation 'com.google.android.gms:play-services-maps:18.2.0'
+    implementation 'androidx.recyclerview:recyclerview:1.3.2'// 使用最新版本
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.12.0'
+    //end meili code
+
+
     implementation 'androidx.room:room-common:2.5.2'
     implementation 'androidx.room:room-ktx:2.5.2'
     implementation 'com.google.firebase:firebase-analytics:21.5.0'
@@ -140,7 +149,7 @@ dependencies {
     implementation "com.google.dagger:hilt-android:2.38.1"
     kapt "com.google.dagger:hilt-compiler:2.38.1"
 
-    
+
 
     //Tensor Flow Lite
     implementation 'org.tensorflow:tensorflow-lite-metadata:0.1.0'
@@ -153,9 +162,24 @@ dependencies {
 
 
 
+    // BackEnd Servers
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
 
 
+//Meili code
+/*    implementation 'com.github.bumptech.glide:glide:4.12.0' // 使用最新版本
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.12.0'*/
 
+    // FCM
+    implementation 'com.google.firebase:firebase-messaging:20.1.7'
+
+    // Coroutines
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.5'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.5'
+
+
+    //end meili code
 
 
 }

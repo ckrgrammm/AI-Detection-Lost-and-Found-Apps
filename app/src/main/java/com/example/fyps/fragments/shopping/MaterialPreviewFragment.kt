@@ -2,6 +2,7 @@ package com.example.fyps.fragments.shopping
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.text.Html
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -70,20 +71,26 @@ class MaterialPreviewFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         onEnrollClick()
 
-        // Retrieve the passed argument
         material = arguments?.getParcelable("material")
 
         material?.let { mat ->
             binding.productModel = mat
 
             // Load the image using Glide
-            Glide.with(this)
-                .load(mat.imageUrl)
-                .into(binding.materialImage)
+            Glide.with(this).load(mat.imageUrl).into(binding.materialImage)
 
+            // Fetch venue and dateTime details from Firestore
+            fetchMaterialDetails(mat.id)
+
+            // Update the labels
+            binding.tvColor.text = "Status: " + mat.status
+            binding.tvSize.text = "Category: " + mat.category
+            binding.tvVenue.text = "Venue: " + mat.venue
+            binding.tvDateTime.text = "Date & Time: " + mat.dateTime
         } ?: run {
             Log.e("MaterialPreviewFragment", "Material is null!")
         }
+
 
         //comment use
         val adapter = CommentsAdapter(listOf())
@@ -128,6 +135,37 @@ class MaterialPreviewFragment : Fragment() {
     }
 
 
+    private fun fetchMaterialDetails(materialId: String) {
+        FirebaseFirestore.getInstance().collection("Materials").document(materialId)
+            .get()
+            .addOnSuccessListener { document ->
+                if (document.exists()) {
+                    val venue = document.getString("venue") ?: "Not specified"
+                    val dateTime = document.getString("dateTime") ?: "Not specified"
+                    val status = document.getString("status") ?: "Not specified"
+                    val category = document.getString("category") ?: "Not specified"
+                    val name = document.getString("name") ?: "Not specified"
+                    val desc = document.getString("desc") ?: "Not specified"
+
+
+                    binding.tvProductName.text = name
+                    binding.tvProductDescription.text = desc
+                    // Update the TextViews with labels
+                    binding.tvVenue.text = Html.fromHtml("<b>Found Location</b> <br>$venue")
+                    binding.tvDateTime.text = Html.fromHtml("<b>Reported Time</b> <br>$dateTime")
+                    binding.tvColor.text = Html.fromHtml("<b>Item Status &nbsp &nbsp&nbsp</b> <br>$status")
+                    binding.tvSize.text = Html.fromHtml("<b>Item Category</b> <br>$category")
+
+
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.e("MaterialPreviewFragment", "Error fetching material details: ", exception)
+            }
+    }
+
+
+
     private fun onEnrollClick() {
         binding.btnEnroll.setOnClickListener {
             Log.d("MaterialPreviewFragment", "Button Clicked")
@@ -151,7 +189,7 @@ class MaterialPreviewFragment : Fragment() {
                 .get()
                 .addOnSuccessListener { documents ->
                     if (!documents.isEmpty) {
-                        Toast.makeText(context, "You have already enrolled in this course!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "You have already claimed this item!", Toast.LENGTH_SHORT).show()
                         return@addOnSuccessListener
                     }
 
@@ -163,10 +201,10 @@ class MaterialPreviewFragment : Fragment() {
                         val snapshot = transaction.get(materialRef)
 
                         // Increment the enroll field value
-                        val newEnrollValue = snapshot.getLong("enroll")?.plus(1) ?: 1L
+                        val newEnrollValue = snapshot.getLong("claimed")?.plus(1) ?: 1L
 
                         // Update the enroll field
-                        transaction.update(materialRef, "enroll", newEnrollValue)
+                        transaction.update(materialRef, "claimed", newEnrollValue)
 
                         // Create a new Enrollment object
                         val enrollment = Enrollment(userId = userId, materialId = materialId)
@@ -175,13 +213,13 @@ class MaterialPreviewFragment : Fragment() {
                         transaction.set(firestore.collection("enrollments").document(), enrollment)
                         newEnrollValue
                     }.addOnSuccessListener {
-                        Toast.makeText(context, "Successfully enrolled in the course!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Successfully claimed this item !", Toast.LENGTH_SHORT).show()
 
                         // Navigate back to HomeFragment
                         findNavController().navigate(R.id.action_materialDetailsFragment_to_homeFragment)
                     }.addOnFailureListener { exception ->
                         Log.w("MaterialPreviewFragment", "Error adding document", exception)
-                        Toast.makeText(context, "Error enrolling in the course!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Error claiming this item !", Toast.LENGTH_SHORT).show()
                     }
                 }
                 .addOnFailureListener { exception ->

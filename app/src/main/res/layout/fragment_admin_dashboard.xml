@@ -28,6 +28,7 @@
                 android:id="@+id/uploadNotice">
 
                 <LinearLayout
+                    android:id="@+id/linear_overview"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:orientation="vertical"
@@ -51,7 +52,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:fontFamily="@font/aclonica"
-                        android:text="Upload Notice"
+                        android:text="Overview"
                         android:textStyle="bold"
                         android:padding="5dp"
                         android:layout_marginTop="10dp"
@@ -72,6 +73,7 @@
                 android:id="@+id/uploadImage">
 
                 <LinearLayout
+                    android:id="@+id/uploadNews"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:orientation="vertical"
@@ -93,7 +95,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Upload Image"
+                        android:text="Upload News"
                         android:fontFamily="@font/aclonica"
                         android:textStyle="bold"
                         android:padding="5dp"
@@ -122,10 +124,12 @@
                 android:id="@+id/addEbook">
 
                 <LinearLayout
+                    android:id="@+id/adminList"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:orientation="vertical"
                     android:gravity="center">
+
 
                     <ImageView
                         android:layout_width="64dp"
@@ -142,7 +146,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Upload Ebook"
+                        android:text="Admin"
                         android:fontFamily="@font/aclonica"
                         android:textStyle="bold"
                         android:padding="5dp"

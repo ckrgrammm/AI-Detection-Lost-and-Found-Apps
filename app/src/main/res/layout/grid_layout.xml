@@ -1,0 +1,78 @@
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <variable
+            name="productModel"
+            type="com.example.fyps.model.Material" />
+    </data>
+
+
+
+    <LinearLayout
+        android:id="@+id/itemContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:gravity="center">
+
+        <!-- Container for the item -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:padding="8dp">
+
+            <!-- Icon for the item -->
+            <ImageView
+                android:id="@+id/icon_item"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:src="@drawable/ic_image" /> <!-- Replace with dynamic image loading -->
+
+            <!-- Item name for the item -->
+            <TextView
+                android:id="@+id/item_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{productModel.name}"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:layout_marginTop="4dp"/>
+
+            <!-- Reporter's name for the item -->
+            <TextView
+                android:id="@+id/reporter_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{productModel.Name}"
+                android:textAppearance="?android:attr/textAppearanceSmall" />
+
+            <!-- CardView for status -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardViewStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_16sdp"
+                app:cardBackgroundColor="#AAFF00"
+                app:cardCornerRadius="@dimen/_5sdp"
+                android:layout_gravity="center_horizontal">
+
+                <TextView
+                    android:id="@+id/productStatus"
+                    style="@style/style_text_black_norm"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="casual"
+                    android:gravity="center"
+                    android:paddingStart="@dimen/_5sdp"
+                    android:paddingEnd="@dimen/_5sdp"
+                    android:text="@{productModel.status}"
+                    android:textSize="@dimen/_10ssp"
+                    tools:text="Course Status" />
+            </androidx.cardview.widget.CardView>
+        </LinearLayout>
+    </LinearLayout>
+</layout>

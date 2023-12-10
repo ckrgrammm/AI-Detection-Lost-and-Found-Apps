@@ -44,6 +44,9 @@ class AdminDashboardFragment() : Fragment(), Parcelable {
 
         onViewPartnershipDataClick()
         onViewRewardDataClick()
+        onViewOverviewDataClick()
+        onViewAdminDataClick()
+        onViewAddNewsClick()
 
     }
 
@@ -57,6 +60,30 @@ class AdminDashboardFragment() : Fragment(), Parcelable {
         binding.viewRewardData.setOnClickListener {
             findNavController().navigate(R.id.action_adminDashboardFragment_to_adminViewRewardFragment)
         }
+    }
+
+    private fun onViewOverviewDataClick(){
+        binding.linearOverview.setOnClickListener{
+            findNavController().navigate(R.id.action_adminDashboardFragment_to_adminOverviewFragment)
+
+        }
+
+    }
+
+    private fun onViewAdminDataClick(){
+        binding.adminList.setOnClickListener{
+            findNavController().navigate(R.id.action_adminDashboardFragment_to_adminListFragment)
+
+        }
+
+    }
+
+    private fun onViewAddNewsClick(){
+        binding.uploadNews.setOnClickListener{
+            findNavController().navigate(R.id.action_adminDashboardFragment_to_adminListFragment)
+
+        }
+
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {

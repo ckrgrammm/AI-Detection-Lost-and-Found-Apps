@@ -85,27 +85,37 @@ class AddMaterialFragment : Fragment() {
     }
 
     private fun handleSubmit() {
-        val name = binding.editTextItemName.text.toString()
-        val description = binding.editTextItemDescription.text.toString()
-        val category = binding.spinnerItemCategory.text.toString()
+        // Get the text from the input fields and trim any leading or trailing whitespace
+        val name = binding.editTextItemName.text.toString().trim()
+        val description = binding.editTextItemDescription.text.toString().trim()
+        val category = binding.spinnerItemCategory.text.toString().trim()
+        val venue = binding.editTextItemVenue.text.toString().trim() // Assume you have a venue field in your form
+        val dateTime = binding.editTextDateTime.text.toString().trim() // Assume you have a dateTime picker
 
+        // Check if the required fields are filled
         if (name.isEmpty() || description.isEmpty() || category.isEmpty()) {
             Toast.makeText(requireContext(), "Please fill all required fields", Toast.LENGTH_SHORT).show()
             return
         }
 
+        // Create a new Material object with the values from the input fields
         val material = Material(
             name = name,
             desc = description,
             category = category,
             status = "Status : Lost",
-            partnershipsID = getUserDocumentId()
+            partnershipsID = getUserDocumentId(),
+            venue = venue,
+            dateTime = dateTime
         )
 
+        // Call the ViewModel to add the new Material
         viewModel.addMaterial(material, selectedImageUri, null)
+        // Notify the user and navigate back
         Toast.makeText(requireContext(), "Material submitted successfully", Toast.LENGTH_SHORT).show()
         findNavController().navigateUp()
     }
+
 
     private fun showDateTimePickerDialog() {
         val currentDate = Calendar.getInstance()

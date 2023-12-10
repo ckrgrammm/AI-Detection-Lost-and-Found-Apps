@@ -19,8 +19,11 @@ data class Material(
     var claimed: Long = 0,
     var imageUrl: String = "", // URL for the course banner
     val partnershipsID: String = "",  // User's document ID
-    val verificationQuestions: List<String> = listOf(), // New field for verification questions
-    val requirement: String = "" // Add this property
+    val requirement: String = "", // Add this property
+    val dateTime: String = "", // Add this line for the dateTime field
+    val venue: String = "" // Add this line for the venue field
+
+
 
 ): Parcelable
 

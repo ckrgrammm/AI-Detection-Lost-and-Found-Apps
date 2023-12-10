@@ -21,6 +21,7 @@ import com.bumptech.glide.Glide
 import com.example.fyps.R
 import com.example.fyps.activities.ShoppingActivity
 import com.example.fyps.databinding.FragmentEditUserInformationBinding
+import com.example.fyps.model.Status
 import com.example.fyps.model.User
 import com.example.fyps.resource.Resource
 import com.example.fyps.viewmodel.shopping.ShoppingViewModel
@@ -80,8 +81,9 @@ class EditUserInformationFragment : Fragment() {
                     hideLoading()
                     Snackbar.make(
                         requireView(),
-                        resources.getText(R.string.g_password_reset).toString().plus("\n ${response.data}")
-                        ,4000).show()
+                        resources.getText(R.string.g_password_reset).toString()
+                            .plus("\n ${response.data}"), 4000
+                    ).show()
                     viewModel.passwordReset.postValue(null)
                     return@observe
                 }
@@ -97,7 +99,8 @@ class EditUserInformationFragment : Fragment() {
                     return@observe
                 }
             }
-        }    }
+        }
+    }
 
     private fun onForgotPasswordClick() {
         binding.tvUpdatePassword.setOnClickListener {
@@ -107,36 +110,41 @@ class EditUserInformationFragment : Fragment() {
 
     private fun setupAlertDialog() {
 
-            val alertDialog = AlertDialog.Builder(context).create()
-            val view = LayoutInflater.from(context).inflate(R.layout.delete_alert_dialog,null,false)
-            alertDialog.setView(view)
-            val title = view.findViewById<TextView>(R.id.tv_delete_item)
-            val message = view.findViewById<TextView>(R.id.tv_delete_message)
-            val btnConfirm = view.findViewById<Button>(R.id.btn_yes)
-            val btnCancel = view.findViewById<Button>(R.id.btn_no)
-            title.text = resources.getText(R.string.g_reset_password)
-            message.text = resources.getText(R.string.g_reset_password_message).toString().plus("\n ${args.user.email}")
-            btnConfirm.text = resources.getText(R.string.g_send)
-            btnCancel.text = resources.getText(R.string.g_cancel)
+        val alertDialog = AlertDialog.Builder(context).create()
+        val view = LayoutInflater.from(context).inflate(R.layout.delete_alert_dialog, null, false)
+        alertDialog.setView(view)
+        val title = view.findViewById<TextView>(R.id.tv_delete_item)
+        val message = view.findViewById<TextView>(R.id.tv_delete_message)
+        val btnConfirm = view.findViewById<Button>(R.id.btn_yes)
+        val btnCancel = view.findViewById<Button>(R.id.btn_no)
+        title.text = resources.getText(R.string.g_reset_password)
+        message.text = resources.getText(R.string.g_reset_password_message).toString()
+            .plus("\n ${args.user.email}")
+        btnConfirm.text = resources.getText(R.string.g_send)
+        btnCancel.text = resources.getText(R.string.g_cancel)
 
 
-            btnConfirm.setOnClickListener {
-                viewModel.resetPassword(args.user.email.trim())
-                alertDialog.dismiss()
-            }
+        btnConfirm.setOnClickListener {
+            viewModel.resetPassword(args.user.email.trim())
+            alertDialog.dismiss()
+        }
 
-            btnCancel.setOnClickListener {
-                alertDialog.dismiss()
-            }
+        btnCancel.setOnClickListener {
+            alertDialog.dismiss()
+        }
 
-            alertDialog.show()
+        alertDialog.show()
 
     }
 
     private fun onEmailClick() {
         binding.edEmail.setOnClickListener {
             binding.edEmail.apply {
-                Snackbar.make(requireView(),resources.getText(R.string.g_cant_change_email_message),4500).show()
+                Snackbar.make(
+                    requireView(),
+                    resources.getText(R.string.g_cant_change_email_message),
+                    4500
+                ).show()
             }
         }
     }
@@ -184,7 +192,8 @@ class EditUserInformationFragment : Fragment() {
                     val lastName = binding.edLastName.text.toString()
                     val email = binding.edEmail.text.toString()
 
-                    viewModel.updateInformation(firstName, lastName, email, response.data!!)
+                    // Assuming currentUserStatus is already defined and holds the current user's status
+                    viewModel.updateInformation(firstName, lastName, email, response.data!!, currentUserStatus)
                     return@observe
                 }
 
@@ -196,13 +205,12 @@ class EditUserInformationFragment : Fragment() {
                         Toast.LENGTH_SHORT
                     ).show()
                     Log.e(TAG, response.message.toString())
-
-
                     return@observe
                 }
             }
         }
     }
+
 
 
     private fun showLoading() {
@@ -234,20 +242,26 @@ class EditUserInformationFragment : Fragment() {
         }
     }
 
+    private var currentUserStatus: Status? = null
+
     private fun onSaveClick() {
         binding.btnSaveProfile.setOnClickListener {
-            if (isPicked)
-                imageArray?.let { viewModel.uploadProfileImage(it) }
-            else {
-                val firstName = binding.edFirstName.text.toString()
-                val lastName = binding.edLastName.text.toString()
-                val email = binding.edEmail.text.toString()
-                val image=""
-                viewModel.updateInformation(firstName,lastName,email,image)
+            val firstName = binding.edFirstName.text.toString()
+            val lastName = binding.edLastName.text.toString()
+            val email = binding.edEmail.text.toString()
+
+            if (isPicked) {
+                imageArray?.let {
+                    // Call a new method in ViewModel to handle image update separately
+                    viewModel.uploadProfileImageAndUpdateInformation(it, firstName, lastName, email, currentUserStatus)
+                }
+            } else {
+                // Update information without changing the image
+                viewModel.updateInformation(firstName, lastName, email, "", currentUserStatus)
             }
         }
-
     }
+
 
     private fun onCloseClick() {
         binding.imgCloseEditProfile.setOnClickListener {
@@ -256,7 +270,7 @@ class EditUserInformationFragment : Fragment() {
     }
 
     private fun setUserInformation(user: User) {
-
+        currentUserStatus = user.status
         binding.apply {
             Glide.with(requireView()).load(user.imagePath)
                 .error(R.drawable.ic_default_profile_picture).into(imgUser)
@@ -295,6 +309,4 @@ class EditUserInformationFragment : Fragment() {
 
         return imageByteArray.toByteArray()
     }
-
-
 }

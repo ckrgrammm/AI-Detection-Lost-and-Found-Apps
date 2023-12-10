@@ -1,43 +1,55 @@
 package com.example.fyps.fragments.partnership
 
 import android.app.Activity
+import android.app.DatePickerDialog
+import android.app.TimePickerDialog
 import android.content.Intent
+import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.RadioButton
+import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
+import android.widget.Button
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
+import com.bumptech.glide.Glide
 import com.example.fyps.R
-import com.example.fyps.databinding.EditMaterialBinding
+import com.example.fyps.activities.CameraActivity
+import com.example.fyps.databinding.MaterialEditBinding
 import com.example.fyps.model.Material
 import com.example.fyps.viewmodel.material.MaterialViewModel
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import java.io.File
+import java.text.SimpleDateFormat
+import java.util.*
 
 class EditMaterialFragment : Fragment() {
 
-    private lateinit var binding: EditMaterialBinding
-    private val materialViewModel: MaterialViewModel by viewModels()
+    private lateinit var binding: MaterialEditBinding
+    private lateinit var viewModel: MaterialViewModel
     private var materialId: String? = null
     private var selectedImageUri: Uri? = null
-    private var selectedDocumentUri: Uri? = null
+    private val REQUEST_CODE_IMAGE_PICK = 1
+    private val REQUEST_CODE_CAMERA_ACTIVITY = 100
+    private var currentImageUrl: String? = null
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        binding = EditMaterialBinding.inflate(inflater, container, false)
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        binding = MaterialEditBinding.inflate(inflater, container, false)
+        viewModel = ViewModelProvider(this).get(MaterialViewModel::class.java)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Retrieve materialId from arguments
         materialId = arguments?.getString("materialId")
 
         if (materialId == null) {
@@ -45,111 +57,179 @@ class EditMaterialFragment : Fragment() {
             return
         }
 
-        // Fetch material details and set initial values
-        val db = FirebaseFirestore.getInstance()
-        val materialRef = db.collection("Materials").document(materialId!!)
-        materialRef.get().addOnSuccessListener { document ->
-            if (document != null) {
-                val material = document.toObject(Material::class.java)
-                material?.let {
-                    binding.editTextName.setText(it.name)
-                    binding.editTextDesc.setText(it.desc)
-                    val categoryId = when (it.category) {
-                        "Easy" -> R.id.radioButtonEasy
-                        "Medium" -> R.id.radioButtonMedium
-                        "Advanced" -> R.id.radioButtonAdvanced
-                        else -> -1
-                    }
-                    binding.radioGroupCategory.check(categoryId)
-                    binding.textViewMaterialID.text = "Material ID: ${materialId}"
-                    val radioButtonId = if (it.status == "Available") R.id.radioButtonAvailable else R.id.radioButtonUnavailable
-                    binding.radioGroupStatus.check(radioButtonId)
-                }
-            }
+        val buttonDelete = view.findViewById<Button>(R.id.buttonDelete)
+        buttonDelete.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.lightRed))
+
+        binding.buttonDelete.setOnClickListener {
+            deleteMaterial()
         }
 
-        // Set onClickListeners for buttons
+        setupCategorySpinner()
+        setupDateTimePicker()
+        setupButtonListeners()
+
+        fetchMaterialDetails()
+    }
+
+    private fun fetchMaterialDetails() {
+        FirebaseFirestore.getInstance().collection("Materials").document(materialId!!)
+            .get().addOnSuccessListener { document ->
+                if (document.exists()) {
+                    val material = document.toObject(Material::class.java)
+                    material?.let {
+                        binding.editTextItemName.setText(it.name)
+                        binding.editTextItemDescription.setText(it.desc)
+                        binding.spinnerItemCategory.setText(it.category, false)
+                        binding.editTextDateTime.setText(it.dateTime)
+                        binding.editTextItemVenue.setText(it.venue)
+                        currentImageUrl = it.imageUrl // Store current image URL
+
+                        // Use Glide to load the image
+                        if (isAdded) {
+                            Glide.with(this@EditMaterialFragment)
+                                .load(it.imageUrl)
+                                .into(binding.imageViewCourseBanner)
+                        }
+
+                    }
+                }
+            }.addOnFailureListener {
+                Toast.makeText(context, "Failed to fetch material details", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+
+    private fun setupDateTimePicker() {
+        binding.editTextDateTime.setOnClickListener {
+            showDateTimePickerDialog()
+        }
+    }
+
+    private fun setupCategorySpinner() {
+        val categories = arrayOf("Electronics", "Fashion", "Personal Items", "Sports", "Books", "Fitness", "Stationery", "Other")
+        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, categories)
+        (binding.spinnerItemCategory as AutoCompleteTextView).setAdapter(adapter)
+    }
+
+    private fun setupButtonListeners() {
         binding.buttonSelectImage.setOnClickListener {
             val intent = Intent(Intent.ACTION_PICK)
             intent.type = "image/*"
             startActivityForResult(intent, REQUEST_CODE_IMAGE_PICK)
         }
 
-        binding.buttonUploadDocument.setOnClickListener {
-            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
-            intent.addCategory(Intent.CATEGORY_OPENABLE)
-            intent.type = "*/*" // Set type to */*
-            // Use Intent.EXTRA_MIME_TYPES to allow both images and PDFs
-            intent.putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("image/*", "application/pdf"))
-            startActivityForResult(intent, REQUEST_CODE_DOCUMENT_PICK)
+        binding.buttonSubmit.setOnClickListener {
+            handleSubmit()
         }
-        binding.buttonUpdate.setOnClickListener { updateMaterial() }
+
+
+        binding.buttonOpenCamera.setOnClickListener {
+            // Start CameraActivity just like in AddMaterialFragment
+            val intent = Intent(context, CameraActivity::class.java)
+            startActivityForResult(intent, REQUEST_CODE_CAMERA_ACTIVITY)
+        }
     }
 
-    private fun updateMaterial() {
-        val name = binding.editTextName.text.toString()
-        val description = binding.editTextDesc.text.toString()
-        val selectedCategoryId = binding.radioGroupCategory.checkedRadioButtonId
-        val selectedCategoryButton = view?.findViewById<RadioButton>(selectedCategoryId)
-        val category = selectedCategoryButton?.text.toString() ?: ""
-        val selectedStatusId = binding.radioGroupStatus.checkedRadioButtonId
-        val selectedRadioButton = view?.findViewById<RadioButton>(selectedStatusId)
-        val status = selectedRadioButton?.text.toString()
-
-        if (name.isBlank() || description.isBlank() || category.isBlank() || status.isBlank()) {
-            Toast.makeText(context, "Please fill all fields", Toast.LENGTH_SHORT).show()
+    private fun handleSubmit() {
+        if (materialId.isNullOrBlank()) {
+            Toast.makeText(requireContext(), "Error: No valid material ID", Toast.LENGTH_SHORT).show()
             return
         }
+
+        val name = binding.editTextItemName.text.toString().trim()
+        val description = binding.editTextItemDescription.text.toString().trim()
+        val category = binding.spinnerItemCategory.text.toString().trim()
+        val venue = binding.editTextItemVenue.text.toString().trim()
+        val dateTime = binding.editTextDateTime.text.toString().trim()
+
+        if (name.isEmpty() || description.isEmpty() || category.isEmpty() || venue.isEmpty() || dateTime.isEmpty()) {
+            Toast.makeText(requireContext(), "Please fill all required fields", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val imageUrl = selectedImageUri?.toString() ?: currentImageUrl // Use current image if no new image selected
 
         val updatedMaterial = Material(
             id = materialId!!,
             name = name,
             desc = description,
             category = category,
-            status = status
+            venue = venue,
+            dateTime = dateTime,
+            status = "Status : Lost",
+            partnershipsID = getUserDocumentId(),
+            imageUrl = imageUrl ?: "" // Use the selected or current image URL
         )
 
-        val db = FirebaseFirestore.getInstance()
-        val materialRef = db.collection("Materials").document(materialId!!)
-        materialRef.set(updatedMaterial).addOnSuccessListener {
-            Toast.makeText(context, "Material updated successfully", Toast.LENGTH_SHORT).show()
+        viewModel.updateMaterial(updatedMaterial, selectedImageUri)
+        Toast.makeText(requireContext(), "Material updated successfully", Toast.LENGTH_SHORT).show()
+        findNavController().navigateUp()
+    }
 
-            // Obtain NavController and navigate up
-            val navController = findNavController()
-            navController.navigateUp()
 
-        }.addOnFailureListener {
-            Toast.makeText(context, "Error updating material: $it", Toast.LENGTH_SHORT).show()
+
+    private fun showDateTimePickerDialog() {
+        val currentDate = Calendar.getInstance()
+        DatePickerDialog(requireContext(), { _, year, month, dayOfMonth ->
+            val selectedDate = Calendar.getInstance()
+            selectedDate.set(year, month, dayOfMonth)
+            TimePickerDialog(requireContext(), { _, hour, minute ->
+                selectedDate.set(Calendar.HOUR_OF_DAY, hour)
+                selectedDate.set(Calendar.MINUTE, minute)
+                val dateFormat = SimpleDateFormat("dd-MM-yyyy HH:mm", Locale.getDefault())
+                binding.editTextDateTime.setText(dateFormat.format(selectedDate.time))
+            }, currentDate.get(Calendar.HOUR_OF_DAY), currentDate.get(Calendar.MINUTE), false).show()
+        }, currentDate.get(Calendar.YEAR), currentDate.get(Calendar.MONTH), currentDate.get(Calendar.DAY_OF_MONTH)).show()
+    }
+
+
+    private fun getUserDocumentId(): String {
+        val auth = FirebaseAuth.getInstance()
+        return auth.currentUser?.uid ?: ""
+    }
+    private fun deleteMaterial() {
+        if (materialId != null) {
+            FirebaseFirestore.getInstance().collection("Materials").document(materialId!!)
+                .delete()
+                .addOnSuccessListener {
+                    Toast.makeText(context, "Material deleted successfully", Toast.LENGTH_SHORT).show()
+                    findNavController().navigateUp() // Navigate back after deletion
+                }
+                .addOnFailureListener { e ->
+                    Toast.makeText(context, "Error deleting material: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+        } else {
+            Toast.makeText(context, "Error: No Material ID found", Toast.LENGTH_SHORT).show()
         }
     }
 
 
-    // Handle onActivityResult for image and document selection
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode == Activity.RESULT_OK) {
             when (requestCode) {
-                REQUEST_CODE_IMAGE_PICK -> {
-                    selectedImageUri = data?.data
-                }
-                REQUEST_CODE_DOCUMENT_PICK -> {
-                    selectedDocumentUri = data?.data // Here, remove the val keyword
-                    val mimeType = context?.contentResolver?.getType(selectedDocumentUri!!)
-                    if (mimeType == "application/pdf" || mimeType?.startsWith("image/") == true) {
-                        // Handle the selected PDF or image
-                        binding.textViewDocumentStatus.text = "Document has been uploaded."
-                    } else {
-                        // Show an error message for unsupported file type
-                        Toast.makeText(context, "Unsupported file type. Please select an image or PDF.", Toast.LENGTH_SHORT).show()
-                    }
-                }
+                REQUEST_CODE_IMAGE_PICK -> handleImageSelectionResult(data)
+                REQUEST_CODE_CAMERA_ACTIVITY -> handleCameraActivityResult(data)
             }
         }
     }
 
 
-    companion object {
-        private const val REQUEST_CODE_IMAGE_PICK = 1
-        private const val REQUEST_CODE_DOCUMENT_PICK = 2
+    private fun handleImageSelectionResult(data: Intent?) {
+        selectedImageUri = data?.data
+        binding.imageViewCourseBanner.setImageURI(selectedImageUri)
     }
+
+    private fun handleCameraActivityResult(data: Intent?) {
+        val detectedObjectName = data?.getStringExtra("DetectedObjectName")
+        binding.editTextItemName.setText(detectedObjectName)
+
+        val filename = data?.getStringExtra("CapturedImageFilename")
+        filename?.let {
+            val file = File(requireContext().filesDir, it)
+            selectedImageUri = Uri.fromFile(file)
+            binding.imageViewCourseBanner.setImageURI(selectedImageUri)
+        }
+    }
+
 }

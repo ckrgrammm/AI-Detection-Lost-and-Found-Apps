@@ -5,6 +5,9 @@
         android:icon="@drawable/ic_home"
         android:id="@+id/homeFragment"/>
 
+    <item android:title="Search"
+        android:icon="@drawable/ic_search"
+        android:id="@+id/searchFragment"/>
 
     <!-- New Add item -->
     <item android:title="Report"

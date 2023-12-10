@@ -96,6 +96,48 @@ class MaterialViewModel : ViewModel() {
     }
 
 
+    fun updateMaterial(material: Material, imageUri: Uri?) {
+        // Check if material.id is valid
+        if (material.id.isNullOrEmpty()) {
+            Log.e(TAG, "Cannot update material: Invalid ID")
+            // You might want to invoke some error handling callback here
+            return
+        }
+
+        val materialRef = db.collection("Materials").document(material.id)
+        Log.d(TAG, "Updating material with ID: ${material.id}")
+
+        val uploadTasks = mutableListOf<Task<*>>()
+
+        imageUri?.let { uri ->
+            Log.d(TAG, "Image URI for upload: $uri")
+            val imageRef = storageRef.child("images/${material.id}")
+            uploadTasks.add(imageRef.putFile(uri).continueWithTask {
+                imageRef.downloadUrl
+            }.addOnSuccessListener { url ->
+                Log.d(TAG, "Image uploaded successfully: $url")
+                material.imageUrl = url.toString()
+            }.addOnFailureListener { e ->
+                Log.e(TAG, "Error uploading image: $e")
+            })
+        } ?: Log.d(TAG, "No image URI provided")
+
+        Tasks.whenAllSuccess<Any>(uploadTasks).addOnSuccessListener {
+            Log.d(TAG, "All upload tasks successful, updating Firestore document")
+            materialRef.set(material)
+                .addOnSuccessListener {
+                    Log.d(TAG, "Material updated successfully in Firestore")
+                }
+                .addOnFailureListener { e ->
+                    Log.e(TAG, "Error updating material in Firestore: $e")
+                }
+        }.addOnFailureListener { e ->
+            Log.e(TAG, "Error in upload tasks: $e")
+        }
+    }
+
+
+
 
     fun addMaterial(material: Material, imageUri: Uri?, documentUri: Uri?) {
         val materialRef = db.collection("Materials").document()
@@ -153,6 +195,8 @@ class MaterialViewModel : ViewModel() {
                 }
             }
     }
+
+
 
 
 

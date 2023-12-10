@@ -163,34 +163,46 @@ class LoginFragment : Fragment() {
     private fun observerLogin() {
         viewModel.login.observe(viewLifecycleOwner, Observer { isLoggedIn ->
             if (isLoggedIn) {
-                // Get the user ID
-                val userId = FirebaseAuth.getInstance().currentUser?.uid
-                userId?.let { uid ->
-                    viewModel.getUser(uid).addOnSuccessListener { documentSnapshot ->
-                        val user = documentSnapshot.toObject(User::class.java)
-                        user?.let {
-                            when (it.status) {
-                                Status.USERS -> {
-                                    // If user status is USERS, navigate to RequestRolesActivity
-                                    val intent = Intent(activity, RequestRolesActivity::class.java)
-                                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
-                                    startActivity(intent)
-                                }
-                                else -> {
-                                    // For any other status, proceed to the main activity (e.g., ShoppingActivity)
-                                    val intent = Intent(activity, ShoppingActivity::class.java)
-                                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
-                                    startActivity(intent)
-                                }
-                            }
+                // Fetch the updated user profile
+                viewModel.fetchUserProfile()
+
+                viewModel.profile.observe(viewLifecycleOwner, Observer { userProfileResource ->
+                    when (userProfileResource) {
+                        is Resource.Success -> {
+                            val user = userProfileResource.data
+                            navigateBasedOnUserRole(user)
                         }
-                    }.addOnFailureListener { exception ->
-                        // Handle the error here
-                        Log.e(TAG, "Error getting user details: ", exception)
+                        is Resource.Error -> {
+                            Log.e(TAG, "Error fetching user profile: ${userProfileResource.message}")
+                            // Handle error (e.g., show error message)
+                        }
+                        is Resource.Loading -> {
+                            // Optionally handle loading state
+                        }
                     }
-                }
+                })
             }
         })
+    }
+
+    private fun navigateBasedOnUserRole(user: User?) {
+        user?.let {
+            when (it.status) {
+                Status.USERS -> {
+                    val intent = Intent(activity, RequestRolesActivity::class.java)
+                    navigateToActivity(intent)
+                }
+                else -> {
+                    val intent = Intent(activity, ShoppingActivity::class.java)
+                    navigateToActivity(intent)
+                }
+            }
+        }
+    }
+
+    private fun navigateToActivity(intent: Intent) {
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
+        startActivity(intent)
     }
 
 

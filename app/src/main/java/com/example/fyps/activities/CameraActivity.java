@@ -227,26 +227,26 @@ public class CameraActivity extends Activity implements CameraBridgeViewBase.CvC
             new Handler().postDelayed(() -> {
                 Bitmap capturedBitmap = convertMatToBitmap(capturedFrame);
 
-            // Save the bitmap to a temporary file
-            String filename = "temp_image";
-            try {
-                FileOutputStream stream = this.openFileOutput(filename, Context.MODE_PRIVATE);
-                capturedBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+                // Save the bitmap to a temporary file
+                String filename = "temp_image";
+                try {
+                    FileOutputStream stream = this.openFileOutput(filename, Context.MODE_PRIVATE);
+                    capturedBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
 
-                // Cleanup
-                stream.close();
-                capturedBitmap.recycle();
+                    // Cleanup
+                    stream.close();
+                    capturedBitmap.recycle();
 
-                // Put file name and detected object name in intent
-                Intent resultIntent = new Intent();
-                resultIntent.putExtra("DetectedObjectName", finalDetectedObjectName);
-                resultIntent.putExtra("CapturedImageFilename", filename);
-                setResult(Activity.RESULT_OK, resultIntent);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            dialog.dismiss();
-            finish(); // Close CameraActivity
+                    // Put file name and detected object name in intent
+                    Intent resultIntent = new Intent();
+                    resultIntent.putExtra("DetectedObjectName", finalDetectedObjectName);
+                    resultIntent.putExtra("CapturedImageFilename", filename);
+                    setResult(Activity.RESULT_OK, resultIntent);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                dialog.dismiss();
+                finish(); // Close CameraActivity
             }, 500); // Delay in milliseconds
 
         });

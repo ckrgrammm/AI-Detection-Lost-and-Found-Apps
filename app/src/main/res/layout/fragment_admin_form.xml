@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/total"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="58dp"
+            android:layout_marginTop="63dp"
+            android:text="My Profile"
+            android:textColor="@color/white"
+            android:textSize="25sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <LinearLayout
+            android:id="@+id/linearLayout5"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+
+
+            android:orientation="vertical"
+            android:padding="20dp"
+
+
+
+            tools:ignore="MissingConstraints">
+
+            <TextView
+                android:id="@+id/createTitletv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginStart="4dp"
+                android:layout_marginTop="45dp"
+
+                android:fontFamily="@font/poppins_bold"
+                android:text="Create Admin"
+                android:textColor="@color/logintext"
+                android:textSize="27dp" />
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="30px"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/uploadButton"
+                    android:layout_width="140dp"
+                    android:layout_height="65dp"
+                    android:layout_marginRight="30dp"
+                    android:text="Upload Image"
+
+
+                    />
+
+                <ImageView
+                    android:id="@+id/profileImg"
+                    android:layout_width="100dp"
+
+
+                    android:layout_height="100dp"
+                    android:src="@drawable/img_person" />
+
+
+            </LinearLayout>
+
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layout_firstname"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+
+                android:layout_marginTop="34dp"
+                android:hint="First Name"
+                app:boxBackgroundColor="@color/white"
+                app:boxBackgroundMode="outline"
+                app:counterEnabled="true"
+                app:counterMaxLength="10"
+                app:endIconMode="clear_text"
+                app:endIconTint="@color/lavender"
+                app:placeholderText="Ex : CHIN"
+                app:startIconDrawable="@drawable/baseline_person_24"
+                app:startIconTint="@color/lavender">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/eTextFirst"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="text|textWebEmailAddress" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layout_lastname"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+
+                android:hint="Last Name"
+                app:boxBackgroundColor="@color/white"
+                app:boxBackgroundMode="outline"
+                app:counterEnabled="true"
+                app:counterMaxLength="10"
+                app:endIconMode="clear_text"
+                app:endIconTint="@color/lavender"
+                app:placeholderText="Ex : Ray"
+                app:startIconDrawable="@drawable/baseline_person_24"
+                app:startIconTint="@color/lavender">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/eTextLast"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="text|textWebEmailAddress" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layout_email"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+
+                android:layout_marginTop="0dp"
+                android:hint="Email"
+                app:boxBackgroundColor="@color/white"
+                app:boxBackgroundMode="outline"
+                app:endIconMode="clear_text"
+                app:endIconTint="@color/lavender"
+                app:placeholderText="ex: abc@gmail.com"
+                app:startIconDrawable="@drawable/baseline_email_24"
+                app:startIconTint="@color/lavender">
+
+                <com.google.android.material.textfield.TextInputEditText
+
+                    android:id="@+id/eTextEmail"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="text|textWebEmailAddress" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+
+
+
+
+
+
+
+
+
+            <Button
+                android:id="@+id/createButton"
+                android:layout_width="match_parent"
+                android:layout_height="70dp"
+                android:layout_marginTop="10dp"
+                android:backgroundTint="@color/lavender"
+                android:text="Create"
+                android:textSize="18sp"
+                app:cornerRadius="20dp" />
+
+
+        </LinearLayout>
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

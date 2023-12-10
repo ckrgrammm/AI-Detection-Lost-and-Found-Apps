@@ -109,6 +109,7 @@ class MaterialAdapter : RecyclerView.Adapter<MaterialAdapter.MaterialViewHolder>
                 Log.e("MaterialAdapter", "Failed to load image because of empty")
             }
 
+
         }
 
         // Set an onClick listener for the item
@@ -122,6 +123,7 @@ class MaterialAdapter : RecyclerView.Adapter<MaterialAdapter.MaterialViewHolder>
 
             }
         }
+
     }
 
 

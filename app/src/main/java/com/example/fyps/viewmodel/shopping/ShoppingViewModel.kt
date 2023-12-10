@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import com.example.fyps.firebaseDatabase.FirebaseDb
 import com.example.fyps.model.*
 import com.example.fyps.resource.Resource
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import java.util.*
 
@@ -36,6 +37,7 @@ class ShoppingViewModel(
     val deleteAddress = MutableLiveData<Resource<Address>>()
 
     val profile = MutableLiveData<Resource<User>>()
+
 
     val uploadProfileImage = MutableLiveData<Resource<String>>()
     val updateUserInformation = MutableLiveData<Resource<User>>()
@@ -192,38 +194,64 @@ class ShoppingViewModel(
         }
     }
 
-    fun uploadProfileImage(image: ByteArray) {
-        Log.d("ViewModel", "Image byte array size: ${image.size}")
+    fun uploadProfileImageAndUpdateInformation(image: ByteArray, firstName: String, lastName: String, email: String, status: Status?) {
         uploadProfileImage.postValue(Resource.Loading())
         val name = UUID.nameUUIDFromBytes(image).toString()
-        Log.d("ViewModel", "Generated UUID: $name")
 
-        firebaseDatabase.uploadUserProfileImage(image, name).addOnCompleteListener {
-            if (it.isSuccessful) {
-                Log.d("ViewModel", "Upload successful with name: $name")
-                uploadProfileImage.postValue(Resource.Success(name))
+        // Upload the image
+        firebaseDatabase.uploadUserProfileImage(image, name).addOnCompleteListener { uploadTask ->
+            if (uploadTask.isSuccessful) {
+                // After successful upload, get the URL and update user information
+                firebaseDatabase.getImageUrl(firstName, lastName, email, name) { user, exception ->
+                    if (exception != null) {
+                        updateUserInformation.postValue(Resource.Error(exception))
+                    } else {
+                        user?.let {
+                            // Check for null status and set it if it's not null
+                            if (status != null) {
+                                it.status = status
+                            }
+                            updateUserInformation(it)
+                        }
+                    }
+                }
             } else {
-                Log.e("ViewModel", "Upload failed: ${it.exception}")
-                uploadProfileImage.postValue(Resource.Error(it.exception.toString()))
+                uploadProfileImage.postValue(Resource.Error(uploadTask.exception.toString()))
             }
         }
     }
 
 
-    fun updateInformation(firstName: String, lastName: String, email: String, imageName: String) {
+    private fun updateUserInformation(user: User) {
+        updateUserInformation.postValue(Resource.Loading())
+        firebaseDatabase.updateUserInformation(user).addOnCompleteListener {
+            if (it.isSuccessful) {
+                updateUserInformation.postValue(Resource.Success(user))
+            } else {
+                updateUserInformation.postValue(Resource.Error(it.exception.toString()))
+            }
+        }
+    }
+
+
+
+
+    fun updateInformation(firstName: String, lastName: String, email: String, imageName: String, status: Status?) {
         updateUserInformation.postValue(Resource.Loading())
 
         firebaseDatabase.getImageUrl(firstName, lastName, email, imageName) { user, exception ->
-
-            if (exception != null)
+            if (exception != null) {
                 updateUserInformation.postValue(Resource.Error(exception))
-                    .also { Log.d("test1", "up") }
-            else
+            } else {
                 user?.let {
-                    onUpdateInformation(user).also { Log.d("test1", "down") }
+                    // Set the status from the parameter to ensure it's preserved
+                    it.status = status ?: it.status // Use the existing status if the new one is null
+                    onUpdateInformation(it)
                 }
+            }
         }
     }
+
 
     private fun onUpdateInformation(user: User) {
         firebaseDatabase.updateUserInformation(user).addOnCompleteListener {
@@ -265,6 +293,7 @@ class ShoppingViewModel(
                 Log.e(TAG, "Error getting documents: ", exception)
             }
     }
+
 
 
     private var categoriesSafe: List<Category>? = null
