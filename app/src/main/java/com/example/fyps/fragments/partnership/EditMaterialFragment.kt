@@ -157,7 +157,7 @@ class EditMaterialFragment : Fragment() {
     private fun checkAndUpdateUserPoints() {
         val userId = FirebaseAuth.getInstance().currentUser?.uid
         if (userId != null) {
-            val userRef = FirebaseFirestore.getInstance().collection("Users").document(userId)
+            val userRef = FirebaseFirestore.getInstance().collection("users").document(userId)
             userRef.get().addOnSuccessListener { document ->
                 if (document.exists()) {
                     val userStatus = document.getString("status")
