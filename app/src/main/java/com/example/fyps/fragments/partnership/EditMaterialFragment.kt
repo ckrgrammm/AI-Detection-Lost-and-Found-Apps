@@ -140,9 +140,7 @@ class EditMaterialFragment : Fragment() {
             val materialRef = FirebaseFirestore.getInstance().collection("Materials").document(id)
             materialRef.update("status", "Status : Claimed")
                 .addOnSuccessListener {
-                    context?.let { ctx ->
-                        Toast.makeText(ctx, "Item status updated to claimed", Toast.LENGTH_SHORT).show()
-                    }
+                    checkAndUpdateUserPoints()
                 }
                 .addOnFailureListener { e ->
                     context?.let { ctx ->
@@ -155,6 +153,42 @@ class EditMaterialFragment : Fragment() {
             }
         }
     }
+
+    private fun checkAndUpdateUserPoints() {
+        val userId = FirebaseAuth.getInstance().currentUser?.uid
+        if (userId != null) {
+            val userRef = FirebaseFirestore.getInstance().collection("Users").document(userId)
+            userRef.get().addOnSuccessListener { document ->
+                if (document.exists()) {
+                    val userStatus = document.getString("status")
+                    val pointsToAdd = if (userStatus == "REPORTERS") 2 else 1
+
+                    val currentPoints = document.getLong("points") ?: 0
+                    userRef.update("points", currentPoints + pointsToAdd)
+                        .addOnSuccessListener {
+                            if (isAdded) {
+                                Toast.makeText(context, "Points updated successfully", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                        .addOnFailureListener {
+                            if (isAdded) {
+                                Toast.makeText(context, "Failed to update points", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                }
+            }.addOnFailureListener {
+                if (isAdded) {
+                    Toast.makeText(context, "Failed to fetch user details", Toast.LENGTH_SHORT).show()
+                }
+            }
+        } else {
+            if (isAdded) {
+                Toast.makeText(context, "Error: User ID not found", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+
 
 
 
