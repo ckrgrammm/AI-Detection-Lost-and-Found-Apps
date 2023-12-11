@@ -31,15 +31,16 @@ class SearchFragment : Fragment() {
     private lateinit var viewModel: ShoppingViewModel
     private lateinit var categoriesAdapter: CategoriesRecyclerAdapter
     private lateinit var searchAdapter: SearchRecyclerAdapter
+    private lateinit var inputMethodManager: InputMethodManager
+
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        inputMethodManager = activity?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         viewModel = (activity as ShoppingActivity).viewModel
         viewModel.getCategories()
-
     }
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -60,14 +61,11 @@ class SearchFragment : Fragment() {
         onCancelTvClick()
 
 
-        binding.frameScan.setOnClickListener {
-            val snackBar = requireActivity().findViewById<CoordinatorLayout>(R.id.snackBar_coordinator)
-            Snackbar.make(snackBar,resources.getText(R.string.g_coming_soon), Snackbar.LENGTH_SHORT).show()
+        binding.linearSearch.setOnClickListener {
+            binding.searchText.requestFocus()
+            inputMethodManager.showSoftInput(binding.searchText, InputMethodManager.SHOW_IMPLICIT)
         }
-        binding.fragmeMicrohpone.setOnClickListener {
-            val snackBar = requireActivity().findViewById<CoordinatorLayout>(R.id.snackBar_coordinator)
-            Snackbar.make(snackBar,resources.getText(R.string.g_coming_soon), Snackbar.LENGTH_SHORT).show()
-        }
+
 
     }
 
@@ -76,7 +74,7 @@ class SearchFragment : Fragment() {
     private fun onCancelTvClick() {
         binding.tvCancel.setOnClickListener {
             searchAdapter.differ.submitList(emptyList())
-            binding.edSearch.setText("")
+            binding.searchText.setText("")
             hideCancelTv()
         }
     }
@@ -107,10 +105,6 @@ class SearchFragment : Fragment() {
 
     private fun showCancelTv() {
         binding.tvCancel.visibility = View.VISIBLE
-        binding.imgMic.visibility = View.GONE
-        binding.imgScan.visibility = View.GONE
-        binding.fragmeMicrohpone.visibility = View.GONE
-        binding.frameScan.visibility = View.GONE
     }
 
 
@@ -135,7 +129,7 @@ class SearchFragment : Fragment() {
 
     var job: Job? = null
     private fun searchMaterials() {
-        binding.edSearch.addTextChangedListener { query ->
+        binding.searchText.addTextChangedListener { query ->
             val queryTrim = query.toString().trim()
             if (queryTrim.isNotEmpty()) {
                 val searchQuery = queryTrim.capitalize()
@@ -154,19 +148,10 @@ class SearchFragment : Fragment() {
 
     private fun showChancelTv() {
         binding.tvCancel.visibility = View.VISIBLE
-        binding.imgMic.visibility = View.GONE
-        binding.imgScan.visibility = View.GONE
-        binding.fragmeMicrohpone.visibility = View.GONE
-        binding.frameScan.visibility = View.GONE
-
     }
 
     private fun hideCancelTv() {
         binding.tvCancel.visibility = View.GONE
-        binding.imgMic.visibility = View.VISIBLE
-        binding.imgScan.visibility = View.VISIBLE
-        binding.fragmeMicrohpone.visibility = View.VISIBLE
-        binding.frameScan.visibility = View.VISIBLE
     }
 
     private fun onHomeClick() {
@@ -178,21 +163,20 @@ class SearchFragment : Fragment() {
     }
 
     private fun showKeyboardAutomatically() {
-        inputMethodManger =
-            activity?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        inputMethodManger.toggleSoftInput(
-            InputMethodManager.SHOW_FORCED,
-            InputMethodManager.HIDE_IMPLICIT_ONLY
-        )
-
-        binding.edSearch.requestFocus()
+        inputMethodManager = activity?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        binding.searchText.postDelayed({
+            binding.searchText.requestFocus()
+            inputMethodManager.showSoftInput(binding.searchText, InputMethodManager.SHOW_IMPLICIT)
+        }, 100)
     }
+
 
     override fun onDestroy() {
         super.onDestroy()
-        binding.edSearch.clearFocus()
+        if (binding.searchText.isFocused) {
+            inputMethodManager.hideSoftInputFromWindow(binding.searchText.windowToken, 0)
+        }
     }
-
     override fun onResume() {
         super.onResume()
 

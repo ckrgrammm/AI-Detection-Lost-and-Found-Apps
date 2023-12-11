@@ -14,7 +14,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 class ItemSettingMainFragment : Fragment() {
 
     private var _binding: FragmentDashboardBinding? = null
-    private val binding get() = _binding!!
+    private val binding get() = _binding
 
     private val db = FirebaseFirestore.getInstance()
     private val mAuth = FirebaseAuth.getInstance()
@@ -26,17 +26,17 @@ class ItemSettingMainFragment : Fragment() {
         _binding = FragmentDashboardBinding.inflate(inflater, container, false)
         fetchTotalViews()
         setupCardViewListeners()
-        return binding.root
+        return _binding!!.root
     }
 
     private fun setupCardViewListeners() {
-        binding.cvEditItem.setOnClickListener {
+        binding?.cvEditItem?.setOnClickListener {
             // Handle Edit Item card view click
             findNavController().navigate(R.id.action_profileFragment_to_itemSettingMainFragment_to_itemSettingFragment)
 
         }
 
-        binding.cvItemFilter.setOnClickListener {
+        binding?.cvItemFilter?.setOnClickListener {
             // Handle Item Filter card view click
         }
     }
@@ -57,7 +57,7 @@ class ItemSettingMainFragment : Fragment() {
                     val views = document.getLong("view")?.toInt() ?: 0
                     totalViews += views
                 }
-                binding.totalCalorieSpent.text = totalViews.toString()
+                binding?.totalCalorieSpent?.text = totalViews.toString()
             }
     }
 

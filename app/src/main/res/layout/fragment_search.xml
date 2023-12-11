@@ -10,73 +10,36 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-    <EditText
-        android:id="@+id/ed_search"
-        android:layout_width="0dp"
-        android:layout_height="@dimen/_40sdp"
-        android:background="@drawable/search_box_background"
-        android:fontFamily="@font/poppins_thin"
-        android:gravity="center_vertical"
-        android:hint="@string/g_search_now"
-        android:paddingStart="@dimen/_12sdp"
-        android:singleLine="true"
-        android:textColor="@color/g_icon_tint"
-        android:textSize="@dimen/_12ssp"
-        app:layout_constraintEnd_toEndOf="@id/guideline3"
-        android:layout_marginTop="@dimen/_7sdp"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@id/guideline1"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1.0"
-        android:drawableEnd="@drawable/ic_search"
-        android:drawablePadding="10dp"
-        />
 
 
-    <FrameLayout
-        android:id="@+id/frame_scan"
-        android:layout_width="0dp"
-        android:layout_height="@dimen/_40sdp"
-        android:background="@drawable/favorite_background"
-        android:backgroundTint="@color/g_search_and_icons"
-        android:orientation="vertical"
-        app:layout_constraintTop_toTopOf="@id/ed_search"
-        app:layout_constraintBottom_toBottomOf="@id/ed_search"
-        app:layout_constraintStart_toEndOf="@id/guideline3"
-        app:layout_constraintEnd_toEndOf="@id/guideline8"
-        android:layout_marginStart="@dimen/_5sdp"
-        android:layout_marginEnd="@dimen/_5sdp"
-        app:layout_constraintVertical_bias="0.533">
+        <LinearLayout
+            android:id="@+id/linear_search"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:gravity="center"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/background_search_bar"
+            android:orientation="horizontal">
 
-        <ImageView
-            android:id="@+id/img_scan"
-            android:layout_width="@dimen/_15sdp"
-            android:layout_height="@dimen/_15sdp"
-            android:layout_gravity="center"
-            android:src="@drawable/ic_scan"/>
-    </FrameLayout>
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginStart="16dp"
+                android:src="@drawable/search" />
 
-    <FrameLayout
-        android:id="@+id/fragme_microhpone"
-        android:layout_width="0dp"
-        android:layout_height="@dimen/_40sdp"
-        android:layout_marginStart="@dimen/_5sdp"
-        android:background="@drawable/favorite_background"
-        android:backgroundTint="@color/g_search_and_icons"
-        android:orientation="vertical"
-        app:layout_constraintBottom_toBottomOf="@id/ed_search"
-        app:layout_constraintEnd_toEndOf="@id/guideline2"
-        app:layout_constraintStart_toEndOf="@id/guideline8"
-        app:layout_constraintTop_toTopOf="@id/ed_search">
+            <EditText
+                android:id="@+id/search_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                android:textSize="16sp"
+                android:hint="@string/main_search"
+                android:background="@null"/>
+        </LinearLayout>
 
-        <ImageView
-            android:id="@+id/img_mic"
-            android:layout_width="@dimen/_15sdp"
-            android:layout_height="@dimen/_15sdp"
-            android:layout_gravity="center"
-            android:src="@drawable/ic_microphone" />
 
-    </FrameLayout>
 
         <TextView
             android:id="@+id/tv_cancel"
@@ -85,8 +48,8 @@
             android:textSize="@dimen/_15ssp"
             app:layout_constraintStart_toStartOf="@id/guideline3"
             app:layout_constraintEnd_toEndOf="@id/guideline2"
-            app:layout_constraintTop_toTopOf="@id/ed_search"
-            app:layout_constraintBottom_toBottomOf="@id/ed_search"
+            app:layout_constraintTop_toTopOf="@id/linear_search"
+            app:layout_constraintBottom_toBottomOf="@id/linear_search"
             android:gravity="center"
             android:text="@string/g_cancel"
             android:fontFamily="@font/poppins_light"
@@ -102,7 +65,7 @@
         android:layout_marginTop="10dp"
         app:layout_constraintEnd_toEndOf="@id/guideline2"
         app:layout_constraintStart_toStartOf="@id/guideline1"
-        app:layout_constraintTop_toBottomOf="@id/ed_search"
+        app:layout_constraintTop_toBottomOf="@id/linear_search"
         />
 
 

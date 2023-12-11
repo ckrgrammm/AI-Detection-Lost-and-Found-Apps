@@ -277,15 +277,16 @@ class ShoppingViewModel(
 
 
     fun searchMaterials(query: String) {
+        Log.d(TAG, "Searching for: $query")
         searchResults.postValue(Resource.Loading())
 
-        // Fetch all materials
         firestore.collection("Materials")
             .get().addOnSuccessListener { documents ->
                 val allMaterials = documents.map { document -> document.toObject(Material::class.java) }
 
                 // Filter materials based on the name containing the query
                 val results = allMaterials.filter { it.name.contains(query, ignoreCase = true) }
+                Log.d(TAG, "Found ${results.size} results")
 
                 searchResults.postValue(Resource.Success(results))
             }.addOnFailureListener { exception ->
@@ -293,6 +294,7 @@ class ShoppingViewModel(
                 Log.e(TAG, "Error getting documents: ", exception)
             }
     }
+
 
 
 

@@ -1,6 +1,8 @@
 package com.example.fyps.fragments.shopping
 
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -8,6 +10,7 @@ import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
@@ -19,6 +22,7 @@ import com.example.fyps.activities.ShoppingActivity
 import com.example.fyps.adapters.recyclerview.MaterialAdapter
 import com.example.fyps.adapters.recyclerview.MenuAdapter
 import com.example.fyps.adapters.recyclerview.NewsAdapter
+import com.example.fyps.adapters.recyclerview.SearchRecyclerAdapter
 import com.example.fyps.database.SharedPreferencesHelper
 import com.example.fyps.databinding.FragmentHomeBinding
 import com.example.fyps.model.News
@@ -30,13 +34,22 @@ import com.example.fyps.resource.Resource
 import com.example.fyps.util.PokemonColorUtil
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 
 class HomeFragment : Fragment() {
     val TAG = "HomeFragment"
     private lateinit var viewModel: ShoppingViewModel
     private lateinit var binding: FragmentHomeBinding
+    private lateinit var searchAdapter: SearchRecyclerAdapter
     private lateinit var materialAdapter: MaterialAdapter
+
+    var job: Job? = null
+
     private val sharedPreferencesHelper by lazy { SharedPreferencesHelper(requireContext()) }
 
 
@@ -61,6 +74,9 @@ class HomeFragment : Fragment() {
 
         // Initialize RecyclerView for displaying categories
         setupRecyclerView()
+        setupSearchRecyclerView()
+        setupSearchObserver()
+
 
         // Call getMaterials() to fetch materials
         viewModel.getMaterials()
@@ -84,7 +100,65 @@ class HomeFragment : Fragment() {
                 }
             }
         })
+
+        binding.searchText.addTextChangedListener { query ->
+            val queryTrim = query.toString().trim()
+            if (queryTrim.isNotEmpty()) {
+                performSearch(queryTrim)
+                showSearchResultsView()
+            } else {
+                hideSearchResultsView()
+            }
+        }
     }
+
+
+
+    private fun setupSearchRecyclerView() {
+        searchAdapter = SearchRecyclerAdapter()
+        binding.rvSearch.apply {
+            adapter = searchAdapter
+            layoutManager = LinearLayoutManager(context)
+            visibility = View.GONE // Initially hidden
+        }
+    }
+
+
+    private fun performSearch(query: String) {
+        job?.cancel()
+        job = CoroutineScope(Dispatchers.IO).launch {
+            delay(500L)
+            viewModel.searchMaterials(query) // Implement this based on your viewModel
+        }
+    }
+
+    private fun showSearchResultsView() {
+        binding.rvSearch.visibility = View.VISIBLE
+
+        hideOtherComponents()
+    }
+
+    private fun hideSearchResultsView() {
+        binding.rvSearch.visibility = View.GONE
+
+        showOriginalContent()
+    }
+
+    private fun hideOtherComponents() {
+        // Hide non-search related UI components
+        binding.recyclerViewMenu.visibility = View.GONE
+        binding.recyclerViewNews.visibility = View.GONE
+        binding.linearNews.visibility = View.GONE
+    }
+
+    private fun showOriginalContent() {
+        // Show original content like RecyclerViews for news and categories
+        binding.recyclerViewMenu.visibility = View.VISIBLE
+        binding.recyclerViewNews.visibility = View.VISIBLE
+        binding.linearNews.visibility = View.VISIBLE
+
+    }
+
 
 
     // Define the onItemClick method
@@ -132,6 +206,29 @@ class HomeFragment : Fragment() {
         }
     }
 
+
+
+    private fun setupSearchObserver() {
+        viewModel.searchResults.observe(viewLifecycleOwner, Observer { resource ->
+            when (resource) {
+                is Resource.Success -> {
+                    resource.data?.let { materials ->
+                        searchAdapter.differ.submitList(materials)
+                        showSearchResultsView()
+                    }
+                }
+
+                is Resource.Loading -> {
+                    // Show loading state if necessary
+                }
+
+                is Resource.Error -> {
+                    Log.e(TAG, resource.message ?: "Unknown error")
+                    // Handle error state
+                }
+            }
+        })
+    }
 
 
     override fun onResume() {

@@ -140,15 +140,22 @@ class EditMaterialFragment : Fragment() {
             val materialRef = FirebaseFirestore.getInstance().collection("Materials").document(id)
             materialRef.update("status", "Status : Claimed")
                 .addOnSuccessListener {
-                    Toast.makeText(context, "Item status updated to claimed", Toast.LENGTH_SHORT).show()
+                    context?.let { ctx ->
+                        Toast.makeText(ctx, "Item status updated to claimed", Toast.LENGTH_SHORT).show()
+                    }
                 }
                 .addOnFailureListener { e ->
-                    Toast.makeText(context, "Failed to update item status: ${e.message}", Toast.LENGTH_SHORT).show()
+                    context?.let { ctx ->
+                        Toast.makeText(ctx, "Failed to update item status: ${e.message}", Toast.LENGTH_SHORT).show()
+                    }
                 }
         } ?: run {
-            Toast.makeText(context, "Error: Material ID is missing", Toast.LENGTH_SHORT).show()
+            context?.let { ctx ->
+                Toast.makeText(ctx, "Error: Material ID is missing", Toast.LENGTH_SHORT).show()
+            }
         }
     }
+
 
 
     private fun handleSubmit() {
