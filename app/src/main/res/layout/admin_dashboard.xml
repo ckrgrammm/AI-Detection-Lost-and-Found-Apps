@@ -262,7 +262,7 @@
                         android:layout_width="64dp"
                         android:layout_height="64dp"
                         android:background="@drawable/circle_student"
-                        android:src="@drawable/ic_baseline_person_24"
+                        android:src="@drawable/ic_question"
                         android:padding="15dp"/>
                     <View
                         android:layout_width="match_parent"
@@ -273,7 +273,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Studnets"
+                        android:text="Questions"
                         android:fontFamily="@font/aclonica"
                         android:textStyle="bold"
                         android:padding="5dp"

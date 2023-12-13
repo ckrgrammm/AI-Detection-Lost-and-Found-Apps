@@ -94,6 +94,17 @@
             app:layout_constraintEnd_toEndOf="@id/guideline2"
             app:layout_constraintTop_toBottomOf="@id/tv_shopping_addresses"/>
 
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyQuestion"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginTop="10dp"
+            tools:itemCount="20"
+            app:layout_constraintTop_toBottomOf="@id/tv_products"
+            app:layout_constraintBottom_toTopOf="@id/btnChat"
+            app:layout_constraintEnd_toEndOf="@id/guideline2"
+            app:layout_constraintStart_toStartOf="@id/guideline1"
+            tools:listitem="@layout/partner_item_question" />
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btnChat"
@@ -157,6 +168,7 @@
             app:drawableTint="@color/black"
             app:drawableLeftCompat="@drawable/ic_cart"
             android:drawablePadding="5dp"/>
+
 
 
 

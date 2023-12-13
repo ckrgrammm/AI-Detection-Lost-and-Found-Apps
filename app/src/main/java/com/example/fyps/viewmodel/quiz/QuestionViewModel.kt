@@ -26,7 +26,7 @@ class QuestionViewModel(private val setDocumentId: String, private val materialI
         fetchQuestions(materialId, setDocumentId) // Replace with actual IDs
     }
 
-     fun fetchQuestions(materialId: String, setId: String) {
+    fun fetchQuestions(materialId: String, setId: String) {
         db.collection("Materials")
             .document(materialId)
             .collection("Sets")

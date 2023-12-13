@@ -100,24 +100,31 @@ class AddMaterialFragment : Fragment() {
             return
         }
 
+
+        val isUnique = category == "Electronics"
+        val subCollectionName = if (isUnique) "UniqueCollection" else "NonUniqueCollection"
+
         // Create a new Material object with the values from the input fields
         val material = Material(
             name = name,
             desc = description,
             category = category,
-            isUnique = category == "Electronics", // Set isUnique true if category is Electronics
+            isUnique = isUnique, // Set isUnique true if category is Electronics
             status = "Status : Lost",
             partnershipsID = getUserDocumentId(),
             venue = venue,
             dateTime = dateTime
         )
 
+
         // Call the ViewModel to add the new Material
-        viewModel.addMaterial(material, selectedImageUri, null)
+        viewModel.addMaterial(material, selectedImageUri,null,subCollectionName)
         // Notify the user and navigate back
         Toast.makeText(requireContext(), "Material submitted successfully", Toast.LENGTH_SHORT).show()
         findNavController().navigateUp()
     }
+
+
 
 
     private fun showDateTimePickerDialog() {

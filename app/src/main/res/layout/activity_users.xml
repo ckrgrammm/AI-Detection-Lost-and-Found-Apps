@@ -39,6 +39,16 @@
             android:src="@drawable/ic_launcher_background" />
     </LinearLayout>
 
+    <TextView
+        android:id="@+id/tvChatMessage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:text="Hello, this is chat fragment"
+        android:textSize="18sp"
+        android:gravity="center"
+        android:textStyle="bold"/>
+
     <androidx.recyclerview.widget.RecyclerView
         android:layout_width="match_parent"
         android:layout_height="match_parent"

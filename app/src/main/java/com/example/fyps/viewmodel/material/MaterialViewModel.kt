@@ -15,6 +15,7 @@ import com.google.android.gms.tasks.Task
 import com.google.android.gms.tasks.Tasks
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
 
 class MaterialViewModel : ViewModel() {
     val materialEngageData = MutableLiveData<MaterialEngageData?>()
@@ -149,29 +150,23 @@ class MaterialViewModel : ViewModel() {
 
 
 
-    fun addMaterial(material: Material, imageUri: Uri?, documentUri: Uri?) {
+    fun addMaterial(material: Material, imageUri: Uri?, documentUri: Uri?, subCollectionName: String) {
         val materialRef = db.collection("Materials").document()
-
         material.id = materialRef.id
 
         val uploadTasks = mutableListOf<Task<*>>()
 
         imageUri?.let { uri ->
             val imageRef = storageRef.child("images/${material.id}")
-            uploadTasks.add(imageRef.putFile(uri).continueWithTask {
-                imageRef.downloadUrl
-            }.addOnSuccessListener { url ->
-                material.imageUrl = url.toString()
+            uploadTasks.add(uploadFileAndGetUrl(uri, imageRef) { url ->
+                material.imageUrl = url
             })
         }
 
         documentUri?.let { uri ->
             val docRef = storageRef.child("documents/${material.id}")
-            uploadTasks.add(docRef.putFile(uri).continueWithTask {
-                docRef.downloadUrl
-            }.addOnSuccessListener { url ->
-                // Add the document URL to a Course object and save it to the "Courses" sub-collection
-                val course = CourseDocument(documentUrl = url.toString())
+            uploadTasks.add(uploadFileAndGetUrl(uri, docRef) { url ->
+                val course = CourseDocument(documentUrl = url)
                 materialRef.collection("Courses").add(course)
                     .addOnSuccessListener {
                         Log.d("MaterialViewModel", "Document successfully added to Courses sub-collection")
@@ -182,11 +177,31 @@ class MaterialViewModel : ViewModel() {
             })
         }
 
-
         Tasks.whenAllSuccess<Any>(uploadTasks).addOnSuccessListener {
-            materialRef.set(material)
+            val materialRef = db.collection("Materials").document(material.id)
+            materialRef.set(material).addOnSuccessListener {
+                // Create sub-collection based on isUnique value
+                materialRef.collection(subCollectionName).document().set(mapOf("placeholder" to "data"))
+                Log.d("MaterialViewModel", "Material and sub-collection added successfully")
+            }.addOnFailureListener { e ->
+                Log.e("MaterialViewModel", "Error adding material", e)
+            }
         }.addOnFailureListener { e ->
-            Log.e("MaterialViewModel", "Error adding material", e)
+            Log.e("MaterialViewModel", "Error in upload tasks", e)
+        }
+    }
+
+
+    private fun uploadFileAndGetUrl(fileUri: Uri, storageRef: StorageReference, onSuccess: (String) -> Unit): Task<*> {
+        return storageRef.putFile(fileUri).continueWithTask {
+            if (!it.isSuccessful) {
+                it.exception?.let { exception ->
+                    throw exception
+                }
+            }
+            storageRef.downloadUrl
+        }.addOnSuccessListener { uri ->
+            onSuccess(uri.toString())
         }
     }
 
