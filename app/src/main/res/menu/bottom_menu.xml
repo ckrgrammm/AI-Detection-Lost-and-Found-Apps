@@ -14,9 +14,9 @@
         android:icon="@drawable/ic_add"
         android:id="@+id/addMaterialFragment"/>
 
-    <item android:title="@string/g_cart"
-        android:icon="@drawable/ic_cart"
-        android:id="@+id/cartFragment"/>
+    <item android:title="Chat"
+        android:icon="@drawable/ic_chat"
+        android:id="@+id/chatFragment"/>
 
     <item android:title="@string/g_profile"
         android:icon="@drawable/ic_profile"

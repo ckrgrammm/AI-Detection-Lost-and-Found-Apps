@@ -98,4 +98,11 @@
     <color name="lightYellow">#FFCE4B</color>
     <color name="purple">#7C538C</color>
     <color name="teal">#4FC1A6</color>
+
+    <color name="colorText">#464646</color>
+    <color name="colorDarkGray">#464646</color>
+    <color name="colorTextBackground">#f5f5f5</color>
+    <color name="colorItemLeft">#E6E4E4</color>
+    <color name="colorItemRight">#813fd7</color>
+    <color name="colorWhite">#fff</color>
 </resources>

@@ -9,20 +9,14 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
 
-    <!-- Adding camera hardware features -->
-    <uses-feature
-        android:name="android.hardware.camera"
-        android:required="false" />
-    <uses-feature
-        android:name="android.hardware.camera.autofocus"
-        android:required="false" />
-    <uses-feature
-        android:name="android.hardware.camera.front"
-        android:required="false" />
-    <uses-feature
-        android:name="android.hardware.camera.front.autofocus"
-        android:required="false" />
+    <!--    Meili Code-->
 
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- Adding camera hardware features -->
+    <uses-feature android:name="android.hardware.camera" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
         android:networkSecurityConfig="@xml/network_security_config"
@@ -56,8 +50,34 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".activities.StoreActivity"
+        <!--Meili Code-->
+        <service android:name=".firebase.FirebaseService"
+            android:permission="com.google.android.c2dm.permission.SEND"
+            android:exported="true">
+
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+            </intent-filter>
+
+        </service>
+        <activity android:name=".activities.UsersActivity"
             android:exported="true" />
+        <activity
+            android:name=".activities.ChatActivity"
+            android:windowSoftInputMode="adjustResize"
+            android:label="ChatActivity">
+        </activity>
+
+<!--        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="com.example.fyps.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>-->
     </application>
 
 </manifest>
