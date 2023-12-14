@@ -468,6 +468,10 @@
             app:destination="@id/adminViewRewardFragment" />
 
         <action
+            android:id="@+id/action_adminDashboardFragment_to_adminQuestionListFragment"
+            app:destination="@id/adminQuestionListFragment" />
+
+        <action
             android:id="@+id/action_adminDashboardFragment_to_adminOverviewFragment"
             app:destination="@id/adminOverviewFragment" />
 
@@ -479,12 +483,54 @@
 
 
     <fragment
+        android:id="@+id/adminQuestionListFragment"
+        android:name="com.example.fyps.fragments.admin.AdminQuestionListFragment"
+        android:label="fragment_question_list"
+        tools:layout="@layout/fragment_question_list" >
+
+        <action
+            android:id="@+id/action_adminQuestionListFragment_to_adminaddQuestionFragment"
+            app:destination="@id/adminaddQuestionFragment" />
+
+        <action
+            android:id="@+id/action_adminQuestionListFragment_to_editQuestionFragment"
+            app:destination="@id/editQuestionFragment">
+            <argument
+                android:name="questionId"
+                app:argType="string" />
+        </action>
+
+
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/editQuestionFragment"
+        android:name="com.example.fyps.fragments.quiz.EditQuestionFragment"
+        android:label="question_edit"
+        tools:layout="@layout/question_edit" >
+
+        <argument
+            android:name="questionId"
+            app:argType="string" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/adminaddQuestionFragment"
+        android:name="com.example.fyps.fragments.quiz.QuestionFragment"
+        android:label="question_add"
+        tools:layout="@layout/question_add" >
+
+    </fragment>
+
+
+    <fragment
         android:id="@+id/adminListFragment"
         android:name="com.example.fyps.fragments.admin.AdminListFragment"
         android:label="fragment_admin_list"
         tools:layout="@layout/fragment_admin_list" >
 
-        <!-- Add this action -->
         <action
             android:id="@+id/action_adminListFragment_to_adminFormFragment"
             app:destination="@id/adminFormFragment"/>

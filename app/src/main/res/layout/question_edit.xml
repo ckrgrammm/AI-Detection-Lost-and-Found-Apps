@@ -114,11 +114,11 @@
 
 
         <Button
-            android:id="@+id/buttonSubmit"
+            android:id="@+id/buttonUpdate"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="16dp"
-            android:text="Add Question" />
+            android:text="Update Question" />
     </LinearLayout>
 </ScrollView>

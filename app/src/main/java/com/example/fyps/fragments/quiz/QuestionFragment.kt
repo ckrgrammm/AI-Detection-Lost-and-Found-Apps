@@ -6,114 +6,57 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
 import android.widget.Toast
-import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.fyps.R
-import com.example.fyps.adapters.recyclerview.QuestionAdapter
-import com.example.fyps.databinding.FragmentQuestionBinding
+import com.example.fyps.databinding.QuestionAddBinding
 import com.example.fyps.viewmodel.quiz.QuestionViewModel
-import com.example.fyps.viewmodel.quiz.QuestionViewModelFactory
-
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [QuestionFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
-class QuestionFragment : Fragment(), QuestionAdapter.QuestionItemClickListener {
-    private lateinit var binding: FragmentQuestionBinding
+class QuestionFragment : Fragment() {
+    private lateinit var binding: QuestionAddBinding
     private lateinit var viewModel: QuestionViewModel
-    private lateinit var setDocumentId: String
-    private lateinit var materialDocId: String
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_question, container,false)
-
-        setDocumentId = arguments?.getString("setDocumentId") ?: ""
-        materialDocId = arguments?.getString("materialDocId") ?: ""
-
-        viewModel = ViewModelProvider(this, QuestionViewModelFactory(setDocumentId, materialDocId)).get(QuestionViewModel::class.java)
-        binding.questionViewModel = viewModel
-        binding.lifecycleOwner = viewLifecycleOwner
-
-        val adapter = QuestionAdapter(emptyList(), mutableMapOf(),this)
-        binding.recyQuestion.adapter = adapter
-        binding.recyQuestion.layoutManager = LinearLayoutManager(requireContext())
-
-        viewModel.questionIdMap.observe(viewLifecycleOwner, Observer { idMap ->
-            adapter.updateIdMap(idMap)  // Create this method in your Adapter to update the map
-        })
-
-        viewModel.questions.observe(viewLifecycleOwner) { questions ->
-            adapter.updateQuestions(questions)
-        }
-
-        // Add this line to set up click listener for addQuestions button
-        binding.addQuestions.setOnClickListener {
-            val bundle = Bundle()
-            bundle.putString("setDocumentId", setDocumentId)
-            bundle.putString("materialDocId", materialDocId)
-            findNavController().navigate(R.id.action_questionFragment_to_addUpdateQuestionFragment, bundle)
-        }
-
-        binding.arrowBack.setOnClickListener {
-            findNavController().navigateUp()
-        }
-
-        // Observe operationStatus LiveData
-        viewModel.operationStatus.observe(viewLifecycleOwner, Observer { status ->
-            if (status == "Success") {
-                Toast.makeText(context, "Question successfully added!", Toast.LENGTH_SHORT).show()
-                viewModel.resetShowToastMsg()
-            } else if (status == "Failure") {
-                Toast.makeText(context, "Failed to add question!", Toast.LENGTH_SHORT).show()
-                viewModel.resetShowToastMsg()
-            } else if (status == "DeleteSuccess") {
-                Toast.makeText(context, "Question successfully deleted!", Toast.LENGTH_SHORT).show()
-                viewModel.resetShowToastMsg()
-            } else if (status == "DeleteFailure") {
-                Toast.makeText(context, "Failed to delete question!", Toast.LENGTH_SHORT).show()
-                viewModel.resetShowToastMsg()
-            }
-        })
-
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        binding = QuestionAddBinding.inflate(inflater, container, false)
+        viewModel = ViewModelProvider(this).get(QuestionViewModel::class.java)
         return binding.root
     }
 
-    override fun onQuestionClick(question: String, questionId: String) {
-        val bundle = Bundle()
-        bundle.putString("questionId", questionId)
-        bundle.putString("setDocumentId", setDocumentId)
-        bundle.putString("materialDocId", materialDocId)
-        findNavController().navigate(R.id.action_questionFragment_to_addUpdateQuestionFragment, bundle)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        setupSpinner()
+        binding.buttonSubmit.setOnClickListener { handleSubmit() }
     }
 
-    // ... inside your QuestionFragment
+    private fun setupSpinner() {
+        val items = listOf("Unique Item", "Non-Unique Item")
+        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, items)
+        (binding.spinnerItemType as AutoCompleteTextView).setAdapter(adapter)
+    }
 
-    override fun onQuestionLongClick(question: String, questionId: String) {
-        val builder = AlertDialog.Builder(requireContext())
-        builder.setTitle("Delete Question")
-        builder.setMessage("Are you sure you want to delete this question?")
-        builder.setPositiveButton("Yes") { _, _ ->
-            viewModel.deleteQuestion(materialDocId, setDocumentId, questionId)  // Implement this function in your ViewModel
+    private fun handleSubmit() {
+        val itemType = binding.spinnerItemType.text.toString()
+        val question = binding.editQuestion.text.toString().trim()
+        val answer = binding.editAnswer.text.toString().trim()
+
+        if (itemType.isNotBlank() && question.isNotBlank() && answer.isNotBlank()) {
+            viewModel.addOrUpdateQuestion(
+                questionId = null, // null because it's a new question
+                itemType = itemType,
+                question = question,
+                answer = answer,
+                onSuccess = {
+                    Toast.makeText(context, "Question added successfully", Toast.LENGTH_SHORT).show()
+                    findNavController().navigateUp()
+                },
+                onFailure = { errorMsg ->
+                    Toast.makeText(context, "Failed to add question: $errorMsg", Toast.LENGTH_SHORT).show()
+                }
+            )
+        } else {
+            Toast.makeText(context, "Please fill all fields", Toast.LENGTH_SHORT).show()
         }
-        builder.setNegativeButton("No") { dialog, _ ->
-            dialog.dismiss()
-        }
-        builder.show()
     }
-
-    override fun onResume() {
-        super.onResume()
-        viewModel.fetchQuestions(materialDocId, setDocumentId)
-    }
-
 }

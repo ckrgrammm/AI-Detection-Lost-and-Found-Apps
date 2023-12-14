@@ -9,7 +9,7 @@ class QuestionViewModelFactory(
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(QuestionViewModel::class.java)) {
-            return QuestionViewModel(setDocumentId, materialId) as T
+            return QuestionViewModel() as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }
