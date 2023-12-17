@@ -22,7 +22,9 @@ data class Material(
     val requirement: String = "", // Add this property
     val dateTime: String = "", // Add this line for the dateTime field
     val venue: String = "", // Add this line for the venue field
-    var isUnique: Boolean = false // This will be set based on the category
+    var isUnique: Boolean = false, // This will be set based on the category
+    var claimedBy: String = "", // Add this line to include the claimedBy field
+    var hasBeenClaimed: Boolean = false // default to false
 
 
 

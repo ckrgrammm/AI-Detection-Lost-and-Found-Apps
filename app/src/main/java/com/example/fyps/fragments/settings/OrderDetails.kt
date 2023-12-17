@@ -2,6 +2,7 @@ package com.example.fyps.fragments.settings
 
 import android.app.DownloadManager
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
@@ -22,10 +23,12 @@ import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.fyps.R
 import com.example.fyps.SpacingDecorator.VerticalSpacingItemDecorator
+import com.example.fyps.activities.ChatActivity
 import com.example.fyps.activities.ShoppingActivity
 import com.example.fyps.adapters.recyclerview.CartRecyclerAdapter
 import com.example.fyps.databinding.FragmentOrderDetailsBinding
 import com.example.fyps.model.CourseDocument
+import com.example.fyps.model.User
 import com.example.fyps.viewmodel.shopping.ShoppingViewModel
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
@@ -59,13 +62,12 @@ class OrderDetails : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val materialId = arguments?.getString("materialDocId") ?: ""
+        val partnershipID = arguments?.getString("partnershipID") ?: ""
+        Log.d("TAG", partnershipID)
         val userId = FirebaseAuth.getInstance().currentUser?.uid
         // Reference to the Firestore database
         val firestore = FirebaseFirestore.getInstance()
 
-        binding.imgCloseOrder.setOnClickListener{
-            findNavController().navigate(R.id.action_orderDetails_to_profileFragment)
-        }
 
         // Initialize the RecyclerView
         setupRecyclerview()
@@ -109,7 +111,38 @@ class OrderDetails : Fragment() {
         binding.btnChat.setOnClickListener {
             val snackBar = requireActivity().findViewById<CoordinatorLayout>(R.id.snackBar_coordinator)
             Snackbar.make(snackBar,resources.getText(R.string.g_coming_soon), Snackbar.LENGTH_SHORT).show()
+
+            // 使用 Firestore 查询获取被选中用户的 documentID
+            val documentReference = FirebaseFirestore.getInstance().document("users/$userId")
+
+            documentReference.get()
+                .addOnSuccessListener { documentSnapshot ->
+
+                    if (documentSnapshot.exists()) {
+                        val user = documentSnapshot.toObject(User::class.java)
+
+                        Log.d("tag","abc")
+                        // 启动 ChatActivity 并传递被选中用户的信息
+                        val intent = Intent(context, ChatActivity::class.java)
+                        intent.putExtra("userId", partnershipID)
+                        if (user != null) {
+                            intent.putExtra("userName",user.firstName )
+                        }
+                        if (user != null) {
+                            intent.putExtra("userImagePath", user.imagePath)
+                        }
+                        startActivity(intent)
+
+                    }
+                }
+                .addOnFailureListener { exception ->
+                    // 处理查询失败的情况
+                    Log.e("FirestoreQuery", "Error getting documents: $exception")
+                }
+
         }
+
+
 
 
     }

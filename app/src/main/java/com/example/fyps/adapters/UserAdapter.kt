@@ -6,6 +6,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
@@ -22,6 +23,16 @@ import de.hdodenhof.circleimageview.CircleImageView
 class UserAdapter(private val context: Context, private val userList: ArrayList<User>) :
     RecyclerView.Adapter<UserAdapter.ViewHolder>() {
 
+    // ViewHolder 类型需要指定
+    class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val txtUserName: TextView = view.findViewById(R.id.firstName)
+        val imgUser: CircleImageView = view.findViewById(R.id.userImage)
+        val layoutUser: LinearLayout = view.findViewById(R.id.layoutUser)
+        /*
+                val imgProfile: ImageView = view.findViewById(R.id.imgProfile)  // 添加这一行
+        */
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_user, parent, false)
         return ViewHolder(view)
@@ -33,6 +44,8 @@ class UserAdapter(private val context: Context, private val userList: ArrayList<
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val user = userList[position]
+        Log.d("UserAdapter", "Binding user: $user")
+
         holder.txtUserName.text = user.firstName
         Glide.with(context).load(user.imagePath).placeholder(R.drawable.address_image).into(holder.imgUser)
 
@@ -45,8 +58,17 @@ class UserAdapter(private val context: Context, private val userList: ArrayList<
             db.collection("users").document(userId)
                 .get()
                 .addOnSuccessListener { document ->
+                    /*if (document.exists()) {
+                        val currentUserImagePath = document.getString("imagePath")
+                        // 使用 Glide 加载当前登录用户的头像到 imgProfile
+                        Glide.with(context)
+                            .load(currentUserImagePath)
+                            .placeholder(R.drawable.address_image) // 占位符图片，可选
+                            .into(holder.imgProfile)
+                    }*/
                 }
         }
+
         // 使用 userId 来启动 ChatActivity
         holder.layoutUser.setOnClickListener {
             val selectedUser = userList[position]
@@ -81,14 +103,5 @@ class UserAdapter(private val context: Context, private val userList: ArrayList<
         }
 
 
-    }
-
-
-    class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-
-        val txtUserName:TextView = view.findViewById(R.id.firstName)
-        val txtTemp:TextView = view.findViewById(R.id.temp)
-        val imgUser:CircleImageView = view.findViewById(R.id.userImage)
-        val layoutUser:LinearLayout = view.findViewById(R.id.layoutUser)
     }
 }

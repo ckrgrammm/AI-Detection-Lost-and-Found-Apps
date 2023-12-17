@@ -1,6 +1,7 @@
 package com.example.fyps.activities
 
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
@@ -12,7 +13,8 @@ import android.text.style.ImageSpan
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
@@ -48,19 +50,22 @@ import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-
+import androidx.appcompat.app.AppCompatActivity
 class ChatActivity : AppCompatActivity() {
 
     var firebaseUser: FirebaseUser? = null
     var reference: DatabaseReference? = null
     var chatList = ArrayList<Chat>()
     var topic = ""
-    // 在 ChatActivity 中添加以下属性
-    private val CAMERA_REQUEST_CODE = 100
-    private val GALLERY_REQUEST_CODE = 200
+
     private var imageUri: Uri? = null
 
     private lateinit var binding: ChatBinding
+
+    private val CAMERA_PERMISSION_REQUEST_CODE = 100
+    private val CAMERA_REQUEST_CODE = 101
+    private val GALLERY_REQUEST_CODE = 102
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -137,28 +142,61 @@ class ChatActivity : AppCompatActivity() {
 
         // 在 onCreate 方法中的 btnAddPhoto 按钮点击事件中添加以下代码
         binding.btnAddPhoto.setOnClickListener {
-            // 启动相机或相册
-            val options = arrayOf("Take Photo", "Choose from Gallery", "Cancel")
-            val builder = AlertDialog.Builder(this)
-            builder.setItems(options) { dialog, item ->
-                when {
-                    options[item] == "Take Photo" -> {
-                        val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-                        startActivityForResult(takePictureIntent, CAMERA_REQUEST_CODE)
-                    }
-                    options[item] == "Choose from Gallery" -> {
-                        val pickPhotoIntent =
-                            Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-                        startActivityForResult(pickPhotoIntent, GALLERY_REQUEST_CODE)
-                    }
-                    options[item] == "Cancel" -> {
-                        dialog.dismiss()
-                    }
-                }
+            // 检查相机权限
+            if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                // 如果没有相机权限，请求权限
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(android.Manifest.permission.CAMERA),
+                    CAMERA_PERMISSION_REQUEST_CODE
+                )
+            } else {
+                // 启动相机或相册
+                showCameraOptions()
             }
-            builder.show()
+        }
+
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == CAMERA_PERMISSION_REQUEST_CODE) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // 用户授予相机权限，启动相机或相册
+                showCameraOptions()
+            } else {
+                // 用户拒绝了相机权限请求，可以显示一条提示信息或采取其他适当的措施
+                Toast.makeText(this, "Camera permission denied", Toast.LENGTH_SHORT).show()
+            }
         }
     }
+
+    private fun showCameraOptions() {
+        val options = arrayOf("Take Photo", "Choose from Gallery", "Cancel")
+        val builder = AlertDialog.Builder(this)
+        builder.setItems(options) { dialog, item ->
+            when {
+                options[item] == "Take Photo" -> {
+                    val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+                    startActivityForResult(takePictureIntent, CAMERA_REQUEST_CODE)
+                }
+                options[item] == "Choose from Gallery" -> {
+                    val pickPhotoIntent =
+                        Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+                    startActivityForResult(pickPhotoIntent, GALLERY_REQUEST_CODE)
+                }
+                options[item] == "Cancel" -> {
+                    dialog.dismiss()
+                }
+            }
+        }
+        builder.show()
+    }
+
 
     // 在 onActivityResult 方法中处理相机或相册返回的结果
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

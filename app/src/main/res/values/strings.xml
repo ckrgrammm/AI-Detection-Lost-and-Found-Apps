@@ -185,6 +185,9 @@
     </string-array>
 
 
+    <string name="all_reported_item">All Reported Item</string>
+    <string name="select_claimed_item">Select Claimed Item</string>
+
 
     <!-- Roles Status Selection -->
     <string name="genderTitle">What\'s your roles ?\n</string>

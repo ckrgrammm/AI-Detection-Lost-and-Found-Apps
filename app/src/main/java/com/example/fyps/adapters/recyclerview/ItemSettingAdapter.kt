@@ -1,10 +1,13 @@
 package com.example.fyps.adapters.recyclerview
 
+import android.os.Build
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.annotation.RequiresApi
+import androidx.cardview.widget.CardView
 import androidx.navigation.Navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -17,7 +20,8 @@ import kotlinx.coroutines.launch
 
 class ItemSettingAdapter(
     private var materials: List<Material>,
-    private val onItemClicked: (Material) -> Unit
+    private val onItemClick: ((Material) -> Unit)? = null
+
 ) : RecyclerView.Adapter<ItemSettingAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -25,6 +29,7 @@ class ItemSettingAdapter(
         return ViewHolder(view)
     }
 
+    @RequiresApi(Build.VERSION_CODES.M)
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val material = materials[position]
         holder.causeSymptomName.text = material.name
@@ -34,11 +39,32 @@ class ItemSettingAdapter(
             loadMaterialImage(holder.causeSymptomImg, material.imageUrl)
         }
 
-        holder.itemView.setOnClickListener {
-            // Call the callback with the clicked item
-            onItemClicked(material)
+        // Reference to the card view
+        val cardView = holder.itemView.findViewById<CardView>(R.id.cause_symptom_layout)
+
+        if (material.hasBeenClaimed) {
+            // Set the card background color to grey if the item has been claimed
+            cardView.setCardBackgroundColor(
+                holder.itemView.context.getColor(R.color.grey) // Make sure you have a grey color defined in colors.xml
+            )
+            // Disable click events for this item
+            cardView.isEnabled = false
+        } else {
+            // Set the card background color to white if the item has not been claimed
+            cardView.setCardBackgroundColor(
+                holder.itemView.context.getColor(android.R.color.white)
+            )
+            // Enable click events for this item
+            cardView.isEnabled = true
+            holder.itemView.setOnClickListener {
+                onItemClick?.invoke(material)
+            }
         }
+
+        // Optionally, change the opacity or other properties of the card view to indicate it's disabled
+        cardView.alpha = if (material.hasBeenClaimed) 0.5f else 1.0f
     }
+
 
     override fun getItemCount(): Int = materials.size
 

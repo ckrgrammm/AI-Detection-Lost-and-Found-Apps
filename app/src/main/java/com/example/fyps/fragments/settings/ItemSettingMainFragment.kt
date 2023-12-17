@@ -31,14 +31,15 @@ class ItemSettingMainFragment : Fragment() {
 
     private fun setupCardViewListeners() {
         binding?.cvEditItem?.setOnClickListener {
-            // Handle Edit Item card view click
-            findNavController().navigate(R.id.action_profileFragment_to_itemSettingMainFragment_to_itemSettingFragment)
-
+            val action = ItemSettingMainFragmentDirections.actionProfileFragmentToItemSettingMainFragmentToItemSettingFragment("editItem")
+            findNavController().navigate(action)
         }
 
-        binding?.cvItemFilter?.setOnClickListener {
-            // Handle Item Filter card view click
+        binding?.cvItemClaimed?.setOnClickListener {
+            val action = ItemSettingMainFragmentDirections.actionProfileFragmentToItemSettingMainFragmentToItemSettingFragment("changeStatus")
+            findNavController().navigate(action)
         }
+
     }
 
     private fun fetchTotalViews() {

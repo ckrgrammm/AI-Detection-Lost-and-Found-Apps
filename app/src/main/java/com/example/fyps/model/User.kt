@@ -13,7 +13,8 @@ data class User(
     var lastName: String,
     var email: String,
     var imagePath: String = "",
-    var status: Status = Status.USERS // Default status set to USERS
+    var status: Status = Status.USERS,
+    val friendList: ArrayList<String>? = null
 ): Parcelable {
     constructor() : this("","","","")
 }
