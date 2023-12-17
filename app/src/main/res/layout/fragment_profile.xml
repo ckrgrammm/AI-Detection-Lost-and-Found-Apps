@@ -256,7 +256,7 @@
                         android:layout_gravity="center_vertical"
                         android:layout_marginStart="@dimen/_15sdp"
                         android:layout_weight="1"
-                        android:text="Claimed Item"
+                        android:text="Claimed Pending Item"
                         android:textColor="@color/g_hint"
                         android:textStyle="bold" />
 

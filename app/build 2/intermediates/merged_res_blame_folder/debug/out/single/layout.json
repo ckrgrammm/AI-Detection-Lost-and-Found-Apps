@@ -1,0 +1,514 @@
+[
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/material_edit.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/material_edit.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/chat.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/chat.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/custom_dialog.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/custom_dialog.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/recycler_view_admin_view_partnership_request.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/recycler_view_admin_view_partnership_request.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/fragment_temp_rating.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/fragment_temp_rating.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/fragment_order_details.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/fragment_order_details.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/activity_users.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/activity_users.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/fragment_edit_user_information.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/fragment_edit_user_information.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/fragment_category_detail.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/fragment_category_detail.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/recycler_view_quiz_detail.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/recycler_view_quiz_detail.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/recycleview_customer.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/recycleview_customer.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/material_add.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/material_add.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/recycler_view_category_item.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/recycler_view_category_item.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/activity_main.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/activity_main.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/forgot_password_dialog.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/forgot_password_dialog.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/fragment_quiz.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/fragment_quiz.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/no_internet_dialog.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/no_internet_dialog.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/fragment_question.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/fragment_question.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/fragment_admin_view_reward.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/fragment_admin_view_reward.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/timeout_dialog.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/timeout_dialog.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/dialog_review.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/dialog_review.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/fragment_reward_history.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/fragment_reward_history.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/custom_dialog_success.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/custom_dialog_success.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/cart_item.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/cart_item.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/fragment_register.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/fragment_register.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/item_user.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/item_user.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/fragment_search.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/fragment_search.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/fragment_home.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/fragment_home.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/quiz_view_detail.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/quiz_view_detail.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/activity_store.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/activity_store.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/color_and_sizes.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/color_and_sizes.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/fragment_view_partnership.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/fragment_view_partnership.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/fragment_redeem_reward.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/fragment_redeem_reward.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/fragment_first_screen.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/fragment_first_screen.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/fragment_passed_quizzes.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/fragment_passed_quizzes.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/fragment_sets.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/fragment_sets.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/fragment_home_products.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/fragment_home_products.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/fragment_reward.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/fragment_reward.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/fragment_furniture.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/fragment_furniture.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/fragment_view_pager.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/fragment_view_pager.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/admin_view.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/admin_view.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/fragment_cupboard.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/fragment_cupboard.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/navigation_drawer_header.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/navigation_drawer_header.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/grid_layout.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/grid_layout.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/recycler_view_material_data.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/recycler_view_material_data.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/no_connection_layout.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/no_connection_layout.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/recyclerview_shipping_item.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/recyclerview_shipping_item.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/fragment_temp_comment.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/fragment_temp_comment.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/activity_shopping.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/activity_shopping.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/fragment_store_products.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/fragment_store_products.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/fragment_result.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/fragment_result.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/fragment_voucher.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/fragment_voucher.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/fragment_billing.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/fragment_billing.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/product_layout_row.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/product_layout_row.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/material_comment.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/material_comment.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/fragment_language.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/fragment_language.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/recycler_view_all_orders_item.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/recycler_view_all_orders_item.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/reject_partner_alert_dialog.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/reject_partner_alert_dialog.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/best_deal_item.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/best_deal_item.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/fragment_partnership_view_material.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/fragment_partnership_view_material.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/fragment_order_completion.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/fragment_order_completion.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/fragment_admin_add_reward.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/fragment_admin_add_reward.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/admin_view_reward_item.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/admin_view_reward_item.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/partner_item_question.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/partner_item_question.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/fragment_login.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/fragment_login.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/fragment_item_setting.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/fragment_item_setting.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/fragment_address.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/fragment_address.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/admin_add.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/admin_add.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/fragment_enlightening.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/fragment_enlightening.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/delete_alert_dialog.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/delete_alert_dialog.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/redeem_reward_item.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/redeem_reward_item.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/item_right.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/item_right.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/fragment_update_partnership.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/fragment_update_partnership.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/recycler_view_material_comment.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/recycler_view_material_comment.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/fragment_add_material.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/fragment_add_material.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/update_popup.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/update_popup.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/fragment_container.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/fragment_container.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/fragment_help.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/fragment_help.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/fragment_reply_comment.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/fragment_reply_comment.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/fragment_all_orders.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/fragment_all_orders.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/fragment_partnership_view_material_detail.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/fragment_partnership_view_material_detail.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/fragment_report_dashboard.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/fragment_report_dashboard.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/partner_item_sets.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/partner_item_sets.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/fragment_store_orders.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/fragment_store_orders.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/fragment_chair.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/fragment_chair.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/fragment_cart.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/fragment_cart.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/fragemnt_splash_screen.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/fragemnt_splash_screen.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/product_cart.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/product_cart.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/reward_history_item.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/reward_history_item.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/fragment_voucher_item.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/fragment_voucher_item.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/fragment_admin_form.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/fragment_admin_form.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/activity_request_roles.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/activity_request_roles.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/fragment_admin_dashboard.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/fragment_admin_dashboard.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/passed_quiz_item.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/passed_quiz_item.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/fragment_home3232.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/fragment_home3232.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/product_item.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/product_item.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/fragment_admin_update_reward.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/fragment_admin_update_reward.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/fragment_table.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/fragment_table.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/fragment_product_preview.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/fragment_product_preview.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/admin_dashboard.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/admin_dashboard.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/fragment_admin_list.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/fragment_admin_list.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/item_menu.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/item_menu.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/fragment_admin_view_partnership_request.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/fragment_admin_view_partnership_request.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/activity_camera.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/activity_camera.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/recycler_view_admin_view_partnership.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/recycler_view_admin_view_partnership.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/admin_view_item.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/admin_view_item.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/fragment_profile.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/fragment_profile.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/item_left.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/item_left.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/fragment_play.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/fragment_play.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/recycler_view_comment_detail.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/recycler_view_comment_detail.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/fragment_admin_view_partnership.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/fragment_admin_view_partnership.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/error_message_dialog.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/error_message_dialog.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/edit_material.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/edit_material.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/fragment_add_update_question.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/fragment_add_update_question.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/fragment_second_screen.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/fragment_second_screen.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/recycler_view_item_setting.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/recycler_view_item_setting.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/fragment_accessory.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/fragment_accessory.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/fragment_dashboard.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/fragment_dashboard.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/fragment_product.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/fragment_product.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/item_news.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/item_news.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/comment_view_detail.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/comment_view_detail.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/recyclerview_search_item.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/recyclerview_search_item.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/activity_lunch.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/activity_lunch.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/fragment_blank.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/fragment_blank.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/viewpager_image_item.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/viewpager_image_item.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/fragment_join__partner_.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/fragment_join__partner_.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/fragment_store_home.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/fragment_store_home.xml"
+    },
+    {
+        "merged": "/Users/apple/Documents/FYP/FYPs/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/chair_extra_ads_item.xml",
+        "source": "/Users/apple/Documents/FYP/FYPs/app/src/main/res/layout/chair_extra_ads_item.xml"
+    }
+]

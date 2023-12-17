@@ -46,31 +46,7 @@ class ProfileFragment : Fragment() {
 
         return binding.root
     }
-//    private fun observeUserProfile() {
-//        viewModel.profile.observe(viewLifecycleOwner) { response ->
-//            when (response) {
-//                is Resource.Loading -> showLoading()
-//                is Resource.Success -> {
-//                    hideLoading()
-//                    val user = response.data
-//                    updateUserUI(user)
-//                }
-//                is Resource.Error -> {
-//                    hideLoading()
-//                    Toast.makeText(activity, resources.getText(R.string.error_occurred), Toast.LENGTH_SHORT).show()
-//                    Log.e(TAG, response.message.toString())
-//                }
-//            }
-//        }
-//    }
 
-//    private fun updateUserUI(user: User?) {
-//        user?.let {
-//            binding.tvUserName.text = "${it.firstName} ${it.lastName}"
-//            Glide.with(requireView()).load(it.imagePath).error(R.drawable.ic_default_profile_picture).into(binding.imgUser)
-//            handleUserStatus(it.status)
-//        }
-//    }
 
     private fun handleUserStatus(status: Status) {
         when (status) {
@@ -154,7 +130,7 @@ class ProfileFragment : Fragment() {
             "${resources.getText(R.string.g_version)} ${BuildConfig.VERSION_NAME}"
 
 
-        checkPartnershipAndDisplaySettings()
+//        checkPartnershipAndDisplaySettings()
 
 
         onPassedQuizzesClick()
@@ -162,42 +138,42 @@ class ProfileFragment : Fragment() {
     }
 
 
-    private fun checkPartnershipAndDisplaySettings() {
-        val currentUserID = FirebaseAuth.getInstance().currentUser?.uid
-        val db = FirebaseFirestore.getInstance()
-
-        if (currentUserID != null) {
-            Log.d(TAG, "Checking for Materials with partnershipsID: $currentUserID")
-            db.collection("Materials")
-                .whereEqualTo("partnershipsID", currentUserID)
-                .limit(1)
-                .get()
-                .addOnSuccessListener { documents ->
-                    if (!documents.isEmpty) {
-                        Log.d(TAG, "Document with partnershipsID found")
-                        binding.linearItemSetting.visibility = View.VISIBLE
-                        binding.itemSetting.visibility = View.VISIBLE
-
-                    } else {
-                        Log.d(TAG, "No document with partnershipsID found")
-                        binding.linearItemSetting.visibility = View.GONE
-                        binding.itemSetting.visibility = View.GONE
-
-                    }
-                }
-                .addOnFailureListener { e ->
-                    Log.e(TAG, "Error checking for partnership ID: ", e)
-                    binding.linearItemSetting.visibility = View.GONE
-                    binding.itemSetting.visibility = View.GONE
-
-                }
-        } else {
-            Log.d(TAG, "No user ID found")
-            binding.linearItemSetting.visibility = View.GONE
-            binding.itemSetting.visibility = View.GONE
-
-        }
-    }
+//    private fun checkPartnershipAndDisplaySettings() {
+//        val currentUserID = FirebaseAuth.getInstance().currentUser?.uid
+//        val db = FirebaseFirestore.getInstance()
+//
+//        if (currentUserID != null) {
+//            Log.d(TAG, "Checking for Materials with partnershipsID: $currentUserID")
+//            db.collection("Materials")
+//                .whereEqualTo("partnershipsID", currentUserID)
+//                .limit(1)
+//                .get()
+//                .addOnSuccessListener { documents ->
+//                    if (!documents.isEmpty) {
+//                        Log.d(TAG, "Document with partnershipsID found")
+//                        binding.linearItemSetting.visibility = View.VISIBLE
+//                        binding.itemSetting.visibility = View.VISIBLE
+//
+//                    } else {
+//                        Log.d(TAG, "No document with partnershipsID found")
+//                        binding.linearItemSetting.visibility = View.GONE
+//                        binding.itemSetting.visibility = View.GONE
+//
+//                    }
+//                }
+//                .addOnFailureListener { e ->
+//                    Log.e(TAG, "Error checking for partnership ID: ", e)
+//                    binding.linearItemSetting.visibility = View.GONE
+//                    binding.itemSetting.visibility = View.GONE
+//
+//                }
+//        } else {
+//            Log.d(TAG, "No user ID found")
+//            binding.linearItemSetting.visibility = View.GONE
+//            binding.itemSetting.visibility = View.GONE
+//
+//        }
+//    }
 
 
 

@@ -1,6 +1,8 @@
 package com.example.fyps.fragments.shopping
 
 import android.annotation.SuppressLint
+import android.app.AlertDialog
+import android.content.Context
 import android.os.Bundle
 import android.text.Html
 import android.util.Log
@@ -40,7 +42,6 @@ import java.util.Locale
 import java.util.Date
 
 
-
 class MaterialPreviewFragment : Fragment() {
     private var _binding: FragmentProductPreviewBinding? = null
     private val binding get() = _binding!!
@@ -57,6 +58,21 @@ class MaterialPreviewFragment : Fragment() {
     val commentViewModel: CommentViewModel by viewModels {
         CommentViewModel.CommentViewModelFactory(userViewModel)
     }
+
+    private val adapter by lazy {
+        CommentsAdapter(
+            listOf(),
+            object : CommentsAdapter.AddCommentCallback {
+                override fun onAddCommentClicked(commentText: String, materialId: String) {
+                    submitComment(commentText, materialId)
+                }
+            },
+            { userId, callback -> loadUserDetails(userId, callback) },
+            requireContext(),
+            firebaseAuth.currentUser?.uid ?: ""
+        )
+    }
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -91,10 +107,8 @@ class MaterialPreviewFragment : Fragment() {
             Log.e("MaterialPreviewFragment", "Material is null!")
         }
 
-
-        //comment use
-        val adapter = CommentsAdapter(listOf())
-        binding.allMaterialComment.materialCommentData.adapter = adapter
+        // Set the adapter to the RecyclerView
+        binding.allMaterialComment.materialCommentData.adapter = this.adapter
 
         val materialId = material?.id
         commentViewModel.fetchComments(materialId.toString())
@@ -104,7 +118,8 @@ class MaterialPreviewFragment : Fragment() {
                 it.comment.commentDate
             }
 
-            adapter.setData(sortedComments)
+            // Update the adapter with new data
+            this.adapter.setData(sortedComments)
         })
 
         // Initialize comments visibility
@@ -118,21 +133,8 @@ class MaterialPreviewFragment : Fragment() {
         binding.allMaterialComment.downArrowComment.setOnClickListener {
             toggleComments()
         }
-
-
-
-        // Ensuring the view is completely created before accessing its elements
-        binding.allMaterialComment.root.post {
-            val addCommentButton = binding.allMaterialComment.root.findViewById<Button>(R.id.addCommentButton)
-            addCommentButton?.setOnClickListener {
-                Log.d("Mate", "add button clicked")
-
-                submitComment()
-            }
-        }
-
-
     }
+
 
 
     private fun fetchMaterialDetails(materialId: String) {
@@ -234,27 +236,32 @@ class MaterialPreviewFragment : Fragment() {
         areCommentsVisible = !areCommentsVisible
         binding.allMaterialComment.materialCommentData.visibility = if (areCommentsVisible) View.VISIBLE else View.GONE
         binding.allMaterialComment.downArrowComment.animate().rotation(if (areCommentsVisible) 180f else 0f).setDuration(300).start()
+
+        if (areCommentsVisible) {
+            binding.nestedScrollView.post {
+                binding.nestedScrollView.scrollTo(0, binding.allMaterialComment.materialCommentData.top)
+            }
+        }
     }
 
 
 
-    private fun submitComment() {
-        // Correctly accessing the EditText from included layout
-        val commentEditText = binding.allMaterialComment.root.findViewById<EditText>(R.id.addCommentEditText)
-        val commentText = commentEditText.text.toString().trim()
 
+    // Modified submitComment method to include commentText and materialId
+    private fun submitComment(commentText: String, materialId: String) {
         if (commentText.isNotEmpty()) {
             val userId = firebaseAuth.currentUser?.uid ?: return
+
             val newComment = Comment(
                 comment = commentText,
                 userId = userId,
                 commentDate = getCurrentDateTime(),
-                materialId = material?.id ?: return
+                materialId = materialId
             )
+
             firestore.collection("Comments").add(newComment)
                 .addOnSuccessListener {
-                    commentEditText.text.clear()
-                    loadComments(material?.id ?: return@addOnSuccessListener)
+                    loadComments(materialId)
                 }
                 .addOnFailureListener {
                     Toast.makeText(context, "Failed to add comment", Toast.LENGTH_SHORT).show()
@@ -270,8 +277,48 @@ class MaterialPreviewFragment : Fragment() {
             .whereEqualTo("materialId", materialId)
             .orderBy("commentDate", Query.Direction.DESCENDING)
             .get()
-            .addOnSuccessListener { documents ->
-                val commentsList = documents.toObjects(CommentWithUserDetails::class.java)
+            .addOnSuccessListener { queryDocumentSnapshots ->
+                val commentsList = mutableListOf<CommentWithUserDetails>()
+                for (docSnapshot in queryDocumentSnapshots) {
+                    try {
+                        // Assuming the 'comment' field in the document is actually a String and not a Comment object.
+                        val comment = docSnapshot.getString("comment") ?: ""
+                        val commentDate = docSnapshot.getString("commentDate") ?: ""
+                        val replyComment = docSnapshot.getString("replyComment")
+                        val replyDate = docSnapshot.getString("replyDate")
+                        val replyPartnerId = docSnapshot.getString("replyPartnerId")
+                        val userId = docSnapshot.getString("userId") ?: ""
+                        val rating = docSnapshot.getLong("rating") ?: 0
+                        val userName = docSnapshot.getString("userName")
+                        val userImage = docSnapshot.getString("userImage")
+                        val adminName = docSnapshot.getString("adminName")
+                        val adminImage = docSnapshot.getString("adminImage")
+
+                        val commentObj = Comment(
+                            id = docSnapshot.id,
+                            comment = comment,
+                            commentDate = commentDate,
+                            materialId = materialId,
+                            replyComment = replyComment,
+                            replyDate = replyDate,
+                            replyPartnerId = replyPartnerId,
+                            userId = userId,
+                            rating = rating
+                        )
+
+                        val commentWithUserDetails = CommentWithUserDetails(
+                            comment = commentObj,
+                            userName = userName,
+                            userImage = userImage,
+                            adminName = adminName,
+                            adminImage = adminImage
+                        )
+
+                        commentsList.add(commentWithUserDetails)
+                    } catch (e: Exception) {
+                        Log.e("MaterialPreviewFragment", "Error parsing comment", e)
+                    }
+                }
                 updateCommentsAdapter(commentsList)
             }
             .addOnFailureListener { exception ->
@@ -301,10 +348,19 @@ class MaterialPreviewFragment : Fragment() {
         val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
         return dateFormat.format(Date())
     }
-    inner class CommentsAdapter(
-            private var commentsWithUserDetails: List<CommentWithUserDetails>
+    class CommentsAdapter(
+        private var commentsWithUserDetails: List<CommentWithUserDetails>,
+        private val addCommentCallback: AddCommentCallback,
+        private val userDetailLoader: (String, (User?) -> Unit) -> Unit,
+        private val context: Context,
+        private val currentUserUid: String // Add this parameter
+
+
     ) : RecyclerView.Adapter<CommentsAdapter.CommentViewHolder>() {
 
+        interface AddCommentCallback {
+            fun onAddCommentClicked(commentText: String, materialId: String)
+        }
         inner class CommentViewHolder(val binding: RecyclerViewMaterialCommentBinding) : RecyclerView.ViewHolder(binding.root)
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CommentViewHolder {
@@ -315,6 +371,7 @@ class MaterialPreviewFragment : Fragment() {
 
         override fun onBindViewHolder(holder: CommentViewHolder, position: Int) {
             val commentWithDetails = commentsWithUserDetails[position]
+
             val context = holder.itemView.context
 
             // Check if there are comments available
@@ -327,9 +384,30 @@ class MaterialPreviewFragment : Fragment() {
                 holder.binding.noCommentsTextView.visibility = View.GONE
             }
 
+            // Check if the comment is by the current user
+            if (commentWithDetails.comment.userId == currentUserUid) {
+                holder.itemView.setOnLongClickListener {
+                    showDeleteCommentDialog(commentWithDetails.comment.id)
+                    true
+                }
+            } else {
+                // Disable long click for comments not by the current user
+                holder.itemView.setOnLongClickListener(null)
+                holder.itemView.isLongClickable = false
+            }
+
+            // Add Comment Button Click Listener
+            holder.binding.addCommentButton.setOnClickListener {
+                val commentText = holder.binding.addCommentEditText.text.toString().trim()
+                if (commentText.isNotEmpty()) {
+                    Log.d("CommentsAdapter", "Add Comment button clicked")
+                    addCommentCallback.onAddCommentClicked(commentText, commentWithDetails.comment.materialId)
+                }
+            }
+
 
             // Load user details
-            loadUserDetails(commentWithDetails.comment.userId) { user ->
+            userDetailLoader(commentWithDetails.comment.userId) { user ->
                 user?.let {
                     holder.binding.userName.text = "${user.firstName} ${user.lastName}"
                     Glide.with(context)
@@ -343,32 +421,32 @@ class MaterialPreviewFragment : Fragment() {
             holder.binding.userComment.text = commentWithDetails.comment.comment
             holder.binding.commentTimestamp.text = commentWithDetails.comment.commentDate
 
-            // Check if there is an admin reply
-            commentWithDetails.comment.replyComment?.let { reply ->
-                holder.binding.adminReply.visibility = View.VISIBLE
-                holder.binding.adminReply.text = reply
-                holder.binding.replyTimestamp.visibility = View.VISIBLE
-                holder.binding.replyTimestamp.text = commentWithDetails.comment.replyDate ?: ""
-
-                // Set the admin name if available
-//                holder.binding.adminName.text = commentWithDetails.adminName ?: "Admin"
-
-                // Load the admin image if available
-                commentWithDetails.adminImage?.let { imageUrl ->
-                    Glide.with(context)
-                        .load(imageUrl)
-                        .placeholder(R.drawable.user)
-                        .into(holder.binding.partnerImage)
-                } ?: holder.binding.partnerImage.setImageResource(R.drawable.user)
-            } ?: run {
-                // Hide the reply section if there is no reply
-                holder.binding.adminReply.visibility = View.GONE
-                holder.binding.replyTimestamp.visibility = View.GONE
-                holder.binding.partnerImage.visibility = View.GONE
-//                holder.binding.adminName.visibility = View.GONE // Hide admin name if no reply
-            }
         }
 
+
+        private fun showDeleteCommentDialog(commentId: String) {
+            // Create and show a dialog to confirm deletion
+            AlertDialog.Builder(context)
+                .setTitle("Delete Comment")
+                .setMessage("Are you sure you want to delete this comment?")
+                .setPositiveButton("Delete") { dialog, which ->
+                    deleteComment(commentId)
+                }
+                .setNegativeButton("Cancel", null)
+                .show()
+        }
+
+        private fun deleteComment(commentId: String) {
+            // Delete the comment from Firestore
+            FirebaseFirestore.getInstance().collection("Comments").document(commentId)
+                .delete()
+                .addOnSuccessListener {
+                    Toast.makeText(context, "Comment deleted successfully", Toast.LENGTH_SHORT).show()
+                }
+                .addOnFailureListener { e ->
+                    Toast.makeText(context, "Failed to delete comment: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+        }
 
         override fun getItemCount(): Int = commentsWithUserDetails.size
 

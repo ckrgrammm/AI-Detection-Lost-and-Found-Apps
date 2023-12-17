@@ -63,39 +63,6 @@
         android:layout_marginTop="4dp"/>
 
 
-    <!-- Admin Reply Section -->
-    <de.hdodenhof.circleimageview.CircleImageView
-        android:id="@+id/partnerImage"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:src="@drawable/user"
-        app:civ_border_width="2dp"
-        app:civ_border_color="@android:color/white"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/commentTimestamp"
-        android:layout_marginTop="16dp"/>
-
-
-
-    <TextView
-        android:id="@+id/adminReply"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="Admin Reply Goes Here"
-        app:layout_constraintStart_toEndOf="@+id/partnerImage"
-        app:layout_constraintTop_toTopOf="@+id/partnerImage"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginStart="8dp"/>
-
-    <TextView
-        android:id="@+id/replyTimestamp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Reply Timestamp"
-        android:textSize="12sp"
-        app:layout_constraintStart_toStartOf="@+id/adminReply"
-        app:layout_constraintTop_toBottomOf="@+id/adminReply"
-        android:layout_marginTop="4dp"/>
 
     <!-- Add Comment EditText -->
     <EditText
@@ -104,7 +71,7 @@
         android:layout_height="wrap_content"
         android:hint="Add a comment..."
         android:inputType="textMultiLine"
-        app:layout_constraintTop_toBottomOf="@+id/replyTimestamp"
+        app:layout_constraintTop_toBottomOf="@+id/commentTimestamp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/addCommentButton"
         android:layout_marginTop="16dp"/>
