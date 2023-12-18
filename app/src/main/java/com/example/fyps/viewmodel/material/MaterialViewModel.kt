@@ -98,55 +98,72 @@ class MaterialViewModel : ViewModel() {
 
 
     fun updateMaterial(material: Material, imageUri: Uri?) {
-        // Check if material.id is valid
-        if (material.id.isNullOrEmpty()) {
-            Log.e(TAG, "Cannot update material: Invalid ID")
-            // You might want to invoke some error handling callback here
-            return
-        }
-
         val materialRef = db.collection("Materials").document(material.id)
-        Log.d(TAG, "Updating material with ID: ${material.id}")
 
-        val uploadTasks = mutableListOf<Task<*>>()
-
-        imageUri?.let { uri ->
-            Log.d(TAG, "Image URI for upload: $uri")
+        // First, check if there is a new image to upload
+        if (imageUri != null) {
             val imageRef = storageRef.child("images/${material.id}")
-            uploadTasks.add(imageRef.putFile(uri).continueWithTask {
+            val uploadTask = imageRef.putFile(imageUri)
+
+            uploadTask.continueWithTask { task ->
+                if (!task.isSuccessful) {
+                    task.exception?.let {
+                        throw it
+                    }
+                }
+                // After a successful upload, get the download URL
                 imageRef.downloadUrl
-            }.addOnSuccessListener { url ->
-                Log.d(TAG, "Image uploaded successfully: $url")
-                material.imageUrl = url.toString()
-            }.addOnFailureListener { e ->
-                Log.e(TAG, "Error uploading image: $e")
-            })
-        } ?: Log.d(TAG, "No image URI provided")
+            }.addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val imageUrl = task.result.toString()
+                    material.imageUrl = imageUrl // Update the image URL in the material object
 
-        // Prepare a map with only the fields you want to update
-        val updatedFields: Map<String, Any> = mapOf(
-            "name" to material.name,
-            "desc" to material.desc,
-            "category" to material.category,
-            "venue" to material.venue,
-            "dateTime" to material.dateTime
-            // Add other fields you want to update, but NOT 'view' or 'claimed'
-        )
+                    // Create a map with only the fields you want to update
+                    val updatedFields = material.toMap() // Make sure toMap() correctly maps all the fields
 
-        Tasks.whenAllSuccess<Any>(uploadTasks).addOnSuccessListener {
-            Log.d(TAG, "All upload tasks successful, updating Firestore document")
+                    // Then, update the Firestore document
+                    materialRef.update(updatedFields)
+                        .addOnSuccessListener {
+                            Log.d(TAG, "Material updated successfully in Firestore")
+                            // Handle success (e.g., inform the UI)
+                        }
+                        .addOnFailureListener { e ->
+                            Log.e(TAG, "Error updating material in Firestore: $e")
+                            // Handle failure (e.g., inform the UI)
+                        }
+                } else {
+                    Log.e(TAG, "Image upload failed", task.exception)
+                    // Handle the image upload failure (e.g., inform the UI)
+                }
+            }
+        } else {
+            // If no new image, just update the material info
+            val updatedFields = material.toMap() // Make sure toMap() correctly maps all the fields
+
             materialRef.update(updatedFields)
                 .addOnSuccessListener {
                     Log.d(TAG, "Material updated successfully in Firestore")
+                    // Handle success (e.g., inform the UI)
                 }
                 .addOnFailureListener { e ->
                     Log.e(TAG, "Error updating material in Firestore: $e")
+                    // Handle failure (e.g., inform the UI)
                 }
-        }.addOnFailureListener { e ->
-            Log.e(TAG, "Error in upload tasks: $e")
         }
     }
 
+    // Extension function to convert Material object to Map for Firestore update
+    fun Material.toMap(): Map<String, Any> {
+        return mapOf(
+            "name" to this.name,
+            "desc" to this.desc,
+            "category" to this.category,
+            "venue" to this.venue,
+            "dateTime" to this.dateTime,
+            "imageUrl" to this.imageUrl // Make sure imageUrl is included
+            // Add other fields as needed
+        )
+    }
 
 
 

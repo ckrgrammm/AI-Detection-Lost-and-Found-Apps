@@ -51,12 +51,16 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import androidx.appcompat.app.AppCompatActivity
+import com.example.fyps.firebase.FirebaseService
+import com.google.firebase.messaging.RemoteMessage
+
 class ChatActivity : AppCompatActivity() {
 
     var firebaseUser: FirebaseUser? = null
     var reference: DatabaseReference? = null
     var chatList = ArrayList<Chat>()
     var topic = ""
+    var userName = ""
 
     private var imageUri: Uri? = null
 
@@ -84,8 +88,13 @@ class ChatActivity : AppCompatActivity() {
 
         // 获取传递过来的用户ID
         val userId = intent.getStringExtra("userId")
-        var userName = intent.getStringExtra("userName")
+        userName = intent.getStringExtra("userName").toString()
         Log.d("YourTag", "UserId: $userId")
+
+        // 发送问题消息给对方
+        if (userId != null) {
+            sendInitialQuestionToSender(userId)
+        }
 
         val documentReference = FirebaseFirestore.getInstance().document("users/$userId")
 
@@ -156,6 +165,16 @@ class ChatActivity : AppCompatActivity() {
             }
         }
 
+    }
+
+    private fun sendInitialQuestionToSender(senderId: String) {
+        val initialQuestion = "Hello! Please send me a message"
+
+        // 调用 sendMessage 方法发送问题消息
+        FirebaseService().sendMessage(senderId, firebaseUser?.uid ?: "", null, initialQuestion)
+        // 发送通知消息
+        val notificationMessage = "You received a message!"
+        FirebaseService().sendNotificationList(senderId, notificationMessage, userName)
     }
 
     override fun onRequestPermissionsResult(
@@ -328,6 +347,7 @@ class ChatActivity : AppCompatActivity() {
             }
         })
     }
+
     private fun sendNotification(notification: PushNotification) = CoroutineScope(Dispatchers.IO).launch {
         try {
             val response = RetrofitInstance.api.postNotification(notification)

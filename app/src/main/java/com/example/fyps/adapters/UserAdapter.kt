@@ -20,6 +20,8 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.example.fyps.firebasechat.model.User*/
 import de.hdodenhof.circleimageview.CircleImageView
 
+
+
 class UserAdapter(private val context: Context, private val userList: ArrayList<User>) :
     RecyclerView.Adapter<UserAdapter.ViewHolder>() {
 

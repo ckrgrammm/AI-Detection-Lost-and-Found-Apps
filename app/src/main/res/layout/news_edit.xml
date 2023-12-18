@@ -6,6 +6,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:padding="16dp">
 
+
+
     <LinearLayout
         android:id="@+id/linearLayout5"
         android:layout_width="match_parent"
@@ -16,14 +18,14 @@
         tools:ignore="MissingConstraints">
 
         <TextView
-            android:id="@+id/createItemTitle"
+            android:id="@+id/editNews"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginStart="4dp"
             android:layout_marginTop="45dp"
             android:fontFamily="@font/poppins_bold"
-            android:text="Edit Reported Lost Item"
+            android:text="Edit News"
             android:textColor="@color/logintext"
             android:textSize="27dp" />
 
@@ -33,22 +35,11 @@
             android:layout_marginTop="30px"
             android:gravity="center"
             android:orientation="horizontal">
-
-            <Button
-                android:id="@+id/buttonOpenCamera"
-                android:layout_width="140dp"
-                android:layout_height="65dp"
-                android:layout_marginRight="30dp"
-                android:text="Open Camera"
-                />
-
-
             <ImageView
                 android:id="@+id/imageViewCourseBanner"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
                 android:src="@drawable/ic_lost_logo" />
-
         </LinearLayout>
 
 
@@ -59,63 +50,23 @@
             android:layout_height="wrap_content"
 
             android:layout_marginTop="34dp"
-            android:hint="Item Name"
+            android:hint="News Preview Title"
             app:boxBackgroundColor="@color/white"
             app:boxBackgroundMode="outline"
             app:endIconMode="clear_text"
             app:endIconTint="@color/lavender"
-            app:placeholderText="Eg : Electronic Appliances"
-
+            app:placeholderText="Eg : COVID-19 PANDAMIC"
             app:startIconTint="@color/lavender">
-
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/editTextItemName"
+                android:id="@+id/editTextPreviewNewsTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="text"/>
         </com.google.android.material.textfield.TextInputLayout>
 
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/layout_venue"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="34dp"
-            android:hint="Item Venue"
-            app:boxBackgroundColor="@color/white"
-            app:boxBackgroundMode="outline"
-            app:endIconMode="clear_text"
-            app:endIconTint="@color/lavender"
-            app:placeholderText="ex: CITC"
-            app:startIconTint="@color/lavender">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/editTextItemVenue"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="text"/>
-        </com.google.android.material.textfield.TextInputLayout>
 
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/layout_itemCategory"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:hint="Item Category"
-            app:boxBackgroundColor="@color/white"
-            app:boxBackgroundMode="outline"
-            app:endIconMode="dropdown_menu">
-
-            <AutoCompleteTextView
-                android:id="@+id/spinnerItemCategory"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="none"
-                android:editable="false" />
-        </com.google.android.material.textfield.TextInputLayout>
 
 
         <com.google.android.material.textfield.TextInputLayout
@@ -124,19 +75,18 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:hint="Item Description"
+            android:hint="News' Short Description"
             app:boxBackgroundColor="@color/white"
             app:boxBackgroundMode="outline"
             app:counterEnabled="true"
-            app:counterMaxLength="200"
+            app:counterMaxLength="100"
             app:endIconMode="clear_text"
             app:endIconTint="@color/lavender"
             app:placeholderText="Eg : I found this on CITC.. "
             app:startIconTint="@color/lavender">
 
             <com.google.android.material.textfield.TextInputEditText
-
-                android:id="@+id/editTextItemDescription"
+                android:id="@+id/editTextShortDescription"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="textMultiLine"
@@ -146,29 +96,41 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
-
-
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/layout_dateTime"
+            android:id="@+id/layout_longDesc"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:hint="Date | Time"
+            android:layout_marginTop="10dp"
+            android:hint="News' Long Description"
             app:boxBackgroundColor="@color/white"
             app:boxBackgroundMode="outline"
+            app:counterEnabled="true"
+            app:counterMaxLength="400"
             app:endIconMode="clear_text"
             app:endIconTint="@color/lavender"
+            app:placeholderText="Eg : I found this on CITC.. "
             app:startIconTint="@color/lavender">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/editTextDateTime"
+                android:id="@+id/editTextLongDescription"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:focusable="false"
-                android:onClick="showDateTimePickerDialog"
-                android:inputType="none" />
+                android:inputType="textMultiLine"
+                android:lines="3"
+                android:maxLines="5"
+                android:scrollbars="vertical" />
+
         </com.google.android.material.textfield.TextInputLayout>
+
+        <Button
+            android:id="@+id/buttonSelectPreviewImage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="16dp"
+            android:text="Select Preview Image" />
+
 
         <Button
             android:id="@+id/buttonSelectImage"
@@ -179,25 +141,12 @@
             android:text="Select Image" />
 
 
-
         <Button
             android:id="@+id/buttonSubmit"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="16dp"
-            android:text="Save Edited Item" />
-
-
-        <Button
-            android:id="@+id/buttonDelete"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="16dp"
-            android:background="@color/red"
-            android:textColor="@color/white"
-            android:text="Delete Reported Item" />
-
+            android:text="Update News" />
     </LinearLayout>
 </ScrollView>

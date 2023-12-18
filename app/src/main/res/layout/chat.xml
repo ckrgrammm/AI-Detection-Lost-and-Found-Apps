@@ -6,6 +6,7 @@
     android:layout_height="match_parent">
 
 
+
     <LinearLayout
         android:id="@+id/l1"
         android:layout_width="match_parent"
@@ -40,12 +41,23 @@
             android:src="@mipmap/ic_launcher" />
     </LinearLayout>
 
+
+    <!-- RecyclerView for Question -->
     <androidx.recyclerview.widget.RecyclerView
-        android:layout_below="@id/l1"
+        android:id="@+id/questionRecyclerView"
         android:layout_width="match_parent"
-        android:layout_above="@id/r1"
-        android:layout_height="match_parent"
-        android:id="@+id/chatRecyclerView"/>
+        android:layout_height="50dp"
+        android:layout_below="@id/l1"/>
+
+    <!-- RecyclerView for Chat -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/chatRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/questionRecyclerView"
+        android:layout_marginTop="10dp"
+        android:layout_above="@id/r1"/>
+
 
     <RelativeLayout
         android:id="@+id/r1"

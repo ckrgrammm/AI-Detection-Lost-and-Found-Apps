@@ -3,6 +3,7 @@ package com.example.fyps.fragments.shopping
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Context
+import android.content.res.ColorStateList
 import android.os.Bundle
 import android.text.Html
 import android.util.Log
@@ -15,6 +16,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
@@ -46,6 +48,8 @@ class MaterialPreviewFragment : Fragment() {
     private var _binding: FragmentProductPreviewBinding? = null
     private val binding get() = _binding!!
     private var material: Material? = null
+    private var alertDialog: AlertDialog? = null
+
 
     private val viewPagerAdapter = ViewPager2Images()
 
@@ -191,38 +195,50 @@ class MaterialPreviewFragment : Fragment() {
                 .get()
                 .addOnSuccessListener { documents ->
                     if (!documents.isEmpty) {
-                        Toast.makeText(context, "You have already claimed this item!", Toast.LENGTH_SHORT).show()
+                        showClaimedDialog()
                         return@addOnSuccessListener
                     }
 
-                    // If the user hasn't enrolled yet, proceed with the enrollment process
-                    val materialRef = firestore.collection("Materials").document(materialId)
+                    // Check if the partnershipsId is equal to the current user's ID
+                    firestore.collection("Materials").document(materialId)
+                        .get()
+                        .addOnSuccessListener { materialDocument ->
+                            val partnershipsId = materialDocument.getString("partnershipsID")
 
-                    firestore.runTransaction { transaction ->
-                        // Get the current state of the material
-                        val snapshot = transaction.get(materialRef)
+                            if (partnershipsId == userId) {
+                                showDuplicateDialog()
+                            } else {
+                                // If the user hasn't enrolled yet and is not the partnershipsId, proceed with the enrollment process
+                                val materialRef = firestore.collection("Materials").document(materialId)
 
-                        // Increment the enroll field value
-                        val newEnrollValue = snapshot.getLong("claimed")?.plus(1) ?: 1L
+                                firestore.runTransaction { transaction ->
+                                    // Get the current state of the material
+                                    val snapshot = transaction.get(materialRef)
 
-                        // Update the enroll field
-                        transaction.update(materialRef, "claimed", newEnrollValue)
+                                    // Increment the enroll field value
+                                    val newEnrollValue = snapshot.getLong("claimed")?.plus(1) ?: 1L
 
-                        // Create a new Enrollment object
-                        val enrollment = Enrollment(userId = userId, materialId = materialId)
+                                    // Update the enroll field
+                                    transaction.update(materialRef, "claimed", newEnrollValue)
 
-                        // Add the enrollment document and return the newEnrollValue for further use if needed
-                        transaction.set(firestore.collection("enrollments").document(), enrollment)
-                        newEnrollValue
-                    }.addOnSuccessListener {
-                        Toast.makeText(context, "Successfully claimed this item !", Toast.LENGTH_SHORT).show()
+                                    // Create a new Enrollment object
+                                    val enrollment = Enrollment(userId = userId, materialId = materialId)
 
-                        // Navigate back to HomeFragment
-                        findNavController().navigate(R.id.action_materialDetailsFragment_to_homeFragment)
-                    }.addOnFailureListener { exception ->
-                        Log.w("MaterialPreviewFragment", "Error adding document", exception)
-                        Toast.makeText(context, "Error claiming this item !", Toast.LENGTH_SHORT).show()
-                    }
+                                    // Add the enrollment document and return the newEnrollValue for further use if needed
+                                    transaction.set(firestore.collection("enrollments").document(), enrollment)
+                                    newEnrollValue
+                                }.addOnSuccessListener {
+                                    showCustomDialog()
+                                }.addOnFailureListener { exception ->
+                                    Log.w("MaterialPreviewFragment", "Error adding document", exception)
+                                    showErrorDialog()
+                                }
+                            }
+                        }
+                        .addOnFailureListener { exception ->
+                            Log.w("MaterialPreviewFragment", "Error checking partnershipsId", exception)
+                            Toast.makeText(context, "Error checking partnershipsId!", Toast.LENGTH_SHORT).show()
+                        }
                 }
                 .addOnFailureListener { exception ->
                     Log.w("MaterialPreviewFragment", "Error checking enrollment", exception)
@@ -464,10 +480,155 @@ class MaterialPreviewFragment : Fragment() {
     }
 
 
+    private fun showCustomDialog() {
+        val builder = AlertDialog.Builder(requireContext())
+        val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.custom_dialog_success, null)
+
+        // Modify the dialogView as needed for successful enrollment
+        val textView = dialogView.findViewById<TextView>(R.id.textView)
+        textView.text = "Congratz !!"
+
+        // Modify the dialogView as needed for successful enrollment
+        val textView2 = dialogView.findViewById<TextView>(R.id.textView2)
+        textView2.text = "Please Proceed To The Claimed Pending Item for Further Action !"
+
+        // Change btnCancel to "Noted"
+        val btnCancel = dialogView.findViewById<Button>(R.id.btn_cancel)
+        btnCancel.text = "Noted"
+        btnCancel.setOnClickListener {
+            alertDialog?.dismiss() // Dismiss the dialog first
+            findNavController().navigate(R.id.action_materialDetailsFragment_to_homeFragment) // Then navigate
+        }
 
 
+        // Change btnOkay to "Navigate Me"
+        val btnOkay = dialogView.findViewById<Button>(R.id.btn_okay)
+        btnOkay.text = "Navigate Me"
+        btnOkay.setOnClickListener {
+            alertDialog?.dismiss()
+            findNavController().navigate(R.id.action_materialDetailsFragment_to_profileFragment)
+
+        }
 
 
+        builder.setView(dialogView)
+        alertDialog = builder.create() // Assign to the class member
+        alertDialog?.show()
+    }
 
+    private fun showErrorDialog() {
+        val builder = AlertDialog.Builder(requireContext())
+        val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.custom_dialog_success, null)
+
+        // Modify the dialogView as needed for enrollment error
+        val imageView = dialogView.findViewById<ImageView>(R.id.imageView)
+        imageView.setImageResource(R.drawable.icon_warning)
+
+        val textView = dialogView.findViewById<TextView>(R.id.textView)
+        textView.text = "Claiming Error"
+
+        val textView2 = dialogView.findViewById<TextView>(R.id.textView2)
+        textView2.text = "Please try again !"
+
+        val btnCancel = dialogView.findViewById<Button>(R.id.btn_cancel)
+        btnCancel.text = "Noted"
+        btnCancel.setOnClickListener {
+            alertDialog?.dismiss() // Dismiss the dialog before navigating
+            findNavController().navigate(R.id.action_materialDetailsFragment_to_homeFragment) // Navigate to homeFragment
+        }
+
+        // Change btnOkay text to "Try Again" and set other properties
+        val btnOkay = dialogView.findViewById<Button>(R.id.btn_okay)
+        btnOkay.text = "Try Again"
+        btnOkay.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.deleteButton))
+
+        builder.setView(dialogView)
+        alertDialog = builder.create() // Assign to the class member
+        alertDialog?.show()
+    }
+
+
+    private fun showDuplicateDialog() {
+        val builder = AlertDialog.Builder(requireContext())
+        val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.custom_dialog_success, null)
+
+
+        // Modify the dialogView as needed for enrollment error
+        val imageView = dialogView.findViewById<ImageView>(R.id.imageView)
+        imageView.setImageResource(R.drawable.icon_warning)
+
+
+        // Modify the dialogView as needed for successful enrollment
+        val textView = dialogView.findViewById<TextView>(R.id.textView)
+        textView.text = "You have been Caught !"
+
+        // Modify the dialogView as needed for successful enrollment
+        val textView2 = dialogView.findViewById<TextView>(R.id.textView2)
+        textView2.text = "Please don't try to claim the item that reported by yourself"
+
+        // Change btnCancel to "Noted"
+        val btnCancel = dialogView.findViewById<Button>(R.id.btn_cancel)
+        btnCancel.text = "Forgive Me"
+        btnCancel.setOnClickListener {
+            alertDialog?.dismiss() // Dismiss the dialog first
+        }
+
+
+        // Change btnOkay to "Navigate Me"
+        val btnOkay = dialogView.findViewById<Button>(R.id.btn_okay)
+        btnOkay.text = "Understand"
+        btnOkay.setOnClickListener {
+            alertDialog?.dismiss() // Dismiss the dialog first
+
+        }
+
+
+        builder.setView(dialogView)
+        alertDialog = builder.create() // Assign to the class member
+        alertDialog?.show()
+    }
+
+
+    private fun showClaimedDialog() {
+        val builder = AlertDialog.Builder(requireContext())
+        val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.custom_dialog_success, null)
+
+
+        // Modify the dialogView as needed for enrollment error
+        val imageView = dialogView.findViewById<ImageView>(R.id.imageView)
+        imageView.setImageResource(R.drawable.icon_warning)
+
+
+        // Modify the dialogView as needed for successful enrollment
+        val textView = dialogView.findViewById<TextView>(R.id.textView)
+        textView.text = "You have claimed this item previously"
+
+        // Modify the dialogView as needed for successful enrollment
+        val textView2 = dialogView.findViewById<TextView>(R.id.textView2)
+        textView2.text = "Please proceed to the claimed pending item !!!"
+
+        // Change btnCancel to "Noted"
+        val btnCancel = dialogView.findViewById<Button>(R.id.btn_cancel)
+        btnCancel.text = "Noted"
+        btnCancel.setOnClickListener {
+            alertDialog?.dismiss() // Dismiss the dialog first
+            findNavController().navigate(R.id.action_materialDetailsFragment_to_homeFragment)
+        }
+
+
+        // Change btnOkay to "Navigate Me"
+        val btnOkay = dialogView.findViewById<Button>(R.id.btn_okay)
+        btnOkay.text = "Bring me to"
+        btnOkay.setOnClickListener{
+            alertDialog?.dismiss()
+            findNavController().navigate(R.id.action_materialDetailsFragment_to_profileFragment)
+
+        }
+
+
+        builder.setView(dialogView)
+        alertDialog = builder.create() // Assign to the class member
+        alertDialog?.show()
+    }
 
 }

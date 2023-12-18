@@ -9,6 +9,10 @@
         android:id="@+id/addMaterialFragment"
         android:name="com.example.fyps.fragments.shopping.AddMaterialFragment"
         android:label="Add Material">
+
+        <action
+            android:id="@+id/action_addMaterialFragment_to_profileFragment"
+            app:destination="@id/profileFragment" />
     </fragment>
 
 
@@ -106,6 +110,10 @@
         <action
             android:id="@+id/action_materialDetailsFragment_to_homeFragment"
             app:destination="@id/homeFragment" />
+
+        <action
+            android:id="@+id/action_materialDetailsFragment_to_profileFragment"
+            app:destination="@id/profileFragment" />
 
         <argument
             android:name="material"
@@ -509,6 +517,48 @@
         <action
             android:id="@+id/action_adminDashboardFragment_to_adminListFragment"
             app:destination="@id/adminListFragment" />
+
+        <action
+            android:id="@+id/action_adminDashboardFragment_to_adminNewsListFragment"
+            app:destination="@id/adminNewsListFragment" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/adminNewsListFragment"
+        android:name="com.example.fyps.fragments.admin.AdminNewsListFragment"
+        android:label="fragment_admin_news_list"
+        tools:layout="@layout/fragment_admin_news_list" >
+
+        <action
+            android:id="@+id/action_adminNewsListFragment_to_adminAddNewsFragment"
+            app:destination="@id/adminAddNewsFragment" />
+
+        <action
+            android:id="@+id/action_adminNewsListFragment_to_adminEditNewsFragment"
+            app:destination="@id/adminEditNewsFragment" />
+
+
+    </fragment>
+
+
+    <fragment
+        android:id="@+id/adminEditNewsFragment"
+        android:name="com.example.fyps.fragments.admin.AdminEditNewsFragment"
+        android:label="layout/news_edit"
+        tools:layout="@layout/news_edit" >
+
+        <argument
+            android:name="newsId"
+            app:argType="string" />
+
+    </fragment>
+    <fragment
+        android:id="@+id/adminAddNewsFragment"
+        android:name="com.example.fyps.fragments.admin.AdminAddNewsFragment"
+        android:label="layout/news_add"
+        tools:layout="@layout/news_add" >
+
 
     </fragment>
 

@@ -14,7 +14,7 @@ import com.example.fyps.model.Material
 import com.example.fyps.util.PokemonColorUtil
 
 class MenuAdapter(
-    private val categories: List<String>,
+    private var categories: MutableList<String>,
     private val context: Context,
     private val onCategoryClick: (String) -> Unit
 ) : RecyclerView.Adapter<MenuAdapter.ViewHolder>() {
@@ -44,6 +44,13 @@ class MenuAdapter(
         val category = categories[position]
 
         holder.bind(category, onCategoryClick, context)
+    }
+
+
+    fun updateCategories(newCategories: List<String>) {
+        categories.clear()
+        categories.addAll(newCategories)
+        notifyDataSetChanged()
     }
 
     override fun getItemCount() = categories.size

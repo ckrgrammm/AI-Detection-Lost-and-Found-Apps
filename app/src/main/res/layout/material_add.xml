@@ -148,39 +148,6 @@
         </com.google.android.material.textfield.TextInputLayout>
 
 
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            app:cardElevation="0dp"
-            app:cardCornerRadius="4dp"
-            app:strokeColor="@color/lavender"
-            app:strokeWidth="2dp"
-            xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:app="http://schemas.android.com/apk/res-auto">
-
-            <LinearLayout
-                android:id="@+id/locationLayout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Location"
-                    android:textSize="18sp" />
-
-                <com.google.android.gms.maps.MapView
-                    android:id="@+id/mapView"
-                    android:layout_width="match_parent"
-                    android:layout_height="200dp" />
-
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
-
-
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/layout_dateTime"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"

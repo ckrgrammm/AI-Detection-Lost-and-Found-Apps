@@ -38,6 +38,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 
@@ -47,6 +48,8 @@ class HomeFragment : Fragment() {
     private lateinit var binding: FragmentHomeBinding
     private lateinit var searchAdapter: SearchRecyclerAdapter
     private lateinit var materialAdapter: MaterialAdapter
+    private lateinit var newsAdapter: NewsAdapter
+
 
     var job: Job? = null
 
@@ -76,61 +79,113 @@ class HomeFragment : Fragment() {
         setupRecyclerView()
         setupSearchRecyclerView()
         setupSearchObserver()
-
-
-        // Call getMaterials() to fetch materials
         viewModel.getMaterials()
+        setupNewsRecyclerView()
+
+        viewModel.fetchNews()
+
+        // Observe news data
+        viewModel.listNews.observe(viewLifecycleOwner, Observer { newsItems ->
+            newsAdapter.updateNewsList(newsItems)
+        })
+
 
         // Observe the materialsLiveData to get the materials data
         viewModel.materialsLiveData.observe(viewLifecycleOwner, Observer { resource ->
             when (resource) {
                 is Resource.Success -> {
                     resource.data?.let { materials ->
-                        // Extract unique categories
                         val uniqueCategories = materials.map { it.category }.distinct()
-                        binding.recyclerViewMenu.adapter =
-                            MenuAdapter(uniqueCategories, requireContext(), this::onCategoryClick)
+                        val menuAdapter = binding.recyclerViewMenu.adapter as? MenuAdapter
+                        menuAdapter?.updateCategories(uniqueCategories)
                     }
+                }else ->{
+
                 }
-                is Resource.Loading -> {
-                    // Handle loading state
-                }
-                is Resource.Error -> {
-                    // Handle error state
-                }
+                // Handle other cases...
             }
         })
 
-        binding.searchText.addTextChangedListener { query ->
-            val queryTrim = query.toString().trim()
-            if (queryTrim.isNotEmpty()) {
-                performSearch(queryTrim)
-                showSearchResultsView()
-            } else {
-                hideSearchResultsView()
+
+        binding.searchText.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                // Implement if necessary
             }
-        }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                // Implement if necessary
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+                val query = s.toString().trim()
+                if (query.isNotEmpty()) {
+                    performSearch(query)
+                    showSearchResultsView()
+                } else {
+                    job?.cancel() // Cancel ongoing search
+                    hideSearchResultsView()
+                    showOriginalContent()
+                }
+            }
+
+
+        })
     }
 
+
+    private fun setupNewsRecyclerView() {
+        // Initialize NewsAdapter
+        newsAdapter = NewsAdapter(listOf(), requireContext())
+        binding.recyclerViewNews.adapter = newsAdapter
+        binding.recyclerViewNews.layoutManager = LinearLayoutManager(context)
+    }
 
 
     private fun setupSearchRecyclerView() {
         searchAdapter = SearchRecyclerAdapter()
+        searchAdapter.onItemClick = { material ->
+            val action = HomeFragmentDirections.actionHomeFragmentToMaterialDetailsFragment(material)
+            findNavController().navigate(action)
+        }
         binding.rvSearch.apply {
             adapter = searchAdapter
             layoutManager = LinearLayoutManager(context)
-            visibility = View.GONE // Initially hidden
         }
     }
+
+
+    private fun setupSearchObserver() {
+        viewModel.searchResults.observe(viewLifecycleOwner, Observer { resource ->
+            val currentQuery = binding.searchText.text.toString().trim()
+            if (currentQuery.isNotEmpty()) {
+                when (resource) {
+                    is Resource.Success -> {
+                        resource.data?.let { materials ->
+                            searchAdapter.differ.submitList(materials)
+                            showSearchResultsView()
+                        }
+                    }
+                    else ->{
+
+                    }
+                    // Handle other cases...
+                }
+            }
+        })
+    }
+
 
 
     private fun performSearch(query: String) {
         job?.cancel()
         job = CoroutineScope(Dispatchers.IO).launch {
-            delay(500L)
-            viewModel.searchMaterials(query) // Implement this based on your viewModel
+            delay(500L) // Debounce
+            if (isActive) { // Check if the coroutine is still active
+                viewModel.searchMaterials(query) // Implement this based on your viewModel
+            }
         }
     }
+
 
     private fun showSearchResultsView() {
         binding.rvSearch.visibility = View.VISIBLE
@@ -172,26 +227,31 @@ class HomeFragment : Fragment() {
 
 
     private fun setupRecyclerView() {
-        // Ensure your RecyclerView's ID matches with your layout
-        binding.recyclerViewMenu.apply {
-            binding.recyclerViewMenu.layoutManager = GridLayoutManager(context, 2)
+        // Initialize MenuAdapter and MaterialAdapter
+        val menuAdapter = MenuAdapter(mutableListOf(), requireContext(), this::onCategoryClick)
+        binding.recyclerViewMenu.adapter = menuAdapter
+        binding.recyclerViewMenu.layoutManager = GridLayoutManager(context, 2)
 
-            binding.recyclerViewNews.layoutManager = LinearLayoutManager(context)
-
-            binding.recyclerViewNews.addItemDecoration(
-                DividerItemDecoration(
-                    context,
-                    DividerItemDecoration.VERTICAL
-                )
-            )
+        materialAdapter = MaterialAdapter()
+        materialAdapter.onItemClick = { material ->
+            val bundle = Bundle()
+            bundle.putParcelable("material", material)
+            findNavController().navigate(R.id.action_allOrdersFragment_to_materialDetailsFragment, bundle)
         }
 
+        // Setup RecyclerView for news
+        binding.recyclerViewNews.layoutManager = LinearLayoutManager(context)
+        binding.recyclerViewNews.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
 
-        viewModel.getListNews().observe(viewLifecycleOwner, Observer {
-            val items: List<News> = it
-            binding.recyclerViewNews.adapter = NewsAdapter(items, requireContext())
+        // Observe news data
+        viewModel.listNews.observe(viewLifecycleOwner, Observer { newsItems ->
+            newsAdapter.updateNewsList(newsItems)
         })
     }
+
+
+
+
 
 
     private fun onItemClick() {
@@ -208,27 +268,7 @@ class HomeFragment : Fragment() {
 
 
 
-    private fun setupSearchObserver() {
-        viewModel.searchResults.observe(viewLifecycleOwner, Observer { resource ->
-            when (resource) {
-                is Resource.Success -> {
-                    resource.data?.let { materials ->
-                        searchAdapter.differ.submitList(materials)
-                        showSearchResultsView()
-                    }
-                }
 
-                is Resource.Loading -> {
-                    // Show loading state if necessary
-                }
-
-                is Resource.Error -> {
-                    Log.e(TAG, resource.message ?: "Unknown error")
-                    // Handle error state
-                }
-            }
-        })
-    }
 
 
     override fun onResume() {

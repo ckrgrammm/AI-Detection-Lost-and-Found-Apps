@@ -73,7 +73,6 @@ class ChatFragment : Fragment() {
         }
     }
 
-
     private fun loadFriendListData() {
         // 在登錄成功後，獲取當前用戶的 UID
         val currentUser = FirebaseAuth.getInstance().currentUser

@@ -2,6 +2,7 @@ package com.example.fyps.fragments.shopping
 
 import android.R
 import android.app.Activity
+import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.content.Intent
@@ -13,6 +14,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
+import android.widget.Button
+import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -35,6 +38,8 @@ class AddMaterialFragment : Fragment() {
     private val REQUEST_CODE_CAMERA_ACTIVITY = 100
 
     private var selectedImageUri: Uri? = null
+    private var alertDialog: AlertDialog? = null
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -100,6 +105,14 @@ class AddMaterialFragment : Fragment() {
             return
         }
 
+        // Check if dateTime is empty and set it to current date and time if necessary
+        val finalDateTime = if (dateTime.isEmpty()) {
+            getCurrentDateTime()
+        } else {
+            dateTime
+        }
+
+
 
         val isUnique = category == "Electronics"
         val subCollectionName = if (isUnique) "UniqueCollection" else "NonUniqueCollection"
@@ -113,17 +126,16 @@ class AddMaterialFragment : Fragment() {
             status = "Status : Lost",
             partnershipsID = getUserDocumentId(),
             venue = venue,
-            dateTime = dateTime
+            dateTime = finalDateTime
         )
 
 
         // Call the ViewModel to add the new Material
         viewModel.addMaterial(material, selectedImageUri,null,subCollectionName)
         // Notify the user and navigate back
-        Toast.makeText(requireContext(), "Material submitted successfully", Toast.LENGTH_SHORT).show()
-        findNavController().navigateUp()
-    }
+        showCustomDialog()
 
+    }
 
 
 
@@ -135,13 +147,32 @@ class AddMaterialFragment : Fragment() {
             val timePickerDialog = TimePickerDialog(requireContext(), { _, hour, minute ->
                 selectedDate.set(Calendar.HOUR_OF_DAY, hour)
                 selectedDate.set(Calendar.MINUTE, minute)
-                val dateFormat = SimpleDateFormat("dd-MM-yyyy HH:mm", Locale.getDefault())
-                binding.editTextDateTime.setText(dateFormat.format(selectedDate.time))
+                if (selectedDate.timeInMillis > currentDate.timeInMillis) {
+                    Toast.makeText(requireContext(), "Future dates are not allowed", Toast.LENGTH_SHORT).show()
+                    binding.editTextDateTime.setText(getCurrentDateTime()) // Use without parameters
+                } else {
+                    val dateFormat = SimpleDateFormat("dd-MM-yyyy HH:mm", Locale.getDefault())
+                    binding.editTextDateTime.setText(dateFormat.format(selectedDate.time))
+                }
             }, currentDate.get(Calendar.HOUR_OF_DAY), currentDate.get(Calendar.MINUTE), false)
             timePickerDialog.show()
         }, currentDate.get(Calendar.YEAR), currentDate.get(Calendar.MONTH), currentDate.get(Calendar.DAY_OF_MONTH))
+
+        // Prevent selecting future dates
+        datePickerDialog.datePicker.maxDate = currentDate.timeInMillis
+
         datePickerDialog.show()
     }
+
+
+
+    private fun getCurrentDateTime(): String {
+        val calendar = Calendar.getInstance()
+        val dateFormat = SimpleDateFormat("dd-MM-yyyy HH:mm", Locale.getDefault())
+        return dateFormat.format(calendar.time)
+    }
+
+
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
@@ -178,5 +209,42 @@ class AddMaterialFragment : Fragment() {
     companion object {
         private const val REQUEST_CODE_IMAGE_PICK = 1
         private const val REQUEST_CODE_CAMERA_ACTIVITY = 100
+    }
+
+
+    private fun showCustomDialog() {
+        val builder = AlertDialog.Builder(requireContext())
+        val dialogView = LayoutInflater.from(requireContext()).inflate(com.example.fyps.R.layout.custom_dialog_success, null)
+
+        // Modify the dialogView as needed for successful enrollment
+        val textView = dialogView.findViewById<TextView>(com.example.fyps.R.id.textView)
+        textView.text = "Congratz !!"
+
+        // Modify the dialogView as needed for successful enrollment
+        val textView2 = dialogView.findViewById<TextView>(com.example.fyps.R.id.textView2)
+        textView2.text = "You have successfully have an owner to find back their items ! \n Please proceed to Item Setting for further information"
+
+        // Change btnCancel to "Noted"
+        val btnCancel = dialogView.findViewById<Button>(com.example.fyps.R.id.btn_cancel)
+        btnCancel.text = "Small Cases ~"
+        btnCancel.setOnClickListener {
+            alertDialog?.dismiss() // Dismiss the dialog first
+            findNavController().navigate(com.example.fyps.R.id.action_materialDetailsFragment_to_homeFragment) // Then navigate
+        }
+
+
+        // Change btnOkay to "Navigate Me"
+        val btnOkay = dialogView.findViewById<Button>(com.example.fyps.R.id.btn_okay)
+        btnOkay.text = "Navigate Me"
+        btnOkay.setOnClickListener {
+            alertDialog?.dismiss()
+            findNavController().navigate(com.example.fyps.R.id.action_addMaterialFragment_to_profileFragment)
+
+        }
+
+
+        builder.setView(dialogView)
+        alertDialog = builder.create() // Assign to the class member
+        alertDialog?.show()
     }
 }

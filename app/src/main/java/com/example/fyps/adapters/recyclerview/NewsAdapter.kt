@@ -2,40 +2,38 @@ package com.example.fyps.adapters.recyclerview
 
 import android.content.Context
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.fyps.R
+import com.example.fyps.databinding.ItemNewsBinding
 import com.example.fyps.model.News
 
+class NewsAdapter(private var newsList: List<News>, private val context: Context) : RecyclerView.Adapter<NewsAdapter.NewsViewHolder>() {
 
-class NewsAdapter(
-    private val list: List<News>,
-    private val context: Context
-) : RecyclerView.Adapter<NewsAdapter.ViewHolder>() {
+    inner class NewsViewHolder(val binding: ItemNewsBinding) : RecyclerView.ViewHolder(binding.root)
 
-    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        fun bindView(item: News) {
-//            itemView.textViewName.text = item.title
-            itemView.setOnClickListener {
-                it.findNavController()
-//                    .navigate(R.id.action_navigation_home_to_navigation_news_detail)
-            }
-        }
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NewsViewHolder {
+        val layoutInflater = LayoutInflater.from(parent.context)
+        val binding = ItemNewsBinding.inflate(layoutInflater, parent, false)
+        return NewsViewHolder(binding)
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(context).inflate(R.layout.item_news, parent, false)
-        return ViewHolder(view)
+    override fun onBindViewHolder(holder: NewsViewHolder, position: Int) {
+        val newsItem = newsList[position]
+        holder.binding.textViewName.text = newsItem.previewText
+        holder.binding.textViewDate.text = newsItem.publishDate
+
+        // Use Glide or similar library to load images
+        Glide.with(context)
+            .load(newsItem.previewImage)
+            .into(holder.binding.imageView)
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val item = list[position]
-        holder.bindView(item)
-    }
+    override fun getItemCount() = newsList.size
 
-    override fun getItemCount(): Int {
-        return list.size
+    fun updateNewsList(newNewsList: List<News>) {
+        newsList = newNewsList
+        notifyDataSetChanged()
     }
 }

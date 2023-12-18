@@ -122,71 +122,15 @@ class EditMaterialFragment : Fragment() {
             handleSubmit()
         }
 
-        binding.buttonClaimed.setOnClickListener {
-            updateMaterialStatusToClaimed()
-            findNavController().navigateUp()
-        }
-
 
         binding.buttonOpenCamera.setOnClickListener {
-            // Start CameraActivity just like in AddMaterialFragment
-            val intent = Intent(context, CameraActivity::class.java)
-            startActivityForResult(intent, REQUEST_CODE_CAMERA_ACTIVITY)
+            val cameraIntent = Intent(context, CameraActivity::class.java)
+            startActivityForResult(cameraIntent, REQUEST_CODE_CAMERA_ACTIVITY)
         }
     }
 
-    private fun updateMaterialStatusToClaimed() {
-        materialId?.let { id ->
-            val materialRef = FirebaseFirestore.getInstance().collection("Materials").document(id)
-            materialRef.update("status", "Status : Claimed")
-                .addOnSuccessListener {
-                    checkAndUpdateUserPoints()
-                }
-                .addOnFailureListener { e ->
-                    context?.let { ctx ->
-                        Toast.makeText(ctx, "Failed to update item status: ${e.message}", Toast.LENGTH_SHORT).show()
-                    }
-                }
-        } ?: run {
-            context?.let { ctx ->
-                Toast.makeText(ctx, "Error: Material ID is missing", Toast.LENGTH_SHORT).show()
-            }
-        }
-    }
 
-    private fun checkAndUpdateUserPoints() {
-        val userId = FirebaseAuth.getInstance().currentUser?.uid
-        if (userId != null) {
-            val userRef = FirebaseFirestore.getInstance().collection("users").document(userId)
-            userRef.get().addOnSuccessListener { document ->
-                if (document.exists()) {
-                    val userStatus = document.getString("status")
-                    val pointsToAdd = if (userStatus == "REPORTERS") 2 else 1
 
-                    val currentPoints = document.getLong("points") ?: 0
-                    userRef.update("points", currentPoints + pointsToAdd)
-                        .addOnSuccessListener {
-                            if (isAdded) {
-                                Toast.makeText(context, "Points updated successfully", Toast.LENGTH_SHORT).show()
-                            }
-                        }
-                        .addOnFailureListener {
-                            if (isAdded) {
-                                Toast.makeText(context, "Failed to update points", Toast.LENGTH_SHORT).show()
-                            }
-                        }
-                }
-            }.addOnFailureListener {
-                if (isAdded) {
-                    Toast.makeText(context, "Failed to fetch user details", Toast.LENGTH_SHORT).show()
-                }
-            }
-        } else {
-            if (isAdded) {
-                Toast.makeText(context, "Error: User ID not found", Toast.LENGTH_SHORT).show()
-            }
-        }
-    }
 
 
 
@@ -209,6 +153,13 @@ class EditMaterialFragment : Fragment() {
             return
         }
 
+        // Check if dateTime is empty and set it to current date and time if necessary
+        val finalDateTime = if (dateTime.isEmpty()) {
+            getCurrentDateTime()
+        } else {
+            dateTime
+        }
+
         val imageUrl = selectedImageUri?.toString() ?: currentImageUrl // Use current image if no new image selected
 
         val updatedMaterial = Material(
@@ -218,7 +169,7 @@ class EditMaterialFragment : Fragment() {
             category = category,
             isUnique = category == "Electronics", // Set isUnique true if category is Electronics
             venue = venue,
-            dateTime = dateTime,
+            dateTime = finalDateTime,
             status = "Status : Lost",
             partnershipsID = getUserDocumentId(),
             imageUrl = imageUrl ?: "" // Use the selected or current image URL
@@ -233,17 +184,36 @@ class EditMaterialFragment : Fragment() {
 
     private fun showDateTimePickerDialog() {
         val currentDate = Calendar.getInstance()
-        DatePickerDialog(requireContext(), { _, year, month, dayOfMonth ->
+        val datePickerDialog = DatePickerDialog(requireContext(), { _, year, month, dayOfMonth ->
             val selectedDate = Calendar.getInstance()
             selectedDate.set(year, month, dayOfMonth)
-            TimePickerDialog(requireContext(), { _, hour, minute ->
+            val timePickerDialog = TimePickerDialog(requireContext(), { _, hour, minute ->
                 selectedDate.set(Calendar.HOUR_OF_DAY, hour)
                 selectedDate.set(Calendar.MINUTE, minute)
-                val dateFormat = SimpleDateFormat("dd-MM-yyyy HH:mm", Locale.getDefault())
-                binding.editTextDateTime.setText(dateFormat.format(selectedDate.time))
-            }, currentDate.get(Calendar.HOUR_OF_DAY), currentDate.get(Calendar.MINUTE), false).show()
-        }, currentDate.get(Calendar.YEAR), currentDate.get(Calendar.MONTH), currentDate.get(Calendar.DAY_OF_MONTH)).show()
+                if (selectedDate.timeInMillis > currentDate.timeInMillis) {
+                    Toast.makeText(requireContext(), "Future dates are not allowed", Toast.LENGTH_SHORT).show()
+                    binding.editTextDateTime.setText(getCurrentDateTime()) // Use without parameters
+                } else {
+                    val dateFormat = SimpleDateFormat("dd-MM-yyyy HH:mm", Locale.getDefault())
+                    binding.editTextDateTime.setText(dateFormat.format(selectedDate.time))
+                }
+            }, currentDate.get(Calendar.HOUR_OF_DAY), currentDate.get(Calendar.MINUTE), false)
+            timePickerDialog.show()
+        }, currentDate.get(Calendar.YEAR), currentDate.get(Calendar.MONTH), currentDate.get(Calendar.DAY_OF_MONTH))
+
+        // Prevent selecting future dates
+        datePickerDialog.datePicker.maxDate = currentDate.timeInMillis
+
+        datePickerDialog.show()
     }
+
+
+    private fun getCurrentDateTime(): String {
+        val calendar = Calendar.getInstance()
+        val dateFormat = SimpleDateFormat("dd-MM-yyyy HH:mm", Locale.getDefault())
+        return dateFormat.format(calendar.time)
+    }
+
 
 
     private fun getUserDocumentId(): String {
@@ -277,13 +247,20 @@ class EditMaterialFragment : Fragment() {
         }
     }
 
-
     private fun handleImageSelectionResult(data: Intent?) {
+        // Handle image selection from gallery
         selectedImageUri = data?.data
-        binding.imageViewCourseBanner.setImageURI(selectedImageUri)
+        if (selectedImageUri != null) {
+            Glide.with(this)
+                .load(selectedImageUri)
+                .into(binding.imageViewCourseBanner)
+        } else {
+            Toast.makeText(context, "Image selection failed.", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun handleCameraActivityResult(data: Intent?) {
+        // Handle image capture from camera
         val detectedObjectName = data?.getStringExtra("DetectedObjectName")
         binding.editTextItemName.setText(detectedObjectName)
 
@@ -291,8 +268,16 @@ class EditMaterialFragment : Fragment() {
         filename?.let {
             val file = File(requireContext().filesDir, it)
             selectedImageUri = Uri.fromFile(file)
-            binding.imageViewCourseBanner.setImageURI(selectedImageUri)
-        }
+            Glide.with(this)
+                .load(selectedImageUri)
+                .into(binding.imageViewCourseBanner)
+        } ?: Toast.makeText(context, "Camera capture failed.", Toast.LENGTH_SHORT).show()
+    }
+
+    // Add these companion object constants if they don't already exist
+    companion object {
+        private const val REQUEST_CODE_IMAGE_PICK = 1
+        private const val REQUEST_CODE_CAMERA_ACTIVITY = 100
     }
 
 }

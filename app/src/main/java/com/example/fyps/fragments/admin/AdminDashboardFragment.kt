@@ -86,7 +86,7 @@ class AdminDashboardFragment() : Fragment(), Parcelable {
 
     private fun onViewAddNewsClick(){
         binding.uploadNews.setOnClickListener{
-            findNavController().navigate(R.id.action_adminDashboardFragment_to_adminListFragment)
+            findNavController().navigate(R.id.action_adminDashboardFragment_to_adminNewsListFragment)
         }
     }
 

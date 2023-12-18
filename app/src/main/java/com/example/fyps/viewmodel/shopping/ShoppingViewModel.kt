@@ -7,7 +7,6 @@ import androidx.lifecycle.ViewModel
 import com.example.fyps.firebaseDatabase.FirebaseDb
 import com.example.fyps.model.*
 import com.example.fyps.resource.Resource
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import java.util.*
 
@@ -18,7 +17,10 @@ class ShoppingViewModel(
 
 ) : ViewModel() {
 
-    private val listNews = MutableLiveData<List<News>>()
+
+    private val _listNews = MutableLiveData<List<News>>()
+    val listNews: LiveData<List<News>> get() = _listNews
+
 
     private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
     val materials: MutableLiveData<Resource<List<Material>>> = MutableLiveData()
@@ -62,20 +64,18 @@ class ShoppingViewModel(
             }
     }
 
-    fun getListNews(): LiveData<List<News>> {
-        listNews.value = listOf(
-            News(),
-            News(),
-            News(),
-            News(),
-            News(),
-            News(),
-            News(),
-            News()
-        )
-        return listNews
-    }
 
+    fun fetchNews() {
+        FirebaseFirestore.getInstance().collection("News").get()
+            .addOnSuccessListener { documents ->
+                val newsItems = documents.toObjects(News::class.java)
+                _listNews.postValue(newsItems)
+            }
+            .addOnFailureListener { e ->
+                Log.e(TAG, "Error fetching news", e)
+                // Handle error
+            }
+    }
 
     private fun shouldPaging(category: String, listSize: Int, onSuccess: (Boolean) -> Unit) {
         FirebaseFirestore.getInstance()

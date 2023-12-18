@@ -26,8 +26,10 @@ import com.example.fyps.SpacingDecorator.VerticalSpacingItemDecorator
 import com.example.fyps.activities.ChatActivity
 import com.example.fyps.activities.ShoppingActivity
 import com.example.fyps.adapters.recyclerview.CartRecyclerAdapter
+import com.example.fyps.adapters.recyclerview.QuestionAdapter
 import com.example.fyps.databinding.FragmentOrderDetailsBinding
 import com.example.fyps.model.CourseDocument
+import com.example.fyps.model.Material
 import com.example.fyps.model.User
 import com.example.fyps.viewmodel.shopping.ShoppingViewModel
 import com.google.android.material.snackbar.Snackbar
@@ -36,6 +38,8 @@ import com.google.firebase.firestore.FirebaseFirestore
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import kotlin.random.Random
+
 
 class OrderDetails : Fragment() {
     val TAG = "OrderDetails"
@@ -43,6 +47,8 @@ class OrderDetails : Fragment() {
     private lateinit var binding: FragmentOrderDetailsBinding
     private lateinit var viewModel: ShoppingViewModel
     private lateinit var productsAdapter: CartRecyclerAdapter
+    private lateinit var questionAdapter: QuestionAdapter
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -69,8 +75,20 @@ class OrderDetails : Fragment() {
         val firestore = FirebaseFirestore.getInstance()
 
 
-        // Initialize the RecyclerView
+
+
+        // Initialize your adapter with an empty list
+        questionAdapter = QuestionAdapter(emptyList())
+        binding.recyQuestion.adapter = questionAdapter
+        binding.recyQuestion.layoutManager = LinearLayoutManager(requireContext())
+
+        // Assuming you have the 'isUnique' field as a boolean in your arguments or you get it from somewhere
+        val isUnique = arguments?.getBoolean("isUnique") ?:"" // Replace ?? with actual logic to get isUnique value
+
+            // Initialize the RecyclerView
         setupRecyclerview()
+        // Initialize the QuestionAdapter and RecyclerView
+        setupRecyclerView()
 
         // Fetch the user's enrolled courses
         firestore.collection("Materials").document(materialId).collection("Courses")
@@ -85,6 +103,15 @@ class OrderDetails : Fragment() {
             .addOnFailureListener { exception ->
                 // Handle the error appropriately
                 Log.e(TAG, "Error fetching courses", exception)
+            }
+
+        firestore.collection("Materials").document(materialId)
+            .get()
+            .addOnSuccessListener { documentSnapshot ->
+                val material = documentSnapshot.toObject(Material::class.java)
+                material?.let {
+                    fetchQuestions(it.isUnique)
+                }
             }
 
 
@@ -109,43 +136,70 @@ class OrderDetails : Fragment() {
         }
 
         binding.btnChat.setOnClickListener {
-            val snackBar = requireActivity().findViewById<CoordinatorLayout>(R.id.snackBar_coordinator)
-            Snackbar.make(snackBar,resources.getText(R.string.g_coming_soon), Snackbar.LENGTH_SHORT).show()
+            val firestore = FirebaseFirestore.getInstance()
+            val collectionPath = if (isUnique as Boolean) "UniqueCollection" else "NonUniqueCollection"
 
-            // 使用 Firestore 查询获取被选中用户的 documentID
-            val documentReference = FirebaseFirestore.getInstance().document("users/$userId")
-
-            documentReference.get()
-                .addOnSuccessListener { documentSnapshot ->
-
-                    if (documentSnapshot.exists()) {
-                        val user = documentSnapshot.toObject(User::class.java)
-
-                        Log.d("tag","abc")
-                        // 启动 ChatActivity 并传递被选中用户的信息
-                        val intent = Intent(context, ChatActivity::class.java)
-                        intent.putExtra("userId", partnershipID)
-                        if (user != null) {
-                            intent.putExtra("userName",user.firstName )
-                        }
-                        if (user != null) {
-                            intent.putExtra("userImagePath", user.imagePath)
-                        }
-                        startActivity(intent)
-
+            firestore.collection(collectionPath)
+                .get()
+                .addOnSuccessListener { documents ->
+                    val questions = documents.mapNotNull { it.getString("question") }
+                    val randomQuestion = if (questions.isNotEmpty()) {
+                        questions[Random.nextInt(questions.size)]
+                    } else {
+                        "No questions available"
                     }
-                }
-                .addOnFailureListener { exception ->
-                    // 处理查询失败的情况
-                    Log.e("FirestoreQuery", "Error getting documents: $exception")
-                }
 
+                    // Fetch the selected user's document ID and start ChatActivity with the random question
+                    val documentReference = firestore.document("users/$userId")
+                    documentReference.get()
+                        .addOnSuccessListener { documentSnapshot ->
+                            if (documentSnapshot.exists()) {
+                                val user = documentSnapshot.toObject(User::class.java)
+                                val intent = Intent(context, ChatActivity::class.java).apply {
+                                    putExtra("userId", partnershipID)
+                                    putExtra("userName", user?.firstName)
+                                    putExtra("userImagePath", user?.imagePath)
+                                    putExtra("randomQuestion", randomQuestion) // Pass the random question to ChatActivity
+                                }
+                                startActivity(intent)
+                            }
+                        }
+                        .addOnFailureListener { exception ->
+                            Log.e("FirestoreQuery", "Error getting documents: $exception")
+                            Toast.makeText(context, "Failed to start chat: ${exception.message}", Toast.LENGTH_SHORT).show()
+                        }
+                }
+                .addOnFailureListener { e ->
+                    Toast.makeText(context, "Failed to fetch questions: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
+                }
         }
 
 
-
-
     }
+
+
+    private fun fetchQuestions(isUnique: Boolean) {
+        val collectionPath = if (isUnique) "UniqueCollection" else "NonUniqueCollection"
+        FirebaseFirestore.getInstance().collection(collectionPath)
+            .get()
+            .addOnSuccessListener { documents ->
+                val newQuestions = documents.mapNotNull { it.getString("question") }
+                questionAdapter.updateQuestions(newQuestions)
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(requireContext(), "Error fetching questions: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+
+
+
+    private fun setupRecyclerView() {
+        questionAdapter = QuestionAdapter(emptyList())
+        binding.recyQuestion.adapter = questionAdapter
+        binding.recyQuestion.layoutManager = LinearLayoutManager(requireContext())
+    }
+
 
 
     private fun downloadDocument(documentUrl: String) {

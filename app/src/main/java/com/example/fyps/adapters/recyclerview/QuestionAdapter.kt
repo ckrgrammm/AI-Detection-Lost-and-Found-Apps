@@ -4,49 +4,19 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.example.fyps.R
+import com.google.firebase.firestore.FirebaseFirestore
 
-class QuestionAdapter(
-    private var questions: List<String>,
-    private var questionIdMap: Map<String, String>,
-    private val itemClickListener: QuestionItemClickListener
-) : RecyclerView.Adapter<QuestionAdapter.QuestionViewHolder>() {
+class QuestionAdapter(private var questions: List<String>) : RecyclerView.Adapter<QuestionAdapter.QuestionViewHolder>() {
 
-    inner class QuestionViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    class QuestionViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val questionText: TextView = itemView.findViewById(R.id.question)
-
-        init {
-            itemView.setOnClickListener {
-                val position = adapterPosition
-                if (position != RecyclerView.NO_POSITION) {
-                    val question = questions[position]
-                    val questionId = questionIdMap[question] ?: ""
-                    itemClickListener.onQuestionClick(question, questionId)
-                }
-            }
-
-            itemView.setOnLongClickListener {  // Add this block for long-click
-                val position = adapterPosition
-                if (position != RecyclerView.NO_POSITION) {
-                    val question = questions[position]
-                    val questionId = questionIdMap[question] ?: ""
-                    itemClickListener.onQuestionLongClick(question, questionId)
-                    true  // Indicating that the long-click event is handled
-                } else {
-                    false
-                }
-            }
-        }
 
         fun bind(question: String) {
             questionText.text = question
         }
-    }
-
-    interface QuestionItemClickListener {
-        fun onQuestionClick(question: String, questionId: String)
-        fun onQuestionLongClick(question: String, questionId: String)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): QuestionViewHolder {
@@ -58,15 +28,13 @@ class QuestionAdapter(
         holder.bind(questions[position])
     }
 
-    override fun getItemCount() = questions.size
+    override fun getItemCount() = minOf(questions.size, 2) // Display a maximum of 2 items
 
     fun updateQuestions(newQuestions: List<String>) {
         questions = newQuestions
         notifyDataSetChanged()
     }
 
-    fun updateIdMap(newMap: Map<String, String>) {
-        this.questionIdMap = newMap
-        notifyDataSetChanged()
-    }
+
+
 }

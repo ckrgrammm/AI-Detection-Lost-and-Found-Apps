@@ -121,7 +121,7 @@ class AdminFormViewModel(private val firebaseDatabase: FirebaseDb) : ViewModel()
         } else {
             // Base URL for physical device
             // Replace with the actual IP of your development machine
-            "http://192.168.0.126:3000"
+            "http://192.168.0.133:3000"
         }
     }
 
