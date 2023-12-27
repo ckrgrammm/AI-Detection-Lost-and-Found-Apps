@@ -24,6 +24,7 @@ import com.example.fyps.util.Constants.Companion.UPDATE_ADDRESS_FLAG
 import com.example.fyps.viewmodel.shopping.ShoppingViewModel
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.auth.FirebaseAuth
+//import com.google.firebase.firestore.BuildConfig
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -108,11 +109,7 @@ class ProfileFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-
-
         materialAdapter = MaterialAdapter()
-
-
 
         onHomeClick()
         onLogoutClick()
@@ -124,56 +121,66 @@ class ProfileFragment : Fragment() {
         onAdminClick()
         onHelpClick()
         onItemSettingClick()
-
         observeProfile()
+        checkPartnershipAndDisplaySettings()
+        onPassedQuizzesClick()
+        onRewardClick()
+
         binding.tvVersionCode.text =
             "${resources.getText(R.string.g_version)} ${BuildConfig.VERSION_NAME}"
 
-
-//        checkPartnershipAndDisplaySettings()
-
-
-        onPassedQuizzesClick()
-        onRewardClick()
     }
 
 
-//    private fun checkPartnershipAndDisplaySettings() {
-//        val currentUserID = FirebaseAuth.getInstance().currentUser?.uid
-//        val db = FirebaseFirestore.getInstance()
-//
-//        if (currentUserID != null) {
-//            Log.d(TAG, "Checking for Materials with partnershipsID: $currentUserID")
-//            db.collection("Materials")
-//                .whereEqualTo("partnershipsID", currentUserID)
-//                .limit(1)
-//                .get()
-//                .addOnSuccessListener { documents ->
-//                    if (!documents.isEmpty) {
-//                        Log.d(TAG, "Document with partnershipsID found")
-//                        binding.linearItemSetting.visibility = View.VISIBLE
-//                        binding.itemSetting.visibility = View.VISIBLE
-//
-//                    } else {
-//                        Log.d(TAG, "No document with partnershipsID found")
-//                        binding.linearItemSetting.visibility = View.GONE
-//                        binding.itemSetting.visibility = View.GONE
-//
-//                    }
-//                }
-//                .addOnFailureListener { e ->
-//                    Log.e(TAG, "Error checking for partnership ID: ", e)
-//                    binding.linearItemSetting.visibility = View.GONE
-//                    binding.itemSetting.visibility = View.GONE
-//
-//                }
-//        } else {
-//            Log.d(TAG, "No user ID found")
-//            binding.linearItemSetting.visibility = View.GONE
-//            binding.itemSetting.visibility = View.GONE
-//
-//        }
-//    }
+
+
+    private fun checkPartnershipAndDisplaySettings() {
+        val currentUserID = FirebaseAuth.getInstance().currentUser?.uid
+        val db = FirebaseFirestore.getInstance()
+
+        currentUserID?.let { userID ->
+            Log.d(TAG, "Checking for Materials with partnershipsID: $userID")
+            db.collection("Materials")
+                .whereEqualTo("partnershipsID", userID)
+                .limit(1)
+                .get()
+                .addOnSuccessListener { documents ->
+                    if (!documents.isEmpty) {
+                        Log.d(TAG, "Document with partnershipsID found")
+                        db.collection("users").document(userID)
+                            .get()
+                            .addOnSuccessListener { userDocument ->
+                                val status = userDocument.getString("status")
+                                if (Status.valueOf(status ?: "USERS") == Status.ADMINS) {
+                                    Log.d(TAG, "User is an Admin")
+                                    setupAdminUI()
+                                } else {
+                                    Log.d(TAG, "User is not an Admin")
+                                    binding.linearDashboard.visibility = View.GONE
+                                    binding.linearItemSetting.visibility = View.VISIBLE
+                                    binding.itemSetting.visibility = View.VISIBLE
+                                }
+                            }
+                            .addOnFailureListener { e ->
+                                Log.e(TAG, "Error fetching user data: ", e)
+                            }
+                    } else {
+                        Log.d(TAG, "No document with partnershipsID found")
+                        binding.linearItemSetting.visibility = View.GONE
+                        binding.itemSetting.visibility = View.GONE
+                    }
+                }
+                .addOnFailureListener { e ->
+                    Log.e(TAG, "Error checking for partnership ID: ", e)
+                    binding.linearItemSetting.visibility = View.GONE
+                    binding.itemSetting.visibility = View.GONE
+                }
+        } ?: run {
+            Log.d(TAG, "No user ID found")
+            binding.linearItemSetting.visibility = View.GONE
+            binding.itemSetting.visibility = View.GONE
+        }
+    }
 
 
 
