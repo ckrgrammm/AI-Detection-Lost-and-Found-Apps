@@ -98,7 +98,6 @@ class CommentViewModel(private val userViewModel: UserViewModel) : ViewModel() {
             Log.e(TAG, "Error: Invalid commentId")
             return
         }
-
         db.collection("Comments").document(commentId)
             .get()
             .addOnSuccessListener { documentSnapshot ->

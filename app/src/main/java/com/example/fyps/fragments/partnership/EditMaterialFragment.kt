@@ -82,9 +82,8 @@ class EditMaterialFragment : Fragment() {
                         binding.spinnerItemCategory.setText(it.category, false)
                         binding.editTextDateTime.setText(it.dateTime)
                         binding.editTextItemVenue.setText(it.venue)
-                        currentImageUrl = it.imageUrl // Store current image URL
+                        currentImageUrl = it.imageUrl
 
-                        // Use Glide to load the image
                         if (isAdded) {
                             Glide.with(this@EditMaterialFragment)
                                 .load(it.imageUrl)
@@ -226,7 +225,7 @@ class EditMaterialFragment : Fragment() {
                 .delete()
                 .addOnSuccessListener {
                     Toast.makeText(context, "Material deleted successfully", Toast.LENGTH_SHORT).show()
-                    findNavController().navigateUp() // Navigate back after deletion
+                    findNavController().navigateUp()
                 }
                 .addOnFailureListener { e ->
                     Toast.makeText(context, "Error deleting material: ${e.message}", Toast.LENGTH_SHORT).show()

@@ -13,7 +13,7 @@ class AdminListViewModel : ViewModel() {
     fun fetchAdminUsers() {
         FirebaseFirestore.getInstance()
             .collection("users")
-            .whereEqualTo("status", "ADMINS") // Assuming 'status' is stored as a String
+            .whereEqualTo("status", "ADMINS")
             .get()
             .addOnSuccessListener { documents ->
                 val usersList = documents.mapNotNull { it.toObject(User::class.java) }

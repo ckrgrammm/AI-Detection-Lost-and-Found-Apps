@@ -139,14 +139,14 @@ class ProfileFragment : Fragment() {
         val db = FirebaseFirestore.getInstance()
 
         currentUserID?.let { userID ->
-            Log.d(TAG, "Checking for Materials with partnershipsID: $userID")
+            Log.d(TAG, "Checking for Item with reportersID: $userID")
             db.collection("Materials")
                 .whereEqualTo("partnershipsID", userID)
                 .limit(1)
                 .get()
                 .addOnSuccessListener { documents ->
                     if (!documents.isEmpty) {
-                        Log.d(TAG, "Document with partnershipsID found")
+                        Log.d(TAG, "Item with reportersID found")
                         db.collection("users").document(userID)
                             .get()
                             .addOnSuccessListener { userDocument ->
@@ -165,13 +165,13 @@ class ProfileFragment : Fragment() {
                                 Log.e(TAG, "Error fetching user data: ", e)
                             }
                     } else {
-                        Log.d(TAG, "No document with partnershipsID found")
+                        Log.d(TAG, "No item with reportersID found")
                         binding.linearItemSetting.visibility = View.GONE
                         binding.itemSetting.visibility = View.GONE
                     }
                 }
                 .addOnFailureListener { e ->
-                    Log.e(TAG, "Error checking for partnership ID: ", e)
+                    Log.e(TAG, "Error checking for reporters ID: ", e)
                     binding.linearItemSetting.visibility = View.GONE
                     binding.itemSetting.visibility = View.GONE
                 }
@@ -255,7 +255,6 @@ class ProfileFragment : Fragment() {
                     showLoading()
                     return@observe
                 }
-
                 is Resource.Success -> {
                     hideLoading()
                     val user = response.data
@@ -267,7 +266,6 @@ class ProfileFragment : Fragment() {
                     }
                     return@observe
                 }
-
                 is Resource.Error -> {
                     hideLoading()
                     Toast.makeText(

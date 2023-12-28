@@ -35,15 +35,12 @@ class ItemSettingFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Retrieve the actionType from the fragment's arguments
         val actionType = requireArguments().getString("actionType", "editItem")
-
-        // Set labelText based on actionType
         val labelText = view.findViewById<TextView>(R.id.labelText)
         labelText.text = if (actionType == "editItem") {
-            getString(R.string.all_reported_item) // Replace with your string resource for "All Reported Item"
+            getString(R.string.all_reported_item)
         } else {
-            getString(R.string.select_claimed_item) // Replace with your string resource for "Select Claimed Item"
+            getString(R.string.select_claimed_item)
         }
 
         recyclerView = view.findViewById(R.id.rvItemSettings)
@@ -77,19 +74,16 @@ class ItemSettingFragment : Fragment() {
                     adapter.updateItems(materialItems)
                 }
                 .addOnFailureListener { e ->
-                    // Log or handle the error
+
                 }
         }
     }
 
     private fun showClaimedUsersDialog(material: Material) {
-
         if (material.hasBeenClaimed) {
             Toast.makeText(context, "This item has already been claimed.", Toast.LENGTH_SHORT).show()
             return
         }
-
-
         FirebaseFirestore.getInstance().collection("enrollments")
             .whereEqualTo("materialId", material.id)
             .get()
@@ -98,39 +92,32 @@ class ItemSettingFragment : Fragment() {
                     Toast.makeText(context, "No users have claimed this item.", Toast.LENGTH_SHORT).show()
                     return@addOnSuccessListener
                 }
-
                 val userIds = documents.mapNotNull { it.getString("userId") }
                 fetchUserDetailsAndShowDialog(material, userIds)
             }
             .addOnFailureListener {
-                // Handle any errors here
             }
     }
 
     private fun fetchUserDetailsAndShowDialog(material: Material, userIds: List<String>) {
         val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_user_details, null)
         val usersLayout = dialogView.findViewById<LinearLayout>(R.id.layoutClaimedUser)
-        usersLayout.orientation = LinearLayout.VERTICAL // Ensure the layout is vertical
-        usersLayout.removeAllViews() // Clear any existing views to prevent duplicates
+        usersLayout.orientation = LinearLayout.VERTICAL
+        usersLayout.removeAllViews()
 
-        // Add the title view
         val titleView = TextView(context).apply {
             text = "Select The Owner"
-            // Style your title view here
-            // For example:
             setTextSize(TypedValue.COMPLEX_UNIT_SP, 18f)
             setTypeface(typeface, Typeface.BOLD)
-            setPadding(20, 40, 20, 40) // Adjust the padding as needed
+            setPadding(20, 40, 20, 40)
         }
         usersLayout.addView(titleView)
 
-        // Create and show the alert dialog
         val alertDialog = AlertDialog.Builder(requireContext())
             .setView(dialogView)
             .setNegativeButton("Cancel", null)
             .create()
 
-        // Populate the users list
         userIds.forEach { userId ->
             FirebaseFirestore.getInstance().collection("users").document(userId)
                 .get()
@@ -148,7 +135,7 @@ class ItemSettingFragment : Fragment() {
                         if (profileImageUrl.isNotBlank()) {
                             Glide.with(this)
                                 .load(profileImageUrl)
-                                .error(R.drawable.ic_default_profile_picture) // Default image in case of an error
+                                .error(R.drawable.ic_default_profile_picture)
                                 .into(imageView)
                         } else {
                             imageView.setImageResource(R.drawable.ic_default_profile_picture)
@@ -156,23 +143,20 @@ class ItemSettingFragment : Fragment() {
 
                         userView.setOnClickListener {
                             updateMaterialStatus(material, userId)
-                            alertDialog.dismiss() // Dismiss the dialog when a user is selected
+                            alertDialog.dismiss()
                         }
-
                         usersLayout.addView(userView)
                     }
                 }
                 .addOnFailureListener {
-                    // Handle any errors here
                 }
         }
-
         alertDialog.show()
     }
 
 
     private fun updateMaterialStatus(material: Material, userId: String) {
-        if (material.hasBeenClaimed) return // Prevent further updates if already claimed
+        if (material.hasBeenClaimed) return
 
         val materialRef = FirebaseFirestore.getInstance().collection("Materials").document(material.id)
         materialRef
@@ -188,9 +172,6 @@ class ItemSettingFragment : Fragment() {
             .addOnFailureListener { e ->
                 Toast.makeText(context, "Failed to update item status: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
             }
-
-
-        // Update the adapter to reflect the change
         adapter.notifyDataSetChanged()
     }
 

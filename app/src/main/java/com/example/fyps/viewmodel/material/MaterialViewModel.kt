@@ -86,12 +86,9 @@ class MaterialViewModel : ViewModel() {
                     val imageUrl = document.getString("imageUrl") ?: ""
                     val status = document.getString("status") ?: ""
 
-                    // Create a MaterialData object
                     val materialData = MaterialData(id, materialName, description, category, rating, imageUrl, status)
                     tempList.add(materialData)
                 }
-
-                // Update the LiveData with the list of materials
                 _materialList.postValue(tempList)
             }
     }
@@ -99,8 +96,6 @@ class MaterialViewModel : ViewModel() {
 
     fun updateMaterial(material: Material, imageUri: Uri?) {
         val materialRef = db.collection("Materials").document(material.id)
-
-        // First, check if there is a new image to upload
         if (imageUri != null) {
             val imageRef = storageRef.child("images/${material.id}")
             val uploadTask = imageRef.putFile(imageUri)
@@ -111,48 +106,36 @@ class MaterialViewModel : ViewModel() {
                         throw it
                     }
                 }
-                // After a successful upload, get the download URL
                 imageRef.downloadUrl
             }.addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     val imageUrl = task.result.toString()
-                    material.imageUrl = imageUrl // Update the image URL in the material object
-
-                    // Create a map with only the fields you want to update
-                    val updatedFields = material.toMap() // Make sure toMap() correctly maps all the fields
-
-                    // Then, update the Firestore document
+                    material.imageUrl = imageUrl
+                    val updatedFields = material.toMap()
                     materialRef.update(updatedFields)
                         .addOnSuccessListener {
                             Log.d(TAG, "Material updated successfully in Firestore")
-                            // Handle success (e.g., inform the UI)
                         }
                         .addOnFailureListener { e ->
                             Log.e(TAG, "Error updating material in Firestore: $e")
-                            // Handle failure (e.g., inform the UI)
                         }
                 } else {
                     Log.e(TAG, "Image upload failed", task.exception)
-                    // Handle the image upload failure (e.g., inform the UI)
                 }
             }
         } else {
-            // If no new image, just update the material info
-            val updatedFields = material.toMap() // Make sure toMap() correctly maps all the fields
+            val updatedFields = material.toMap()
 
             materialRef.update(updatedFields)
                 .addOnSuccessListener {
                     Log.d(TAG, "Material updated successfully in Firestore")
-                    // Handle success (e.g., inform the UI)
                 }
                 .addOnFailureListener { e ->
                     Log.e(TAG, "Error updating material in Firestore: $e")
-                    // Handle failure (e.g., inform the UI)
                 }
         }
     }
 
-    // Extension function to convert Material object to Map for Firestore update
     fun Material.toMap(): Map<String, Any> {
         return mapOf(
             "name" to this.name,
@@ -160,8 +143,7 @@ class MaterialViewModel : ViewModel() {
             "category" to this.category,
             "venue" to this.venue,
             "dateTime" to this.dateTime,
-            "imageUrl" to this.imageUrl // Make sure imageUrl is included
-            // Add other fields as needed
+            "imageUrl" to this.imageUrl
         )
     }
 

@@ -92,49 +92,38 @@ class AddMaterialFragment : Fragment() {
     }
 
     private fun handleSubmit() {
-        // Get the text from the input fields and trim any leading or trailing whitespace
         val name = binding.editTextItemName.text.toString().trim()
         val description = binding.editTextItemDescription.text.toString().trim()
         val category = binding.spinnerItemCategory.text.toString().trim()
-        val venue = binding.editTextItemVenue.text.toString().trim() // Assume you have a venue field in your form
-        val dateTime = binding.editTextDateTime.text.toString().trim() // Assume you have a dateTime picker
+        val venue = binding.editTextItemVenue.text.toString().trim()
+        val dateTime = binding.editTextDateTime.text.toString().trim()
 
-        // Check if the required fields are filled
         if (name.isEmpty() || description.isEmpty() || category.isEmpty()) {
             Toast.makeText(requireContext(), "Please fill all required fields", Toast.LENGTH_SHORT).show()
             return
         }
 
-        // Check if dateTime is empty and set it to current date and time if necessary
         val finalDateTime = if (dateTime.isEmpty()) {
             getCurrentDateTime()
         } else {
             dateTime
         }
 
-
-
         val isUnique = category == "Electronics"
         val subCollectionName = if (isUnique) "UniqueCollection" else "NonUniqueCollection"
 
-        // Create a new Material object with the values from the input fields
         val material = Material(
             name = name,
             desc = description,
             category = category,
-            isUnique = isUnique, // Set isUnique true if category is Electronics
+            isUnique = isUnique,
             status = "Status : Lost",
             partnershipsID = getUserDocumentId(),
             venue = venue,
             dateTime = finalDateTime
         )
-
-
-        // Call the ViewModel to add the new Material
         viewModel.addMaterial(material, selectedImageUri,null,subCollectionName)
-        // Notify the user and navigate back
         showCustomDialog()
-
     }
 
 
@@ -149,7 +138,7 @@ class AddMaterialFragment : Fragment() {
                 selectedDate.set(Calendar.MINUTE, minute)
                 if (selectedDate.timeInMillis > currentDate.timeInMillis) {
                     Toast.makeText(requireContext(), "Future dates are not allowed", Toast.LENGTH_SHORT).show()
-                    binding.editTextDateTime.setText(getCurrentDateTime()) // Use without parameters
+                    binding.editTextDateTime.setText(getCurrentDateTime())
                 } else {
                     val dateFormat = SimpleDateFormat("dd-MM-yyyy HH:mm", Locale.getDefault())
                     binding.editTextDateTime.setText(dateFormat.format(selectedDate.time))
@@ -158,9 +147,7 @@ class AddMaterialFragment : Fragment() {
             timePickerDialog.show()
         }, currentDate.get(Calendar.YEAR), currentDate.get(Calendar.MONTH), currentDate.get(Calendar.DAY_OF_MONTH))
 
-        // Prevent selecting future dates
         datePickerDialog.datePicker.maxDate = currentDate.timeInMillis
-
         datePickerDialog.show()
     }
 

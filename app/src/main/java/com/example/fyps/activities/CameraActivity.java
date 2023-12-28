@@ -94,8 +94,6 @@ public class CameraActivity extends Activity implements CameraBridgeViewBase.CvC
         }
 
         setContentView(R.layout.activity_camera);
-
-        // Initialize the capture button after setting the content view
         Button captureButton = findViewById(R.id.btn_capture);
         captureButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -103,11 +101,9 @@ public class CameraActivity extends Activity implements CameraBridgeViewBase.CvC
                 inCaptureMode = true; // Switch to capture mode
             }
         });
-
         mOpenCvCameraView = (CameraBridgeViewBase) findViewById(R.id.frame_Surface);
         mOpenCvCameraView.setVisibility(SurfaceView.VISIBLE);
         mOpenCvCameraView.setCvCameraViewListener(this);
-
         try {
             objectDetectorClass = new objectDetectorClass(getAssets(), "ssd_mobilenet.tflite", "labelmap.txt", 300);
             Log.d("MainActivity", "Model is successfully loaded");
@@ -121,12 +117,10 @@ public class CameraActivity extends Activity implements CameraBridgeViewBase.CvC
     protected void onResume() {
         super.onResume();
         if (OpenCVLoader.initDebug()){
-            //if load success
             Log.d(TAG,"Opencv initialization is done");
             mLoaderCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
         }
         else{
-            //if not loaded
             Log.d(TAG,"Opencv is not loaded. try again");
             OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_3_4_0,this,mLoaderCallback);
         }
@@ -173,12 +167,12 @@ public class CameraActivity extends Activity implements CameraBridgeViewBase.CvC
             String detectedObjectName = objectDetectorClass.getDetectedObjectName();
             if (detectedObjectName != null && !detectedObjectName.isEmpty() && !isDialogShown) {
                 isDialogShown = true;
-                inCaptureMode = false; // Reset capture mode
+                inCaptureMode = false;
                 runOnUiThread(() -> onObjectDetected(detectedObjectName, mRgba));
             }
             return out;
         } else {
-            return mRgba; // Return the unprocessed frame in preview mode
+            return mRgba;
         }
 
 
@@ -189,55 +183,39 @@ public class CameraActivity extends Activity implements CameraBridgeViewBase.CvC
                 ? detectedObjectName.substring(0, 1).toUpperCase() + detectedObjectName.substring(1)
                 : detectedObjectName;
 
-        // Inflate the custom dialog layout
         LayoutInflater inflater = getLayoutInflater();
         View dialogView = inflater.inflate(R.layout.custom_dialog, null);
-
-
-        // Find the ImageView and set the icon (if needed)
         ImageView iconImageView = dialogView.findViewById(R.id.imageView);
-        iconImageView.setImageResource(R.drawable.icon_warning); // Make sure this drawable exists
-
-
-        // Access the dialog elements to set properties or add listeners
+        iconImageView.setImageResource(R.drawable.icon_warning);
         TextView titleTextView = dialogView.findViewById(R.id.textView);
         titleTextView.setText("Object Detected");
         TextView messageTextView = dialogView.findViewById(R.id.textView2);
         messageTextView.setText("Detected object: " + finalDetectedObjectName + ". Use this object?");
-
-        // Set up buttons
         AppCompatButton cancelButton = dialogView.findViewById(R.id.btn_cancel);
         AppCompatButton okayButton = dialogView.findViewById(R.id.btn_okay);
-
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setView(dialogView);
-
         AlertDialog dialog = builder.create();
 
-        // Set up button listeners with delay
         cancelButton.setOnClickListener(v -> {
             new Handler().postDelayed(() -> {
                 dialog.dismiss();
-                isDialogShown = false; // Reset the flag to allow new detections
-                // User cancelled, continue with your logic after delay
-            }, 500); // Delay in milliseconds
+                isDialogShown = false;
+            }, 500);
         });
 
         okayButton.setOnClickListener(v -> {
             new Handler().postDelayed(() -> {
                 Bitmap capturedBitmap = convertMatToBitmap(capturedFrame);
 
-                // Save the bitmap to a temporary file
                 String filename = "temp_image";
                 try {
                     FileOutputStream stream = this.openFileOutput(filename, Context.MODE_PRIVATE);
                     capturedBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
 
-                    // Cleanup
                     stream.close();
                     capturedBitmap.recycle();
 
-                    // Put file name and detected object name in intent
                     Intent resultIntent = new Intent();
                     resultIntent.putExtra("DetectedObjectName", finalDetectedObjectName);
                     resultIntent.putExtra("CapturedImageFilename", filename);
@@ -246,11 +224,9 @@ public class CameraActivity extends Activity implements CameraBridgeViewBase.CvC
                     e.printStackTrace();
                 }
                 dialog.dismiss();
-                finish(); // Close CameraActivity
-            }, 500); // Delay in milliseconds
-
+                finish();
+            }, 500);
         });
-
         dialog.show();
     }
 
@@ -260,12 +236,10 @@ public class CameraActivity extends Activity implements CameraBridgeViewBase.CvC
         Bitmap bmp = null;
         Mat tmp = new Mat(mat.height(), mat.width(), CvType.CV_8U, new Scalar(4));
         try {
-            // Convert the Mat to Bitmap
             Imgproc.cvtColor(mat, tmp, Imgproc.COLOR_RGB2BGRA);
             bmp = Bitmap.createBitmap(tmp.cols(), tmp.rows(), Bitmap.Config.ARGB_8888);
             Utils.matToBitmap(tmp, bmp);
 
-            // Rotate the Bitmap to the correct orientation
             Matrix matrix = new Matrix();
             matrix.postRotate(90); // Rotate 90 degrees
             bmp = Bitmap.createBitmap(bmp, 0, 0, bmp.getWidth(), bmp.getHeight(), matrix, true);

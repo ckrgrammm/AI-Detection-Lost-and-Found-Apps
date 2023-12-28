@@ -26,7 +26,7 @@ class AdminFormViewModel(private val firebaseDatabase: FirebaseDb) : ViewModel()
     val adminCreationStatus: LiveData<Resource<String>> = _adminCreationStatus
 
 
-    // Retrofit setup
+
     private val retrofit = Retrofit.Builder()
         .baseUrl(getBaseUrl())
         .addConverterFactory(GsonConverterFactory.create())
@@ -38,10 +38,8 @@ class AdminFormViewModel(private val firebaseDatabase: FirebaseDb) : ViewModel()
     fun createAdminAccount(firstName: String, lastName: String, email: String, imagePath: String) {
         _adminCreationStatus.postValue(Resource.Loading())
 
-        // Construct the admin user
         val adminUser = com.example.fyps.model.User(firstName, lastName, email, imagePath, Status.ADMINS)
 
-        // Retrofit call to create admin
         adminApiService.createAdmin(adminUser).enqueue(object : retrofit2.Callback<ResponseBody> {
             override fun onResponse(call: retrofit2.Call<ResponseBody>, response: retrofit2.Response<ResponseBody>) {
                 if (response.isSuccessful) {
@@ -62,7 +60,6 @@ class AdminFormViewModel(private val firebaseDatabase: FirebaseDb) : ViewModel()
         FirebaseAuth.getInstance().sendPasswordResetEmail(email)
             .addOnCompleteListener { task ->
                 if (!task.isSuccessful) {
-                    // Handle failure in sending password reset email
                     Log.e("AdminFormViewModel", "Failed to send password reset email: ${task.exception?.message}")
                 }
             }
@@ -116,11 +113,8 @@ class AdminFormViewModel(private val firebaseDatabase: FirebaseDb) : ViewModel()
 
     private fun getBaseUrl(): String? {
         return if (isEmulator()) {
-            // Base URL for AVD
             "http://10.0.2.2:3000"
         } else {
-            // Base URL for physical device
-            // Replace with the actual IP of your development machine
             "http://192.168.0.133:3000"
         }
     }
